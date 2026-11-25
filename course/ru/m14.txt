@@ -14,6 +14,7 @@ visual: concept-m14
 А у каждого экземпляра свои значения: позиция, и всё, что помечено `@export`.
 
 :: steps Монетка-шаблон
+lab: coin-instances
 visual: guide-m14-1-0
 - **Scene → New Scene**, корень **Area2D**, назови `Coin`.
 - Добавь **Sprite2D** с `icon.svg`. В Инспекторе поставь **Scale** = `0.3, 0.3` — пусть будет маленькой.

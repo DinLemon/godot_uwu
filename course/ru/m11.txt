@@ -27,6 +27,7 @@ visual: concept-m11
 Они сделаны для меню, но для первых опытов подойдут. Для игры лучше завести свои: `move_left`, `move_right`, `jump`.
 
 :: steps Создаём свои действия
+lab: input-map
 visual: guide-m11-1-0
 - Открой **Project → Project Settings** (Проект → Настройки проекта).
 - Перейди на вкладку **Input Map** (Список действий).

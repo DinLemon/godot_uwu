@@ -196,6 +196,7 @@ extends Node2D
 !> Значение из Инспектора **побеждает** значение в коде. Поменял в коде `speed = 200` на 250, а в Инспекторе стоит 300 — будет 300.
 
 :: steps Попробуй
+lab: inspector-speed
 visual: guide-m09-3-0
 Открой проект и сцену `main.tscn`. У узла `Main` есть скрипт `main.gd`.
 - Открой `main.gd` и под `extends Node2D` допиши строку: `@export var speed = 200`.

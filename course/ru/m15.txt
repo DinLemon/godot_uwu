@@ -188,6 +188,7 @@ hint: `if not is_on_floor(): ... elif velocity.x != 0: ... else: ...`
 Работает через **ключевые кадры** (keyframes): «в 0 секунд позиция такая, в 1 секунду — такая». Промежуточные значения Godot посчитает сам.
 
 :: steps Мигающая монетка
+lab: blink-animation
 visual: guide-m15-3-0
 Открой `coin.tscn`.
 - Добавь в `Coin` узел **AnimationPlayer**. Внизу откроется панель **Animation**.

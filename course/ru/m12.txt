@@ -204,6 +204,7 @@ explain: Прыжок — одно нажатие (`just_pressed`) и тольк
 - Сделать пол
 
 :: steps Пол
+lab: solid-floor
 visual: guide-m12-4-0
 Создадим новую сцену-уровень.
 - **Scene → New Scene**. Корень — **Node2D**, переименуй в `Level`. Сохрани как `level.tscn`.

@@ -183,6 +183,7 @@ Level1             (сцена level_1.tscn)
 - Запустить игру
 
 :: steps Создаём сцену
+lab: first-scene
 visual: guide-m02-4-0
 Открой свой проект из модуля 1.
 - В панели **Scene** нажми **2D Scene**. Появится узел `Node2D`.
