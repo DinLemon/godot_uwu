@@ -180,7 +180,7 @@
     }
     function field(n,key,value) {
       const attrs=`data-prop="${key}" aria-label="${esc(propNames[key]||key)}"`;
-      const input=typeof value==='boolean'?`<input type="checkbox" ${attrs}${value?' checked':''}>`:choices[key]?`<select ${attrs}>${choices[key].map(v=>option(v,v||'Не задано',v===value)).join('')}</select>`:`<input ${attrs} type="${typeof value==='number'?'number':'text'}" value="${esc(value)}" ${typeof value==='number'?'step="any" min="-10000" max="10000"':''}>`;
+      const input=typeof value==='boolean'?`<input type="checkbox" ${attrs}${value?' checked':''}>`:choices[key]?`<select ${attrs}>${choices[key].map(v=>option(v,v||'Не задано',v===value)).join('')}</select>`:`<input ${attrs} type="${typeof value==='number'?'number':'text'}" value="${esc(value)}" ${typeof value==='number'?'step="any" min="-10000" max="10000" required':''}>`;
       return `<label class="lab-field"><span>${esc(propNames[key]||key)}</span>${input}</label>`;
     }
     function inspector() {
@@ -218,7 +218,7 @@
     function dialogHTML() {
       if(!dialog)return '';
       let body='';
-      if(dialog.type==='add')body=`<form data-form="node"><label>Search<input name="search" data-search aria-label="Поиск типа узла" placeholder="Например, Label" autocomplete="off"></label><label>Тип узла<select name="type" size="6" aria-label="Тип нового узла">${Object.keys(types).map(t=>option(t,t,false)).join('')}</select></label><p class="small">Родитель: ${esc(nodeBy(state,state.selected)?.name||'корень сцены')}</p><button class="lab-button">Create</button></form>`;
+      if(dialog.type==='add')body=`<form data-form="node"><label>Search<input name="search" data-search aria-label="Поиск типа узла" placeholder="Например, Label" autocomplete="off"></label><label>Тип узла<select name="type" size="6" required aria-label="Тип нового узла">${Object.keys(types).map((t,i)=>option(t,t,i===0)).join('')}</select></label><p class="small">Родитель: ${esc(nodeBy(state,state.selected)?.name||'корень сцены')}</p><button class="lab-button">Create</button></form>`;
       if(dialog.type==='bind')body=`<form data-form="bind"><p>Действие: <b>${esc(dialog.name)}</b></p><label>Клавиша<select name="key" aria-label="Клавиша действия">${keys.map(k=>option(k,k,false)).join('')}</select></label><button class="lab-button">OK</button></form>`;
       if(dialog.type==='script')body=`<form data-form="script"><label>Path<input name="path" value="main.gd" aria-label="Путь скрипта" required pattern="[A-Za-z0-9_/-]+[.]gd"></label><button class="lab-button">Create · Attach</button></form>`;
       if(dialog.type==='signal')body=`<form data-form="signal"><p>pressed → _on_button_pressed()</p><label>Узел-получатель со скриптом<select name="target" aria-label="Получатель сигнала">${state.nodes.filter(n=>n.script).map(n=>option(n.id,n.name,false)).join('')}</select></label><p class="small">Подготовленный обработчик меняет текст Label на «Работает!». В Godot его тело пишут в скрипте.</p><button class="lab-button">Connect</button></form>`;
@@ -235,7 +235,7 @@
       const a=b.dataset.action;
       if(['add','script','signal','bind'].includes(a)){dialog={type:a,name:b.dataset.name};paint();root.querySelector('.lab-dialog input,.lab-dialog select')?.focus();return;}
       if(a==='cancel'){dialog=null;paint();return;}
-      if(a==='check'){const result=evaluate(config,state);checked=true;if(result.ok){state.passed=true;storage.write?.(id,state);storage.attempt?.();message='Получилось. Сцена отвечает всем условиям. '+config.success;}else{message='Пока не хватает: '+result.results.filter(r=>!r.ok).map(r=>r.hint).join(' ');storage.attempt?.();}paint();return;}
+      if(a==='check'){const invalid=root.querySelector('input:invalid,select:invalid');if(invalid){invalid.reportValidity();return;}const result=evaluate(config,state);checked=true;if(result.ok){state.passed=true;storage.write?.(id,state);storage.attempt?.();message='Получилось. Сцена отвечает всем условиям. '+config.success;}else{message='Пока не хватает: '+result.results.filter(r=>!r.ok).map(r=>r.hint).join(' ');storage.attempt?.();}paint();return;}
       if(a==='hint'){message=config.hints[Math.min(hintIndex++,config.hints.length-1)];paint();return;}
       if(a==='reset'){state=initial(config);dialog=null;checked=false;hintIndex=0;message='Задание возвращено к началу. Остальной прогресс курса сохранён.';storage.write?.(id,state);paint();return;}
       dispatch({type:a,id:b.dataset.id,value:b.dataset.value,name:b.dataset.name,key:b.dataset.key,index:Number(b.dataset.index),direction:Number(b.dataset.direction)});
@@ -255,8 +255,12 @@
     root.addEventListener('input',event=>{
       const e=event.target;
       if(e.hasAttribute('data-search')) {
-        const select=root.querySelector('select[name="type"]');const available=Object.keys(types).filter(t=>t.toLowerCase().includes(e.value.toLowerCase()));select.innerHTML=available.map(t=>option(t,t,false)).join('');
+        const select=root.querySelector('select[name="type"]');const available=Object.keys(types).filter(t=>t.toLowerCase().includes(e.value.toLowerCase()));select.innerHTML=available.map((t,i)=>option(t,t,i===0)).join('');
       }
+      if(e.hasAttribute('data-name')){dispatch({type:'rename',value:e.value},false);const treeButton=root.querySelector(`button[data-action="select"][data-id="${state.selected}"]`);if(treeButton)treeButton.textContent=nodeBy(state,state.selected).name;}
+      else if(e.hasAttribute('data-code'))dispatch({type:'code',value:e.value},false);
+      else if(e.hasAttribute('data-prop')&&e.type!=='checkbox'&&e.tagName==='INPUT'&&(e.type!=='number'||e.value!==''&&e.validity.valid))dispatch({type:'set',key:e.dataset.prop,value:e.type==='number'?Number(e.value):e.value},false);
+      else if(e.hasAttribute('data-timeline')&&e.type==='number'&&e.value!==''&&e.validity.valid)dispatch({type:'timeline',key:e.dataset.timeline,value:Number(e.value)},false);
       if(e.hasAttribute('data-scrub')) {
         const t=state.timeline;const time=Number(e.value);const sorted=t.keys.slice().sort((a,b)=>a.time-b.time);const before=sorted.filter(k=>k.time<=time).at(-1)||sorted[0];const after=sorted.find(k=>k.time>=time)||sorted.at(-1);const image=root.querySelector('.lab-animation-sample img');
         if(before&&after){const value=before.time===after.time?before.value:before.value+(after.value-before.value)*(time-before.time)/(after.time-before.time);image.style.opacity=t.property==='alpha'?Math.max(0,Math.min(1,value)):1;image.style.transform=t.property==='x'?`translateX(${Math.max(-60,Math.min(60,value))}px)`:'none';}

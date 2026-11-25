@@ -27,6 +27,7 @@
     if (now) write(); else saveTimer = setTimeout(write, 250);
   }
   window.addEventListener("storage", (e) => { if (e.key === KEY) { S = load(); applySettings(); indexCourse(); route(); } });
+  window.addEventListener("pagehide", () => save(true));
 
   // ---------- Язык ----------
   let T = RK.STR.ru;
