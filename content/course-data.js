@@ -81,6 +81,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Из чего состоит игра в Godot",
+"visual": "concept-m00",
 "md": "Запомни три слова. Весь курс построен на них.\n\n- **Узел** (node) — маленький кирпичик с одной задачей. Например: «показать картинку» или «проиграть звук».\n- **Сцена** (scene) — несколько узлов, собранных вместе. Например: персонаж, монетка, уровень.\n- **Скрипт** (script) — код на GDScript. Он говорит узлу, как себя вести.\n\nПодробно разберём каждое слово в следующих модулях."
 },
 {
@@ -133,11 +134,13 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Какая версия нужна",
+"visual": "concept-m01",
 "md": "Курс написан для **Godot 4**. Бери последнюю стабильную (stable) версию из ветки 4.\n\n!> Не бери Godot 3. Многое в нём устроено по-другому, и примеры из курса там не заработают.\n\nЕсть две сборки:\n- **Godot Engine** — обычная. Её и бери.\n- **Godot Engine — .NET** — для языка C#. В этом курсе он не нужен."
 },
 {
 "t": "steps",
 "title": "Скачиваем",
+"visual": "guide-m01-1-0",
 "items": [
 "Открой сайт [godotengine.org/download](https://godotengine.org/download).",
 "Сайт сам определит твою систему (Windows, macOS, Linux). Нажми большую кнопку **Godot Engine** (не .NET).",
@@ -194,6 +197,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Создаём проект",
+"visual": "guide-m01-2-0",
 "items": [
 "Запусти Godot. Откроется Менеджер проектов.",
 "Нажми **Create** (Создать) или **+ Create** вверху слева.",
@@ -278,6 +282,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Осмотрись",
+"visual": "guide-m01-3-0",
 "items": [
 "Найди панель **Scene** слева вверху. Сейчас там кнопки «2D Scene», «3D Scene», «User Interface».",
 "Найди **FileSystem** слева внизу. Там уже есть файл `icon.svg` — логотип Godot.",
@@ -320,6 +325,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Один узел — одна задача",
+"visual": "concept-m02",
 "md": "**Узел** (node) — главный кирпичик Godot. У каждого узла одна понятная задача.\n\nПримеры:\n- `Sprite2D` — показывает картинку.\n- `Label` — показывает текст.\n- `AudioStreamPlayer` — проигрывает звук.\n- `Camera2D` — камера, которая смотрит на часть мира.\n- `Timer` — считает время и сообщает «время вышло».\n\nВ Godot больше сотни типов узлов. Учить их все не нужно. Хватит десятка, и мы их пройдём."
 },
 {
@@ -516,6 +522,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Создаём сцену",
+"visual": "guide-m02-4-0",
 "md": "Открой свой проект из модуля 1.",
 "items": [
 "В панели **Scene** нажми **2D Scene**. Появится узел `Node2D`.",
@@ -526,6 +533,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Добавляем надпись",
+"visual": "guide-m02-4-1",
 "items": [
 "Выбери узел `Main`. Нажми `Ctrl+A` (или **+** над деревом) — это **Add Child Node** (Добавить дочерний узел).",
 "В поиске набери `Label`. Выбери **Label** и нажми **Create**.",
@@ -536,6 +544,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Добавляем картинку",
+"visual": "guide-m02-4-2",
 "items": [
 "Выбери `Main` и снова добавь ребёнка: на этот раз **Sprite2D**.",
 "В панели **FileSystem** найди файл `icon.svg`.",
@@ -546,6 +555,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Запускаем",
+"visual": "guide-m02-4-3",
 "items": [
 "Нажми `F5`. Godot спросит про главную сцену — нажми **Select Current**.",
 "Откроется окно игры. Там надпись и логотип.",
@@ -600,11 +610,13 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Скрипт — инструкция для узла",
+"visual": "concept-m03",
 "md": "Узел сам по себе ничего не решает. `Sprite2D` просто показывает картинку и стоит на месте.\n\n**Скрипт** — это текст с командами на языке **GDScript**. Ты прикрепляешь его к узлу, и узел начинает его выполнять.\n\n**Аналогия:** узел — актёр, скрипт — его роль. Без роли актёр стоит молча.\n\nФайл скрипта заканчивается на `.gd`. Например: `player.gd`."
 },
 {
 "t": "steps",
 "title": "Прикрепляем скрипт",
+"visual": "guide-m03-1-0",
 "md": "Открой сцену `main.tscn` из прошлого модуля.",
 "items": [
 "В панели **Scene** выбери узел `Main`.",
@@ -836,6 +848,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Коробка с наклейкой",
+"visual": "concept-m04",
 "md": "**Переменная** — коробка с наклейкой. На наклейке имя. Внутри значение.\n\nИгре нужно много таких коробок: здоровье, очки, скорость, имя игрока.\n\nКоробку создают словом `var` (от variable — переменная):\n\n```gd\nvar health = 100\n```\nЧитается так: «создай переменную `health` и положи в неё 100»."
 },
 {
@@ -1265,6 +1278,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Если… то…",
+"visual": "concept-m05",
 "md": "Игра постоянно задаёт вопросы:\n- Здоровье кончилось? → показать «Game Over».\n- Собрал 10 монет? → открыть дверь.\n\nДля этого есть `if` («если»):\n\n```gd\nif health <= 0:\n\tprint(\"Game Over\")\n```\n\nЧитается: «если здоровье меньше или равно нулю, напечатай Game Over».\n\nСтроки **с отступом** под `if` — это **блок**. Они выполнятся, только если условие верно. Двоеточие `:` в конце строки обязательно."
 },
 {
@@ -1526,6 +1540,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Список в одной переменной",
+"visual": "concept-m06",
 "md": "**Массив** (Array) — переменная, в которой лежит **список** значений. Пишется в квадратных скобках через запятую:\n\n```gd\nvar inventory = [\"меч\", \"щит\", \"зелье\"]\nvar scores = [10, 25, 7]\n```\n\nУдобно: не нужно заводить `item1`, `item2`, `item3`. Всё в одном месте."
 },
 {
@@ -1820,6 +1835,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Функция — рецепт с именем",
+"visual": "concept-m07",
 "md": "**Функция** — кусок кода с именем. Написал один раз — вызываешь сколько угодно раз.\n\n**Аналогия:** рецепт. Записал «как сварить кашу» один раз. Потом просто говоришь «свари кашу».\n\nТы уже пользовался чужими функциями: `print()`, `str()`, `range()`. И уже писал свою: `_ready()`."
 },
 {
@@ -2101,6 +2117,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Ключ и значение",
+"visual": "concept-m08",
 "md": "В массиве элементы стоят по номерам. Но иногда номер ничего не говорит. Что такое `hero[2]`? Здоровье? Скорость?\n\n**Словарь** (Dictionary) хранит пары **ключ → значение**. Ключ — подпись, значение — то, что под ней лежит.\n\n```gd\nvar hero = {\n\t\"name\": \"Рыцарь\",\n\t\"hp\": 100,\n\t\"speed\": 150,\n}\n```\n\nПишется в фигурных скобках `{ }`. Ключ и значение разделяет двоеточие, пары — запятые.\n\n**Аналогия:** анкета. Слева графа «Имя», справа ответ «Рыцарь»."
 },
 {
@@ -2424,11 +2441,13 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Переменная в Инспекторе",
+"visual": "concept-m09",
 "md": "Если перед переменной написать `@export`, она появится в **Inspector** у узла. Её можно будет менять мышкой, не открывая код.\n\n```gd\nextends Node2D\n\n@export var speed = 200\n@export var max_health = 100\n@export var player_name = \"Герой\"\n```\n\nЗачем: у одного скрипта врага может быть много копий. Одному врагу ставишь скорость 100, другому 300 — в Инспекторе. Код один.\n\n!> Значение из Инспектора **побеждает** значение в коде. Поменял в коде `speed = 200` на 250, а в Инспекторе стоит 300 — будет 300."
 },
 {
 "t": "steps",
 "title": "Попробуй",
+"visual": "guide-m09-3-0",
 "md": "Открой проект и сцену `main.tscn`. У узла `Main` есть скрипт `main.gd`.",
 "items": [
 "Открой `main.gd` и под `extends Node2D` допиши строку: `@export var speed = 200`.",
@@ -2581,6 +2600,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Точка — два числа",
+"visual": "concept-m10",
 "md": "Любое место на экране — это два числа:\n- **x** — сколько пикселей вправо от начала;\n- **y** — сколько пикселей **вниз** от начала.\n\nНачало (0, 0) — левый верхний угол экрана.\n\n```tree\n(0,0) ────────── x растёт вправо ──▶\n  │\n  │       • (200, 100)\n  │\n  ▼\ny растёт ВНИЗ\n```\n\n!> В школе ось y смотрела вверх. В Godot (и почти во всех 2D-движках) она смотрит **вниз**. Чтобы подняться вверх, y надо **уменьшать**."
 },
 {
@@ -2792,6 +2812,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Движение в Godot",
+"visual": "guide-m10-4-0",
 "md": "Открой `main.tscn`. В ней есть `Sprite2D` с логотипом.",
 "items": [
 "Выбери `Sprite2D` и прикрепи к нему новый скрипт (**Attach Script**). Путь: `res://logo.gd`.",
@@ -2829,6 +2850,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Не клавиша, а действие",
+"visual": "concept-m11",
 "md": "Можно проверять конкретную клавишу: «нажата ли D?». Но так неудобно:\n- кто-то играет на стрелках, кто-то на WASD;\n- кто-то на геймпаде;\n- игрок захочет поменять клавиши.\n\nПоэтому в Godot проверяют **действия** (actions). Действие — это имя, например `jump` («прыжок»). К нему привязывают клавиши: пробел, W, кнопку A на геймпаде. В коде пишешь только `jump`.\n\n**Аналогия:** действие — это розетка, клавиши — вилки. Код подключён к розетке, а вилки можно менять."
 },
 {
@@ -2839,6 +2861,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Создаём свои действия",
+"visual": "guide-m11-1-0",
 "items": [
 "Открой **Project → Project Settings** (Проект → Настройки проекта).",
 "Перейди на вкладку **Input Map** (Список действий).",
@@ -3051,6 +3074,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Тела в Godot",
+"visual": "concept-m12",
 "md": "Чтобы предметы сталкивались, им нужно **тело** (body). В 2D есть четыре главных узла:\n\n- **StaticBody2D** — неподвижное: пол, стены, платформы. Само не двигается, но об него ударяются.\n- **CharacterBody2D** — персонаж. Двигается так, как скажет **твой код**. Упирается в стены.\n- **RigidBody2D** — предмет, которым управляет **физика**: ящик, мяч. Падает, катится, отскакивает сам.\n- **Area2D** — зона. Ни во что не упирается, но **замечает**, кто в неё вошёл: монетка, шипы, финиш."
 },
 {
@@ -3226,6 +3250,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Пол",
+"visual": "guide-m12-4-0",
 "md": "Создадим новую сцену-уровень.",
 "items": [
 "**Scene → New Scene**. Корень — **Node2D**, переименуй в `Level`. Сохрани как `level.tscn`.",
@@ -3238,6 +3263,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Персонаж",
+"visual": "guide-m12-4-1",
 "items": [
 "Нажми **Scene → New Scene**, выбери **Other Node** → **CharacterBody2D**. Назови `Player`.",
 "Добавь в него **Sprite2D** и перетащи `icon.svg` в **Texture**.",
@@ -3256,6 +3282,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Собираем",
+"visual": "guide-m12-4-2",
 "items": [
 "Открой `level.tscn`. Перетащи файл `player.tscn` из FileSystem в окно 2D, над полом.",
 "Нажми `F6`. Стрелки — бег, пробел или Enter — прыжок.",
@@ -3336,6 +3363,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Узел кричит «случилось!»",
+"visual": "concept-m13",
 "md": "**Сигнал** (signal) — сообщение, которое узел отправляет, когда что-то произошло:\n\n- кнопка `Button` отправляет `pressed` — «меня нажали»;\n- зона `Area2D` отправляет `body_entered` — «в меня кто-то вошёл»;\n- таймер `Timer` отправляет `timeout` — «время вышло».\n\nДругой узел может **подключиться** к сигналу и сказать: «когда это случится — вызови мою функцию».\n\n**Аналогия:** дверной звонок. Кнопка звонка не знает, кто в доме и что он будет делать. Она просто звенит. А хозяин слышит звонок и решает: открыть дверь."
 },
 {
@@ -3380,10 +3408,11 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Кнопка, которая отвечает",
+"visual": "guide-m13-2-0",
 "md": "Открой `main.tscn`. У корня `Main` есть скрипт.",
 "items": [
 "Добавь в `Main` ребёнка **Button**. В Инспекторе в **Text** напиши `Нажми меня`.",
-"Выбери `Button`. Справа рядом с вкладкой Inspector открой вкладку **Node** (Узел) → **Signals** (Сигналы).",
+"Выбери `Button`. Справа рядом с **Inspector** открой вкладку **Signals** (Сигналы). В некоторых версиях Godot 4 она находится внутри вкладки **Node** (Узел).",
 "Найди в списке `pressed()` и дважды кликни по нему.",
 "Откроется окно. Выбери узел `Main` (туда придёт сигнал). Имя функции Godot предложит сам: `_on_button_pressed`. Нажми **Connect**.",
 "В `main.gd` появилась новая функция с зелёной иконкой слева. Напиши в ней `print(\"Нажали!\")` вместо `pass`.",
@@ -3542,11 +3571,13 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Экземпляр",
+"visual": "concept-m14",
 "md": "Ты уже знаешь: сцену делают один раз, а используют много раз. Каждая копия называется **экземпляром** (instance). Создать копию — **инстанцировать**.\n\nУ всех экземпляров общий «чертёж». Поменяешь что-то в `coin.tscn` — изменятся все монетки на всех уровнях.\n\nА у каждого экземпляра свои значения: позиция, и всё, что помечено `@export`."
 },
 {
 "t": "steps",
 "title": "Монетка-шаблон",
+"visual": "guide-m14-1-0",
 "items": [
 "**Scene → New Scene**, корень **Area2D**, назови `Coin`.",
 "Добавь **Sprite2D** с `icon.svg`. В Инспекторе поставь **Scale** = `0.3, 0.3` — пусть будет маленькой.",
@@ -3789,6 +3820,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Мультик из картинок",
+"visual": "concept-m15",
 "md": "Самая простая анимация — как в мультике: несколько картинок сменяют друг друга. Бег персонажа — это 6–8 кадров, которые крутятся по кругу.\n\nДля этого есть узел **AnimatedSprite2D**. Он хранит набор анимаций в ресурсе **SpriteFrames**:\n\n- `idle` — стоит;\n- `run` — бежит;\n- `jump` — прыгает.\n\nУ каждой анимации свои кадры и скорость (кадров в секунду, FPS)."
 },
 {
@@ -3799,6 +3831,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Делаем анимацию",
+"visual": "guide-m15-1-0",
 "md": "Скачай набор кадров и перетащи папку с картинками в панель FileSystem.",
 "items": [
 "Открой `player.tscn`. Удали `Sprite2D` (выбери и `Delete`).",
@@ -3878,6 +3911,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Мигающая монетка",
+"visual": "guide-m15-3-0",
 "md": "Открой `coin.tscn`.",
 "items": [
 "Добавь в `Coin` узел **AnimationPlayer**. Внизу откроется панель **Animation**.",
@@ -3991,11 +4025,13 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Окно в большой мир",
+"visual": "concept-m16",
 "md": "Без камеры игра показывает только синюю рамку — кусок мира от (0, 0). Если уровень больше экрана, персонаж убежит за край.\n\n**Camera2D** — окно, через которое мы смотрим на мир. Где камера — то и видно.\n\nСамый простой способ: сделать камеру **ребёнком игрока**. Дети двигаются с родителем — камера поедет за игроком сама."
 },
 {
 "t": "steps",
 "title": "Камера за игроком",
+"visual": "guide-m16-1-0",
 "items": [
 "Открой `player.tscn`. Добавь в `Player` узел **Camera2D**.",
 "Открой `level.tscn` и нажми `F6`. Камера следует за персонажем.",
@@ -4051,6 +4087,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Создаём TileSet",
+"visual": "guide-m16-2-0",
 "md": "Скачай набор плиток (tileset), например на [kenney.nl](https://kenney.nl/assets) — «Pixel Platformer». Перетащи картинку в FileSystem.",
 "items": [
 "Открой `level.tscn`. Добавь в `Level` узел **TileMapLayer**. Назови `Ground`.",
@@ -4062,6 +4099,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Рисуем",
+"visual": "guide-m16-2-1",
 "items": [
 "Внизу открой панель **TileMap** (рядом с TileSet).",
 "Выбери плитку, включи кисть (**Paint**, клавиша `D`) и рисуй в окне 2D левой кнопкой мыши.",
@@ -4072,6 +4110,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Столкновения для плиток",
+"visual": "guide-m16-2-2",
 "md": "Плитки пока «призрачные» — персонаж падает сквозь них.",
 "items": [
 "Выбери TileMapLayer. В Инспекторе раскрой **Tile Set** → **Physics Layers** → **Add Element**.",
@@ -4171,6 +4210,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Зелёные узлы",
+"visual": "concept-m17",
 "md": "Узлы интерфейса (UI) — **зелёные**. Их общий предок — **Control**. Они не участвуют в физике, зато умеют то, что нужно меню:\n\n- растягиваться под размер окна;\n- выравниваться по краям и по центру;\n- реагировать на мышь и клавиатуру.\n\nГлавные:\n- **Label** — текст;\n- **Button** — кнопка;\n- **TextureRect** — картинка (иконка, фон);\n- **ProgressBar** / **TextureProgressBar** — полоска (здоровье, загрузка);\n- **Panel** — подложка;\n- **LineEdit** — поле для ввода текста."
 },
 {
@@ -4226,6 +4266,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Главное меню",
+"visual": "guide-m17-2-0",
 "items": [
 "**Scene → New Scene → User Interface**. Корень — `Control`, назови `MainMenu`. Сохрани `main_menu.tscn`.",
 "**Anchor preset → Full Rect** — меню на весь экран.",
@@ -4328,6 +4369,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Меню → игра",
+"visual": "guide-m17-4-0",
 "items": [
 "Прикрепи к `MainMenu` скрипт из первого примера урока.",
 "Проверь пути к кнопкам. Если дерево другое, перетащи кнопку в код с `Ctrl` — Godot напишет путь сам.",
@@ -4369,6 +4411,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Звук прыжка",
+"visual": "guide-m18-1-0",
 "md": "Скачай короткий звук прыжка и перетащи в FileSystem.",
 "items": [
 "Открой `player.tscn`. Добавь в `Player` узел **AudioStreamPlayer2D**, назови `JumpSound`.",
@@ -4425,6 +4468,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Узел Timer",
+"visual": "concept-m18",
 "md": "Ты уже встречал **Timer** в модулях 13–14. Его главные свойства:\n\n- `wait_time` — сколько секунд ждать;\n- `one_shot` — сработать один раз (`true`) или повторяться (`false`);\n- `autostart` — запуститься сам при старте сцены;\n- `time_left` — сколько осталось.\n\nФункции: `start()`, `stop()`, `is_stopped()`. Сигнал: `timeout`."
 },
 {
@@ -4534,6 +4578,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Создаём Game",
+"visual": "guide-m18-4-0",
 "items": [
 "**File → New Script** (в редакторе скриптов) или правый клик в FileSystem → **New → Script**. Тип `Node`, имя `game.gd`.",
 "Впиши в него код из следующего шага и сохрани.",
@@ -4600,6 +4645,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Чертёж и изделия",
+"visual": "concept-m19",
 "md": "**Класс** — чертёж. **Объект** (экземпляр) — изделие по этому чертежу.\n\nКаждый скрипт в Godot — это класс. Скрипт `enemy.gd` — чертёж врага. Каждый враг на уровне — отдельный объект: у каждого своё `hp` и своя позиция, а код один.\n\nТы уже создавал объекты: `Timer.new()`, `Node2D.new()` — это объекты встроенных классов."
 },
 {
@@ -4870,6 +4916,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Два адреса",
+"visual": "concept-m20",
 "md": "В Godot пути к файлам начинаются с одного из двух адресов:\n\n- `res://` — папка **проекта**. Там картинки, сцены, скрипты. В готовой игре эта папка **только для чтения**.\n- `user://` — личная папка игры на компьютере игрока. Туда **можно записывать**: сохранения, настройки, рекорды.\n\n!> Сохранять в `res://` нельзя: в готовой игре это не сработает.\n\nГде лежит `user://` на самом деле: **Project → Open User Data Folder** откроет её в проводнике."
 },
 {
@@ -5048,6 +5095,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Спокойный план",
+"visual": "concept-m21",
 "md": "Игра ведёт себя не так. Это нормально. Иди по шагам:\n\n1. **Прочитай ошибку.** Панель **Debugger → Errors** внизу. Там текст и номер строки. Двойной клик — переход к строке.\n2. **Опиши словами**, что ожидал и что видишь. «Ждал прыжка — персонаж стоит».\n3. **Проверь самое простое**: сохранён ли скрипт, прикреплён ли он к нужному узлу, подключён ли сигнал, правильное ли имя узла.\n4. **Добавь print** и посмотри, доходит ли код до нужного места и что лежит в переменных.\n5. **Меняй одну вещь за раз** и проверяй.\n\n> Помогает метод «резиновой уточки»: объясни код вслух строчка за строчкой — кому угодно, хоть игрушке. Ошибка часто находится на середине объяснения."
 },
 {
@@ -5105,6 +5153,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Точка останова",
+"visual": "guide-m21-2-0",
 "md": "Открой скрипт игрока.",
 "items": [
 "Кликни слева от номера строки с `move_and_slide()`. Появится красная точка — **breakpoint** (точка останова).",
@@ -5167,6 +5216,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Шаблоны экспорта",
+"visual": "guide-m21-3-0",
 "items": [
 "Открой **Project → Export…** (Проект → Экспорт).",
 "Если внизу красная надпись про отсутствие шаблонов, нажми **Manage Export Templates**.",
@@ -5176,6 +5226,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Сборка для Windows",
+"visual": "guide-m21-3-1",
 "items": [
 "В окне **Export** нажми **Add…** → **Windows Desktop**.",
 "В **Export Path** выбери папку **вне** проекта, например `Документы/my_game_build/my_game.exe`.",
@@ -5226,6 +5277,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Сборка для браузера",
+"visual": "guide-m21-4-0",
 "items": [
 "**Project → Export → Add… → Web**.",
 "**Export Path**: новая пустая папка, файл `index.html`. Например `Документы/my_game_web/index.html`.",
@@ -5237,6 +5289,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Публикация на itch.io",
+"visual": "guide-m21-4-1",
 "md": "[itch.io](https://itch.io) — бесплатная площадка для инди-игр.",
 "items": [
 "Зарегистрируйся и нажми **Upload new project**.",
@@ -5292,6 +5345,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Добавляется глубина",
+"visual": "concept-m22",
 "md": "В 3D у точки три координаты:\n- **x** — вправо;\n- **y** — **вверх** (в 3D y смотрит вверх, не вниз!);\n- **z** — к зрителю (от экрана к тебе). Вперёд, «вглубь» — это **минус** z.\n\nТип для этого — **Vector3**: `Vector3(1, 2, 3)`.\n\nХорошая новость: почти всё, что ты знаешь, работает так же. Узлы, сцены, скрипты, сигналы, `_process`, `delta`, ввод — всё то же. У узлов просто другие имена: `Node3D` вместо `Node2D`, `CharacterBody3D` вместо `CharacterBody2D`."
 },
 {
@@ -5344,6 +5398,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Сцена с кубом",
+"visual": "guide-m22-2-0",
 "md": "Лучше делать в новом проекте с рендерером **Forward+** или **Mobile** — в 3D они красивее. Можно и в текущем.",
 "items": [
 "**Scene → New Scene → 3D Scene**. Корень `Node3D`, назови `World`. Сохрани `world.tscn`.",
@@ -5409,6 +5464,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Добавь персонажа",
+"visual": "guide-m22-3-0",
 "items": [
 "Новая сцена: **CharacterBody3D**, назови `Player3D`.",
 "Добавь **MeshInstance3D** с **CapsuleMesh** и **CollisionShape3D** с **CapsuleShape3D**.",
@@ -5461,6 +5517,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Игра «Монетки»",
+"visual": "concept-m23",
 "md": "Маленький платформер:\n- персонаж бегает и прыгает;\n- на уровне разбросаны монетки;\n- вверху счёт `Монеты: 3 / 10` и таймер;\n- собрал все — «Победа!»; время вышло или упал в пропасть — уровень заново.\n\nЭто небольшая игра, но в ней есть всё главное: сцены, физика, ввод, сигналы, группы, интерфейс, автозагрузка, экспорт.\n\n!> Большие игры делают по кусочку. Сначала самая простая версия, которая работает. Потом улучшения. Не пытайся сделать всё сразу."
 },
 {
@@ -5471,6 +5528,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Подготовка",
+"visual": "guide-m23-1-0",
 "items": [
 "Создай новый проект `coins_game`, рендерер **Compatibility**.",
 "В FileSystem сделай папки: правый клик → **New → Folder**: `scenes`, `scripts`, `art`.",
@@ -5502,6 +5560,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Сцена игрока",
+"visual": "guide-m23-2-0",
 "items": [
 "Новая сцена, корень **CharacterBody2D**, имя `Player`. Сохрани `scenes/player.tscn`.",
 "Добавь **Sprite2D** (или **AnimatedSprite2D**, если есть кадры), поставь картинку персонажа.",
@@ -5559,6 +5618,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Сцена монетки",
+"visual": "guide-m23-3-0",
 "items": [
 "Новая сцена, корень **Area2D**, имя `Coin`. Сохрани `scenes/coin.tscn`.",
 "Добавь **Sprite2D** с картинкой монетки и **CollisionShape2D** с **CircleShape2D**.",
@@ -5605,6 +5665,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Сцена HUD",
+"visual": "guide-m23-4-0",
 "items": [
 "Новая сцена, корень **CanvasLayer**, имя `HUD`. Сохрани `scenes/hud.tscn`.",
 "Добавь **Label** `CoinsLabel`. **Anchor preset → Top Left**. Текст `Монеты: 0 / 0`.",
@@ -5651,6 +5712,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Собираем уровень",
+"visual": "guide-m23-5-0",
 "items": [
 "Новая сцена, корень **Node2D**, имя `Level`. Сохрани `scenes/level.tscn`.",
 "Добавь **TileMapLayer** `Ground` и нарисуй платформы (модуль 16). Не забудь **Physics Layer** для плиток.",
@@ -5701,6 +5763,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Главное меню",
+"visual": "guide-m23-6-0",
 "items": [
 "Сделай `main_menu.tscn` как в модуле 17: заголовок и кнопки «Играть» и «Выход».",
 "«Играть» → `get_tree().change_scene_to_file(\"res://scenes/level.tscn\")`.",
@@ -5711,6 +5774,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Список «перед выпуском»",
+"visual": "guide-m23-6-1",
 "items": [
 "Убери лишние `print` из кода (или оставь — игрок их не видит, но так чище).",
 "Пройди уровень сам от начала до конца. Потом дай поиграть другу и **молча посмотри**. Где он застрял — там и надо поправить.",
@@ -5721,6 +5785,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Публикация",
+"visual": "guide-m23-6-2",
 "items": [
 "**Project → Export → Web** (модуль 21) → папка `coins_game_web`.",
 "Запакуй содержимое папки в zip.",
@@ -6270,4 +6335,1583 @@ window.GLOSSARIES = {
 "def": "Соревнование: сделать игру за короткий срок, обычно 48 часов."
 }
 ]
+};
+window.GODOT_VISUALS = {
+"concept-m00": {
+"kind": "concept",
+"title": "Путь от идеи к игре",
+"layout": "flow",
+"nodes": [
+[
+"Узел",
+"Одна задача: картинка, звук или кнопка"
+],
+[
+"Сцена",
+"Узлы собраны в одну вещь"
+],
+[
+"Скрипт",
+"Код управляет поведением"
+],
+[
+"Игра",
+"Сцены работают вместе"
+]
+],
+"takeaway": "В Godot ты собираешь игру из небольших частей."
+},
+"concept-m01": {
+"kind": "concept",
+"title": "Первый проект",
+"layout": "flow",
+"nodes": [
+[
+"Godot 4",
+"Обычная сборка"
+],
+[
+"Project Manager",
+"Создай проект"
+],
+[
+"Compatibility",
+"Рендерер для учебной 2D-игры"
+],
+[
+"Editor",
+"Здесь собирается сцена"
+]
+],
+"takeaway": "Сначала создай проект, затем открой редактор."
+},
+"concept-m02": {
+"kind": "concept",
+"title": "Дерево персонажа",
+"layout": "tree",
+"nodes": [
+[
+"Player",
+"Корневой узел"
+],
+[
+"Sprite2D",
+"Как выглядит"
+],
+[
+"CollisionShape2D",
+"Где сталкивается"
+],
+[
+"Camera2D",
+"Откуда смотреть"
+]
+],
+"takeaway": "Дочерние узлы дополняют родителя. У каждого своя задача."
+},
+"concept-m03": {
+"kind": "concept",
+"title": "От узла до результата",
+"layout": "flow",
+"nodes": [
+[
+"Main",
+"Выдели узел"
+],
+[
+"main.gd",
+"Прикрепи скрипт"
+],
+[
+"_ready()",
+"Вызов после входа в дерево"
+],
+[
+"Output",
+"Здесь появится print()"
+]
+],
+"takeaway": "Скрипт выполняется на том узле, к которому прикреплён."
+},
+"concept-m04": {
+"kind": "concept",
+"title": "Имя хранит значение",
+"layout": "flow",
+"nodes": [
+[
+"var coins = 0",
+"Создать переменную"
+],
+[
+"coins",
+"Имя остаётся тем же"
+],
+[
+"coins += 1",
+"Прибавить единицу"
+],
+[
+"1",
+"Новое значение"
+]
+],
+"takeaway": "Значение может меняться, а имя позволяет к нему обратиться."
+},
+"concept-m05": {
+"kind": "concept",
+"title": "Программа выбирает путь",
+"layout": "branch",
+"nodes": [
+[
+"coins >= 10?",
+"Проверяем условие"
+],
+[
+"Да",
+"print(\"Покупаем\")"
+],
+[
+"Нет",
+"print(\"Пока мало монет\")"
+]
+],
+"takeaway": "Выполнится только подходящая ветка if / else."
+},
+"concept-m06": {
+"kind": "concept",
+"title": "Массив и индексы",
+"layout": "flow",
+"nodes": [
+[
+"0 · меч",
+"Первый предмет"
+],
+[
+"1 · ключ",
+"Второй предмет"
+],
+[
+"2 · зелье",
+"Третий предмет"
+]
+],
+"takeaway": "Индекс первого элемента — `0`. Цикл `for` может пройти по всем предметам."
+},
+"concept-m07": {
+"kind": "concept",
+"title": "Функция принимает и возвращает",
+"layout": "flow",
+"nodes": [
+[
+"10, 3",
+"Аргументы"
+],
+[
+"damage(10, 3)",
+"Внутри выполняется код"
+],
+[
+"return 7",
+"Возвращаем результат"
+],
+[
+"hp = 7",
+"Вызывающий код использует его"
+]
+],
+"takeaway": "Параметры получают данные, `return` отдаёт результат."
+},
+"concept-m08": {
+"kind": "concept",
+"title": "Найти значение по ключу",
+"layout": "flow",
+"nodes": [
+[
+"player",
+"Словарь"
+],
+[
+"\"hp\"",
+"Ключ"
+],
+[
+"100",
+"Значение по этому ключу"
+]
+],
+"takeaway": "`player[\"hp\"]` обращается к значению с подписью `hp`."
+},
+"concept-m09": {
+"kind": "concept",
+"title": "Код и Инспектор связаны",
+"layout": "flow",
+"nodes": [
+[
+"@export",
+"Показывает настройку в редакторе"
+],
+[
+"Выбери Main",
+"В дереве Scene"
+],
+[
+"Inspector",
+"Найди Speed"
+],
+[
+"350",
+"Настрой значение для этой сцены"
+]
+],
+"takeaway": "Экспортируемое свойство можно менять через Инспектор."
+},
+"concept-m10": {
+"kind": "concept",
+"title": "Координаты в 2D",
+"layout": "axes",
+"nodes": [],
+"takeaway": "В 2D ось X растёт вправо, а Y — вниз. `Vector2(160, 80)` означает 160 вправо и 80 вниз."
+},
+"concept-m11": {
+"kind": "concept",
+"title": "Клавиша → действие → движение",
+"layout": "flow",
+"nodes": [
+[
+"A / ←",
+"Физическая клавиша"
+],
+[
+"move_left",
+"Имя действия в Input Map"
+],
+[
+"Input.get_axis()",
+"Код читает направление"
+],
+[
+"position / velocity",
+"Персонаж двигается"
+]
+],
+"takeaway": "Один код может работать с разными клавишами, назначенными действию."
+},
+"concept-m12": {
+"kind": "concept",
+"title": "Внешность и столкновение",
+"layout": "tree",
+"nodes": [
+[
+"CharacterBody2D",
+"Тело, которое двигается"
+],
+[
+"Sprite2D",
+"Изображение"
+],
+[
+"CollisionShape2D",
+"Форма столкновения"
+],
+[
+"move_and_slide()",
+"Движение с учётом препятствий"
+]
+],
+"takeaway": "Картинка сама по себе не создаёт столкновение. Нужны тело и форма."
+},
+"concept-m13": {
+"kind": "concept",
+"title": "Сигнал соединяет события",
+"layout": "flow",
+"nodes": [
+[
+"Button",
+"Игрок нажал кнопку"
+],
+[
+"pressed",
+"Кнопка испускает сигнал"
+],
+[
+"connect",
+"Соединение с получателем"
+],
+[
+"_on_button_pressed()",
+"Вызывается обработчик"
+]
+],
+"takeaway": "Отправитель сообщает о событии, а подключённая функция реагирует."
+},
+"concept-m14": {
+"kind": "concept",
+"title": "Шаблон → экземпляры",
+"layout": "tree",
+"nodes": [
+[
+"coin.tscn",
+"Сохранённая сцена"
+],
+[
+"instantiate()",
+"Создать экземпляр"
+],
+[
+"add_child()",
+"Добавить в дерево"
+],
+[
+"queue_free()",
+"Удалить в конце кадра"
+]
+],
+"takeaway": "Из одного шаблона можно создать много отдельных монеток."
+},
+"concept-m15": {
+"kind": "concept",
+"title": "Анимация из кадров",
+"layout": "flow",
+"nodes": [
+[
+"Кадр 1",
+"Первая картинка"
+],
+[
+"Кадр 2",
+"Следующая поза"
+],
+[
+"Кадр 3",
+"Ещё одна поза"
+],
+[
+"Повтор",
+"Снова первый кадр"
+]
+],
+"takeaway": "`SpriteFrames` хранит кадры, а FPS задаёт скорость смены."
+},
+"concept-m16": {
+"kind": "concept",
+"title": "Камера и большой уровень",
+"layout": "flow",
+"nodes": [
+[
+"Level",
+"Мир больше экрана"
+],
+[
+"Player",
+"Игрок движется"
+],
+[
+"Camera2D",
+"Камера следует за ним"
+],
+[
+"Окно игры",
+"Видна только часть мира"
+]
+],
+"takeaway": "Границы камеры ограничивают область, которую она покажет."
+},
+"concept-m17": {
+"kind": "concept",
+"title": "Контейнеры собирают меню",
+"layout": "tree",
+"nodes": [
+[
+"Control",
+"Основа интерфейса"
+],
+[
+"CenterContainer",
+"Центрирует содержимое"
+],
+[
+"VBoxContainer",
+"Ставит элементы вертикально"
+],
+[
+"Label + Button",
+"Заголовок и кнопки"
+]
+],
+"takeaway": "Размеры и положение дочерних элементов рассчитывает контейнер."
+},
+"concept-m18": {
+"kind": "concept",
+"title": "Время и события",
+"layout": "flow",
+"nodes": [
+[
+"Timer",
+"Запущен отсчёт"
+],
+[
+"timeout",
+"Время вышло"
+],
+[
+"await",
+"Код дождался сигнала"
+],
+[
+"Следующее действие",
+"Можно продолжить"
+]
+],
+"takeaway": "Ожидание сигнала не должно останавливать всю игру."
+},
+"concept-m19": {
+"kind": "concept",
+"title": "Класс и его экземпляры",
+"layout": "tree",
+"nodes": [
+[
+"Enemy",
+"Общий класс"
+],
+[
+"Enemy.new()",
+"Создать объект"
+],
+[
+"hp = 100",
+"Состояние этого объекта"
+],
+[
+"take_damage()",
+"Его поведение"
+]
+],
+"takeaway": "У каждого экземпляра свои данные, даже если класс общий."
+},
+"concept-m20": {
+"kind": "concept",
+"title": "Два места для файлов",
+"layout": "branch",
+"nodes": [
+[
+"Путь",
+"Что ты хочешь хранить?"
+],
+[
+"res://",
+"Ресурсы проекта и игры"
+],
+[
+"user://",
+"Записываемые сохранения игрока"
+]
+],
+"takeaway": "Для сохранений используй `user://`: туда можно писать после экспорта."
+},
+"concept-m21": {
+"kind": "concept",
+"title": "Из редактора в готовую сборку",
+"layout": "flow",
+"nodes": [
+[
+"Проверка",
+"Ошибки и точки останова"
+],
+[
+"Export",
+"Выбери платформу"
+],
+[
+"Шаблоны",
+"Нужны для версии редактора"
+],
+[
+"Сборка",
+"Проверь готовую игру"
+]
+],
+"takeaway": "Работа в редакторе и работа экспортированной игры проверяются отдельно."
+},
+"concept-m22": {
+"kind": "concept",
+"title": "Из чего состоит 3D-сцена",
+"layout": "tree",
+"nodes": [
+[
+"Node3D",
+"Основа мира"
+],
+[
+"MeshInstance3D",
+"Видимая геометрия"
+],
+[
+"Camera3D",
+"Точка обзора"
+],
+[
+"Свет",
+"Освещает объекты"
+]
+],
+"takeaway": "В 3D добавляется глубина Z, а положительная ось Y направлена вверх."
+},
+"concept-m23": {
+"kind": "concept",
+"title": "Собираем игру «Монетки»",
+"layout": "flow",
+"nodes": [
+[
+"Player",
+"Движение и прыжок"
+],
+[
+"Coin",
+"Сообщает о сборе"
+],
+[
+"Game",
+"Хранит счёт"
+],
+[
+"HUD",
+"Показывает результат"
+]
+],
+"takeaway": "Собирай и проверяй проект по одной сцене за раз."
+},
+"guide-m01-1-0": {
+"kind": "dialog",
+"title": "Скачиваем — ориентиры",
+"areas": [
+"menu",
+"field",
+"list",
+"list",
+"confirm"
+],
+"window": "Официальный сайт → архив → запуск",
+"tabs": [
+"Download",
+"Godot 4"
+],
+"fieldTitle": "Выбор сборки",
+"fields": [
+"Godot Engine",
+"Обычная сборка · GDScript"
+],
+"listTitle": "После скачивания",
+"rows": [
+"Распаковать ZIP",
+"Открыть Godot"
+],
+"confirm": "Запустить редактор"
+},
+"guide-m01-2-0": {
+"kind": "dialog",
+"title": "Создаём проект — ориентиры",
+"areas": [
+"menu",
+"menu",
+"field",
+"field",
+"list",
+"confirm"
+],
+"window": "Project Manager → Create",
+"tabs": [
+"Projects",
+"Asset Library"
+],
+"fieldTitle": "Новый проект",
+"fields": [
+"Project Name  my_first_game",
+"Project Path  Browse…"
+],
+"listTitle": "Renderer",
+"rows": [
+"Forward+",
+"Mobile",
+"Compatibility ✓"
+],
+"confirm": "Create / Create & Edit"
+},
+"guide-m01-3-0": {
+"kind": "editor",
+"title": "Осмотрись — ориентиры",
+"areas": [
+"scene",
+"files",
+"inspector",
+"center"
+],
+"tree": [
+"2D Scene",
+"3D Scene",
+"User Interface"
+],
+"right": [
+"Свойства выбранного узла"
+],
+"source": "https://docs.godotengine.org/en/stable/getting_started/introduction/first_look_at_the_editor.html"
+},
+"guide-m02-4-0": {
+"kind": "editor",
+"title": "Создаём сцену — ориентиры",
+"areas": [
+"menu",
+"scene",
+"menu"
+],
+"tree": [
+"2D Scene → Main"
+],
+"right": [
+"Node2D",
+"Transform"
+]
+},
+"guide-m02-4-1": {
+"kind": "editor",
+"title": "Добавляем надпись — ориентиры",
+"areas": [
+"scene",
+"inspector",
+"center",
+"menu"
+],
+"tree": [
+"Main",
+"  └ Label"
+],
+"right": [
+"Label",
+"Text  Привет!",
+"Layout · Transform"
+]
+},
+"guide-m02-4-2": {
+"kind": "editor",
+"title": "Добавляем картинку — ориентиры",
+"areas": [
+"files",
+"scene",
+"inspector",
+"center"
+],
+"tree": [
+"Main",
+"  ├ Label",
+"  └ Sprite2D"
+],
+"right": [
+"Sprite2D",
+"Texture  icon.svg",
+"Transform · Scale"
+]
+},
+"guide-m02-4-3": {
+"kind": "editor",
+"title": "Запускаем — ориентиры",
+"areas": [
+"menu",
+"menu",
+"bottom"
+],
+"bottom": [
+"Output",
+"Здесь появляются сообщения print()."
+]
+},
+"guide-m03-1-0": {
+"kind": "editor",
+"title": "Прикрепляем скрипт — ориентиры",
+"areas": [
+"scene",
+"scene",
+"confirm",
+"center"
+],
+"tree": [
+"Main",
+"＋ Attach Script"
+],
+"workspace": "Attach Node Script → Script",
+"code": "Language: GDScript\nPath: res://main.gd\n[ Create ]",
+"source": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/scripting_first_script.html",
+"frames": {
+"2": {
+"kind": "dialog",
+"window": "Attach Node Script",
+"tabs": [
+"GDScript"
+],
+"fieldTitle": "Скрипт узла",
+"fields": [
+"Path res://main.gd"
+],
+"rows": [
+"Template: Default"
+],
+"confirm": "Create"
+},
+"3": {
+"kind": "editor",
+"workspace": "Script · main.gd",
+"code": "extends Node2D\n\nfunc _ready():\n    pass"
+}
+}
+},
+"guide-m09-3-0": {
+"kind": "editor",
+"title": "Попробуй — ориентиры",
+"areas": [
+"center",
+"menu",
+"inspector",
+"inspector"
+],
+"workspace": "Script · main.gd",
+"code": "extends Node2D\n\n@export var speed = 200",
+"tree": [
+"Main"
+],
+"right": [
+"Main",
+"Speed  350",
+"↶ Сбросить к 200"
+]
+},
+"guide-m10-4-0": {
+"kind": "editor",
+"title": "Движение в Godot — ориентиры",
+"areas": [
+"scene",
+"center",
+"menu"
+],
+"workspace": "Script · logo.gd",
+"code": "extends Sprite2D\n\nfunc _process(delta):\n    position.x += 100 * delta"
+},
+"guide-m11-1-0": {
+"kind": "dialog",
+"title": "Создаём свои действия — ориентиры",
+"areas": [
+"menu",
+"tabs",
+"field",
+"field",
+"list",
+"list",
+"confirm"
+],
+"window": "Project → Project Settings",
+"tabs": [
+"General",
+"Input Map",
+"Globals"
+],
+"fieldTitle": "Add New Action",
+"fields": [
+"move_left",
+"[ Add ]"
+],
+"listTitle": "Действия и клавиши",
+"rows": [
+"move_left   ＋",
+"  A · Left",
+"move_right  ＋",
+"  D · Right",
+"jump        ＋",
+"  Space · W"
+],
+"confirm": "Закрыть настройки",
+"source": "https://docs.godotengine.org/en/stable/tutorials/inputs/inputevent.html"
+},
+"guide-m12-4-0": {
+"kind": "editor",
+"title": "Пол — ориентиры",
+"areas": [
+"scene",
+"scene",
+"inspector",
+"center",
+"scene"
+],
+"tree": [
+"Level",
+"  └ Floor (StaticBody2D)",
+"       ├ CollisionShape2D",
+"       └ ColorRect"
+],
+"right": [
+"CollisionShape2D",
+"Shape",
+"New RectangleShape2D"
+]
+},
+"guide-m12-4-1": {
+"kind": "editor",
+"title": "Персонаж — ориентиры",
+"areas": [
+"scene",
+"inspector",
+"inspector",
+"center",
+"menu"
+],
+"tree": [
+"Player (CharacterBody2D)",
+"  ├ Sprite2D",
+"  └ CollisionShape2D"
+],
+"right": [
+"Texture  icon.svg",
+"Shape  RectangleShape2D"
+],
+"workspace": "Attach Node Script",
+"code": "Template:\nCharacterBody2D: Basic Movement\n\n[ Create ]"
+},
+"guide-m12-4-2": {
+"kind": "editor",
+"title": "Собираем — ориентиры",
+"areas": [
+"files center",
+"menu",
+"center",
+"center"
+],
+"tree": [
+"Level",
+"  ├ Floor",
+"  └ Player"
+],
+"files": [
+"res://",
+"  level.tscn",
+"  player.tscn"
+],
+"workspace": "2D · игрок над полом"
+},
+"guide-m13-2-0": {
+"kind": "editor",
+"title": "Кнопка, которая отвечает — ориентиры",
+"areas": [
+"scene inspector",
+"inspector",
+"inspector",
+"field confirm",
+"center",
+"bottom"
+],
+"tree": [
+"Main",
+"  └ Button"
+],
+"rightTitle": "Inspector / Signals",
+"right": [
+"Button · Text",
+"Signals",
+"pressed()",
+"Connect…"
+],
+"workspace": "2D · кнопка в сцене",
+"bottom": [
+"Output",
+"Нажали!"
+],
+"source": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html",
+"frames": {
+"3": {
+"kind": "dialog",
+"window": "Connect a Signal",
+"tabs": [
+"Simple",
+"Advanced"
+],
+"fieldTitle": "Receiver",
+"fields": [
+"Main",
+"_on_button_pressed"
+],
+"rows": [
+"pressed → Main"
+],
+"confirm": "Connect"
+},
+"4": {
+"kind": "editor",
+"workspace": "Script · main.gd",
+"code": "func _on_button_pressed():\n    print(\"Нажали!\")"
+}
+}
+},
+"guide-m14-1-0": {
+"kind": "editor",
+"title": "Монетка-шаблон — ориентиры",
+"areas": [
+"scene",
+"inspector",
+"inspector",
+"menu",
+"files center",
+"scene"
+],
+"tree": [
+"Coin (Area2D)",
+"  ├ Sprite2D",
+"  └ CollisionShape2D"
+],
+"right": [
+"Sprite2D · Scale 0.3, 0.3",
+"Shape · CircleShape2D"
+],
+"files": [
+"res://",
+"  coin.tscn",
+"  level.tscn"
+]
+},
+"guide-m15-1-0": {
+"kind": "editor",
+"title": "Делаем анимацию — ориентиры",
+"areas": [
+"scene",
+"scene",
+"inspector",
+"bottom",
+"bottom",
+"bottom",
+"bottom"
+],
+"tree": [
+"Player",
+"  └ AnimatedSprite2D"
+],
+"right": [
+"Sprite Frames",
+"New SpriteFrames",
+"Нажми на ресурс"
+],
+"bottomTitle": "SpriteFrames",
+"bottom": [
+"Animations: idle · run",
+"Add Animation  ＋",
+"Кадры  □  □  □  □",
+"FPS  10 · Autoplay"
+]
+},
+"guide-m15-3-0": {
+"kind": "editor",
+"title": "Мигающая монетка — ориентиры",
+"areas": [
+"scene",
+"bottom",
+"inspector",
+"bottom inspector",
+"bottom inspector",
+"bottom",
+"menu"
+],
+"tree": [
+"Coin",
+"  ├ Sprite2D",
+"  └ AnimationPlayer"
+],
+"right": [
+"Sprite2D",
+"Transform → Scale   ◇"
+],
+"bottomTitle": "Animation",
+"bottom": [
+"Animation → New → spin",
+"Время   0 ── 0.5 ── 1.0",
+"Ключи   ◇      ◇      ◇",
+"Looping · Autoplay"
+]
+},
+"guide-m16-1-0": {
+"kind": "editor",
+"title": "Камера за игроком — ориентиры",
+"areas": [
+"scene",
+"menu",
+"inspector",
+"inspector"
+],
+"tree": [
+"Player",
+"  └ Camera2D"
+],
+"right": [
+"Position Smoothing",
+"Enabled ✓",
+"Limit",
+"Left 0 · Bottom …"
+]
+},
+"guide-m16-2-0": {
+"kind": "editor",
+"title": "Создаём TileSet — ориентиры",
+"areas": [
+"scene",
+"inspector",
+"bottom",
+"bottom"
+],
+"tree": [
+"Level",
+"  └ Ground (TileMapLayer)"
+],
+"right": [
+"Tile Set → New TileSet",
+"Tile Size 16 × 16"
+],
+"bottomTitle": "TileSet",
+"bottom": [
+"Tiles · ＋",
+"Перетащи атлас сюда",
+"Создать плитки → Yes"
+],
+"source": "https://docs.godotengine.org/en/stable/tutorials/2d/using_tilesets.html"
+},
+"guide-m16-2-1": {
+"kind": "editor",
+"title": "Рисуем — ориентиры",
+"areas": [
+"bottom",
+"bottom center",
+"center",
+"bottom"
+],
+"tree": [
+"Level",
+"  └ Ground (TileMapLayer)"
+],
+"bottomTitle": "TileMap",
+"bottom": [
+"Paint · Line · Rect · Bucket",
+"Выбери плитку в атласе",
+"ЛКМ рисует · ПКМ стирает"
+],
+"source": "https://docs.godotengine.org/en/stable/tutorials/2d/using_tilemaps.html"
+},
+"guide-m16-2-2": {
+"kind": "editor",
+"title": "Столкновения для плиток — ориентиры",
+"areas": [
+"inspector",
+"bottom",
+"bottom",
+"menu"
+],
+"right": [
+"Tile Set",
+"Physics Layers",
+"Add Element"
+],
+"bottomTitle": "TileSet → Paint",
+"bottom": [
+"Physics Layer 0",
+"Отметь форму на плитке",
+"Проверь, что слой столкновений совпадает."
+]
+},
+"guide-m17-2-0": {
+"kind": "editor",
+"title": "Главное меню — ориентиры",
+"areas": [
+"scene",
+"inspector",
+"scene inspector",
+"scene",
+"scene",
+"menu"
+],
+"tree": [
+"MainMenu (Control)",
+"  └ CenterContainer",
+"       └ VBoxContainer",
+"            ├ Label",
+"            ├ PlayButton",
+"            └ QuitButton"
+],
+"right": [
+"Layout",
+"Anchor preset",
+"Full Rect"
+]
+},
+"guide-m17-4-0": {
+"kind": "editor",
+"title": "Меню → игра — ориентиры",
+"areas": [
+"scene center",
+"scene center",
+"menu",
+"menu"
+],
+"tree": [
+"MainMenu",
+"  └ CenterContainer",
+"       └ VBoxContainer",
+"            ├ PlayButton",
+"            └ QuitButton"
+],
+"workspace": "Script · main_menu.gd",
+"code": "get_tree().change_scene_to_file(\n    \"res://level.tscn\"\n)"
+},
+"guide-m18-1-0": {
+"kind": "editor",
+"title": "Звук прыжка — ориентиры",
+"areas": [
+"scene",
+"inspector",
+"center",
+"menu"
+],
+"tree": [
+"Player",
+"  └ JumpSound",
+"     AudioStreamPlayer2D"
+],
+"right": [
+"Stream  jump.wav",
+"Volume dB",
+"Autoplay"
+],
+"workspace": "Script · player.gd",
+"code": "$JumpSound.play()"
+},
+"guide-m18-4-0": {
+"kind": "dialog",
+"title": "Создаём Game — ориентиры",
+"areas": [
+"files",
+"center",
+"menu tabs",
+"field confirm",
+"list"
+],
+"window": "Project Settings → Globals",
+"tabs": [
+"General",
+"Input Map",
+"Globals → Autoload"
+],
+"fieldTitle": "Добавление Autoload",
+"fields": [
+"Path  res://game.gd",
+"Node Name  Game"
+],
+"listTitle": "Автозагрузки",
+"rows": [
+"Game   res://game.gd   ✓"
+],
+"confirm": "Add",
+"frames": {
+"0": {
+"kind": "editor",
+"tree": [
+"Main"
+],
+"files": [
+"res://",
+"  New → Script",
+"  game.gd"
+]
+},
+"1": {
+"kind": "editor",
+"workspace": "Script · game.gd",
+"code": "extends Node\n\nvar score = 0"
+}
+}
+},
+"guide-m21-2-0": {
+"kind": "editor",
+"title": "Точка останова — ориентиры",
+"areas": [
+"center",
+"menu",
+"bottom",
+"bottom",
+"menu",
+"center"
+],
+"workspace": "Script · player.gd",
+"code": "  12  velocity.x = direction * SPEED\n● 13  move_and_slide()",
+"bottomTitle": "Debugger",
+"bottom": [
+"Stack Trace · Variables",
+"velocity · position · delta",
+"Step Over F10 · Step Into F11",
+"Continue F12"
+]
+},
+"guide-m21-3-0": {
+"kind": "dialog",
+"title": "Шаблоны экспорта — ориентиры",
+"areas": [
+"menu",
+"list",
+"confirm"
+],
+"window": "Project → Export",
+"tabs": [
+"Windows Desktop",
+"Web"
+],
+"fieldTitle": "Шаблоны для версии Godot",
+"fields": [
+"Export Templates"
+],
+"listTitle": "Если шаблонов нет",
+"rows": [
+"Manage Export Templates"
+],
+"confirm": "Download and Install"
+},
+"guide-m21-3-1": {
+"kind": "dialog",
+"title": "Сборка для Windows — ориентиры",
+"areas": [
+"tabs",
+"field",
+"confirm",
+"list"
+],
+"window": "Project → Export",
+"tabs": [
+"Add…",
+"Windows Desktop"
+],
+"fieldTitle": "Export Path",
+"fields": [
+"my_game_build/my_game.exe"
+],
+"listTitle": "Готовая папка",
+"rows": [
+"my_game.exe",
+"Данные .pck при отдельной упаковке"
+],
+"confirm": "Export Project"
+},
+"guide-m21-4-0": {
+"kind": "dialog",
+"title": "Сборка для браузера — ориентиры",
+"areas": [
+"tabs",
+"field",
+"confirm",
+"menu"
+],
+"window": "Project → Export",
+"tabs": [
+"Add…",
+"Web"
+],
+"fieldTitle": "Export Path",
+"fields": [
+"my_game_web/index.html"
+],
+"listTitle": "Файлы сборки",
+"rows": [
+"index.html",
+"*.js · *.wasm · *.pck"
+],
+"confirm": "Export Project"
+},
+"guide-m21-4-1": {
+"kind": "dialog",
+"title": "Публикация на itch.io — ориентиры",
+"areas": [
+"menu",
+"field",
+"list",
+"list",
+"tabs",
+"tabs",
+"confirm"
+],
+"window": "itch.io → Edit game",
+"tabs": [
+"Basic info",
+"Uploads",
+"Embed options"
+],
+"fieldTitle": "Kind of project",
+"fields": [
+"HTML"
+],
+"listTitle": "Uploads",
+"rows": [
+"my_game_web.zip",
+"This file will be played in the browser ✓"
+],
+"confirm": "Save & view → Draft"
+},
+"guide-m22-2-0": {
+"kind": "editor",
+"title": "Сцена с кубом — ориентиры",
+"areas": [
+"scene",
+"inspector",
+"inspector",
+"center inspector",
+"center",
+"scene inspector",
+"menu"
+],
+"space": "3d",
+"workspace": "3D · World",
+"tree": [
+"World (Node3D)",
+"  ├ MeshInstance3D",
+"  ├ Camera3D",
+"  └ DirectionalLight3D"
+],
+"right": [
+"Mesh → BoxMesh / PlaneMesh",
+"Transform",
+"Position · Rotation"
+]
+},
+"guide-m22-3-0": {
+"kind": "editor",
+"title": "Добавь персонажа — ориентиры",
+"areas": [
+"scene",
+"scene inspector",
+"center",
+"center",
+"files center"
+],
+"space": "3d",
+"workspace": "3D · World",
+"tree": [
+"Player3D",
+"  ├ MeshInstance3D",
+"  └ CollisionShape3D"
+],
+"right": [
+"Mesh → CapsuleMesh",
+"Shape → CapsuleShape3D"
+]
+},
+"guide-m23-1-0": {
+"kind": "editor",
+"title": "Подготовка — ориентиры",
+"areas": [
+"menu",
+"files",
+"files",
+"menu",
+"menu"
+],
+"files": [
+"res://",
+"  scenes/",
+"  scripts/",
+"  art/"
+],
+"right": [
+"Project Settings",
+"Input Map",
+"Rendering → Textures"
+]
+},
+"guide-m23-2-0": {
+"kind": "editor",
+"title": "Сцена игрока — ориентиры",
+"areas": [
+"scene",
+"scene inspector",
+"inspector",
+"scene inspector",
+"scene center"
+],
+"tree": [
+"Player (CharacterBody2D)",
+"  ├ Sprite2D",
+"  ├ CollisionShape2D",
+"  └ Camera2D"
+],
+"right": [
+"Shape → Capsule / Rectangle",
+"Camera2D → Position Smoothing"
+]
+},
+"guide-m23-3-0": {
+"kind": "editor",
+"title": "Сцена монетки — ориентиры",
+"areas": [
+"scene",
+"scene inspector",
+"scene bottom",
+"scene center"
+],
+"tree": [
+"Coin (Area2D)",
+"  ├ Sprite2D",
+"  ├ CollisionShape2D",
+"  └ AnimationPlayer"
+],
+"right": [
+"Shape → CircleShape2D"
+]
+},
+"guide-m23-4-0": {
+"kind": "editor",
+"title": "Сцена HUD — ориентиры",
+"areas": [
+"scene",
+"scene inspector",
+"scene inspector",
+"scene inspector",
+"inspector",
+"scene center"
+],
+"tree": [
+"HUD (CanvasLayer)",
+"  ├ CoinsLabel",
+"  ├ TimeLabel",
+"  └ Message"
+],
+"right": [
+"Layout → Anchor preset",
+"Text",
+"Theme Overrides → Font Sizes"
+]
+},
+"guide-m23-5-0": {
+"kind": "editor",
+"title": "Собираем уровень — ориентиры",
+"areas": [
+"scene",
+"scene bottom",
+"files center",
+"scene files",
+"scene inspector",
+"files center",
+"center inspector",
+"menu"
+],
+"tree": [
+"Level",
+"  ├ Ground",
+"  ├ Player",
+"  ├ Coins",
+"  ├ DeathZone",
+"  └ HUD"
+],
+"rightTitle": "Inspector / Signals",
+"right": [
+"DeathZone",
+"body_entered → Level"
+]
+},
+"guide-m23-6-0": {
+"kind": "editor",
+"title": "Главное меню — ориентиры",
+"areas": [
+"scene",
+"center",
+"menu",
+"menu"
+],
+"tree": [
+"MainMenu",
+"  └ VBoxContainer",
+"       ├ Label",
+"       ├ PlayButton",
+"       └ QuitButton"
+],
+"workspace": "Script · main_menu.gd",
+"code": "get_tree().change_scene_to_file(\n    \"res://scenes/level.tscn\"\n)"
+},
+"guide-m23-6-1": {
+"kind": "editor",
+"title": "Список «перед выпуском» — ориентиры",
+"areas": [
+"center",
+"menu",
+"center",
+"menu"
+],
+"tree": [
+"Level",
+"  ├ Player",
+"  └ DeathZone"
+],
+"right": [
+"Project Settings",
+"Application → Config",
+"Name · Icon"
+]
+},
+"guide-m23-6-2": {
+"kind": "dialog",
+"title": "Публикация — ориентиры",
+"areas": [
+"menu",
+"files",
+"field",
+"confirm"
+],
+"window": "От сборки до страницы игры",
+"tabs": [
+"Godot Export",
+"Web",
+"itch.io"
+],
+"fieldTitle": "Собрать игру",
+"fields": [
+"coins_game_web/index.html"
+],
+"listTitle": "Загрузить все файлы",
+"rows": [
+"Содержимое папки → ZIP",
+"Kind of project → HTML",
+"Проверить Draft"
+],
+"confirm": "Public",
+"frames": {
+"1": {
+"kind": "editor",
+"workspace": "Содержимое папки сборки",
+"files": [
+"coins_game_web/",
+"  index.html",
+"  *.js · *.wasm · *.pck",
+"Все файлы → ZIP"
+]
+},
+"2": {
+"kind": "dialog",
+"window": "itch.io → Edit game",
+"fieldTitle": "Kind of project",
+"fields": [
+"HTML"
+],
+"rows": [
+"Загрузить ZIP",
+"Проверить Draft"
+],
+"confirm": "Save & view"
+},
+"3": {
+"kind": "dialog",
+"window": "itch.io → Visibility & access",
+"fieldTitle": "Visibility",
+"fields": [
+"Public"
+],
+"rows": [
+"Игра проверена в Draft"
+],
+"confirm": "Save & view"
+}
+}
+}
 };

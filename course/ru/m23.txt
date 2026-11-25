@@ -7,6 +7,7 @@
 - Подготовить проект
 
 :: text Игра «Монетки»
+visual: concept-m23
 Маленький платформер:
 - персонаж бегает и прыгает;
 - на уровне разбросаны монетки;
@@ -35,6 +36,7 @@ level.tscn     Node2D + level.gd
 Так и будем идти: по одной сцене за урок.
 
 :: steps Подготовка
+visual: guide-m23-1-0
 - Создай новый проект `coins_game`, рендерер **Compatibility**.
 - В FileSystem сделай папки: правый клик → **New → Folder**: `scenes`, `scripts`, `art`.
 - Скачай бесплатный набор [Pixel Platformer](https://kenney.nl/assets/pixel-platformer) (или любой другой) и положи картинки в `art`.
@@ -52,6 +54,7 @@ level.tscn     Node2D + level.gd
 - Написать скрипт движения
 
 :: steps Сцена игрока
+visual: guide-m23-2-0
 - Новая сцена, корень **CharacterBody2D**, имя `Player`. Сохрани `scenes/player.tscn`.
 - Добавь **Sprite2D** (или **AnimatedSprite2D**, если есть кадры), поставь картинку персонажа.
 - Добавь **CollisionShape2D** → **New CapsuleShape2D** или **RectangleShape2D**, подгони под картинку. Чуть уже картинки — так приятнее играть.
@@ -125,6 +128,7 @@ func reset():
 norun: yes
 
 :: steps Сцена монетки
+visual: guide-m23-3-0
 - Новая сцена, корень **Area2D**, имя `Coin`. Сохрани `scenes/coin.tscn`.
 - Добавь **Sprite2D** с картинкой монетки и **CollisionShape2D** с **CircleShape2D**.
 - По желанию — **AnimationPlayer** с вращением из модуля 15.
@@ -222,6 +226,7 @@ hint: В функции: `print(...)`, потом `if value >= total:`.
 - Счёт и таймер на экране
 
 :: steps Сцена HUD
+visual: guide-m23-4-0
 - Новая сцена, корень **CanvasLayer**, имя `HUD`. Сохрани `scenes/hud.tscn`.
 - Добавь **Label** `CoinsLabel`. **Anchor preset → Top Left**. Текст `Монеты: 0 / 0`.
 - Добавь **Label** `TimeLabel`. **Anchor preset → Top Right**. Текст `1:00`.
@@ -302,6 +307,7 @@ hint: `max(0, ...)` не даёт уйти в минус. Потом минут�
 - Написать правила: победа, время, пропасть
 
 :: steps Собираем уровень
+visual: guide-m23-5-0
 - Новая сцена, корень **Node2D**, имя `Level`. Сохрани `scenes/level.tscn`.
 - Добавь **TileMapLayer** `Ground` и нарисуй платформы (модуль 16). Не забудь **Physics Layer** для плиток.
 - Перетащи `player.tscn` на уровень.
@@ -423,18 +429,21 @@ hint: Потом `time_left -= delta`, `print(...)` и проверка `if time
 - Собрать игру и выложить её
 
 :: steps Главное меню
+visual: guide-m23-6-0
 - Сделай `main_menu.tscn` как в модуле 17: заголовок и кнопки «Играть» и «Выход».
 - «Играть» → `get_tree().change_scene_to_file("res://scenes/level.tscn")`.
 - Сделай меню главной сценой.
 - Проверь всю игру с `F5`: меню → уровень → победа или проигрыш → уровень заново.
 
 :: steps Список «перед выпуском»
+visual: guide-m23-6-1
 - Убери лишние `print` из кода (или оставь — игрок их не видит, но так чище).
 - Пройди уровень сам от начала до конца. Потом дай поиграть другу и **молча посмотри**. Где он застрял — там и надо поправить.
 - Проверь, что нельзя застрять в стене и выпасть за край мира мимо DeathZone.
 - **Project Settings → Application → Config**: заполни **Name** и поставь иконку **Icon**.
 
 :: steps Публикация
+visual: guide-m23-6-2
 - **Project → Export → Web** (модуль 21) → папка `coins_game_web`.
 - Запакуй содержимое папки в zip.
 - Загрузи на [itch.io](https://itch.io) как HTML-проект. Проверь в режиме Draft.

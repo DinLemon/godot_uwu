@@ -15,6 +15,7 @@
 > Бесплатные звуки: [kenney.nl](https://kenney.nl/assets) (раздел Audio), [freesound.org](https://freesound.org), генератор звуков для ретро-игр — [jsfxr](https://sfxr.me).
 
 :: steps Звук прыжка
+visual: guide-m18-1-0
 Скачай короткий звук прыжка и перетащи в FileSystem.
 - Открой `player.tscn`. Добавь в `Player` узел **AudioStreamPlayer2D**, назови `JumpSound`.
 - Перетащи файл звука в его свойство **Stream**.
@@ -64,6 +65,7 @@ norun: yes
 - Как подождать несколько секунд одной строкой
 
 :: text Узел Timer
+visual: concept-m18
 Ты уже встречал **Timer** в модулях 13–14. Его главные свойства:
 
 - `wait_time` — сколько секунд ждать;
@@ -208,6 +210,7 @@ norun: yes
 Такие объекты ещё называют **синглтонами** (singleton — «одиночка»): он существует в одном экземпляре на всю игру.
 
 :: steps Создаём Game
+visual: guide-m18-4-0
 - **File → New Script** (в редакторе скриптов) или правый клик в FileSystem → **New → Script**. Тип `Node`, имя `game.gd`.
 - Впиши в него код из следующего шага и сохрани.
 - Открой **Project → Project Settings → Globals → Autoload** (в старых версиях — сразу вкладка **Autoload**).

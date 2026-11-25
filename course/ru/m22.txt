@@ -7,6 +7,7 @@
 - Что меняется по сравнению с 2D
 
 :: text Добавляется глубина
+visual: concept-m22
 В 3D у точки три координаты:
 - **x** — вправо;
 - **y** — **вверх** (в 3D y смотрит вверх, не вниз!);
@@ -61,6 +62,7 @@ func _ready():
 А для красивого неба есть **WorldEnvironment**.
 
 :: steps Сцена с кубом
+visual: guide-m22-2-0
 Лучше делать в новом проекте с рендерером **Forward+** или **Mobile** — в 3D они красивее. Можно и в текущем.
 - **Scene → New Scene → 3D Scene**. Корень `Node3D`, назови `World`. Сохрани `world.tscn`.
 - Добавь **MeshInstance3D**. В Инспекторе **Mesh → New BoxMesh**. Появился куб.
@@ -131,6 +133,7 @@ norun: yes
 - `transform.basis * ...` поворачивает направление вместе с персонажем: «вперёд» — это туда, куда он смотрит.
 
 :: steps Добавь персонажа
+visual: guide-m22-3-0
 - Новая сцена: **CharacterBody3D**, назови `Player3D`.
 - Добавь **MeshInstance3D** с **CapsuleMesh** и **CollisionShape3D** с **CapsuleShape3D**.
 - Прикрепи скрипт с шаблоном **Basic Movement**.
