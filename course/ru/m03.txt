@@ -17,6 +17,7 @@ visual: concept-m03
 Файл скрипта заканчивается на `.gd`. Например: `player.gd`.
 
 :: steps Прикрепляем скрипт
+lab: attach-script
 visual: guide-m03-1-0
 Открой сцену `main.tscn` из прошлого модуля.
 - В панели **Scene** выбери узел `Main`.

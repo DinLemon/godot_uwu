@@ -15,6 +15,7 @@ visual: concept-m16
 Самый простой способ: сделать камеру **ребёнком игрока**. Дети двигаются с родителем — камера поедет за игроком сама.
 
 :: steps Камера за игроком
+lab: follow-camera
 visual: guide-m16-1-0
 - Открой `player.tscn`. Добавь в `Player` узел **Camera2D**.
 - Открой `level.tscn` и нажми `F6`. Камера следует за персонажем.
@@ -58,6 +59,7 @@ visual: guide-m16-1-0
 > В старых уроках встречается узел `TileMap`. В новых версиях Godot его заменил **TileMapLayer**. Идея та же: один TileMapLayer — один слой.
 
 :: steps Создаём TileSet
+lab: paint-level
 visual: guide-m16-2-0
 Скачай набор плиток (tileset), например на [kenney.nl](https://kenney.nl/assets) — «Pixel Platformer». Перетащи картинку в FileSystem.
 - Открой `level.tscn`. Добавь в `Level` узел **TileMapLayer**. Назови `Ground`.

@@ -86,6 +86,7 @@ MainMenu (Control, якорь Full Rect)
 ```
 
 :: steps Главное меню
+lab: game-menu
 visual: guide-m17-2-0
 - **Scene → New Scene → User Interface**. Корень — `Control`, назови `MainMenu`. Сохрани `main_menu.tscn`.
 - **Anchor preset → Full Rect** — меню на весь экран.
