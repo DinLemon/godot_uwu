@@ -9,7 +9,7 @@
 
   // ---------- Хранилище ----------
   const defaultLang = () => "ru";
-  const blank = () => ({ done: {}, step: {}, last: null, stats: {}, code: {}, settings: { theme: "auto", fs: 18, motion: true, focus: false, deep: "closed", lang: defaultLang() } });
+  const blank = () => ({ done: {}, step: {}, last: null, stats: {}, code: {}, practice: {}, settings: { theme: "auto", fs: 18, motion: true, focus: false, deep: "closed", lang: defaultLang() } });
   let S = load();
   function load() {
     try {
@@ -126,7 +126,7 @@
           <span>${T.statModules(COURSE.modules.length)}</span>
           <span>${T.statHours(Math.round(totalMin / 60))}</span>
         </div>
-        <a class="visual-intro" href="#/l/m01-3">${T.visualIntro}</a>
+        <a class="visual-intro" href="#/practice">Практика: собери сцену в учебном редакторе →</a>
         </div>
         <div class="companion">
           <div class="companion-art">
@@ -229,7 +229,7 @@
     renderCard(card, el);
     const next = document.getElementById("next");
     const updateNext = () => {
-      const interactive = ["quiz", "fill", "order", "task"].includes(card.t);
+      const interactive = !!card.lab || ["quiz", "fill", "order", "task"].includes(card.t);
       const tried = L.attempted[step];
       next.textContent = interactive && !tried ? T.skipStep : step === L.cards.length - 1 ? T.finishLesson : T.next;
       next.classList.toggle("btn-ghost", interactive && !tried);
@@ -268,6 +268,7 @@
     const kind = card.t === "text" ? "" : (card.warm ? T.kindTitle.warm : T.kindTitle[card.t]);
     el.innerHTML = kind ? `<span class="card-kind">${kind}</span>` : "";
     if (card.title && card.t !== "deep") el.insertAdjacentHTML("beforeend", `<h2>${inline(card.title)}</h2>`);
+    if (card.lab) RK.renderPractice(card.lab, el, practiceStorage(() => attempt(card)));
     if (card.visual) RK.renderVisual(card, el);
     ({ text: cText, code: cCode, quiz: cQuiz, fill: cFill, order: cOrder, task: cTask, recap: cRecap, goals: cGoals, deep: cDeep, steps: cSteps })[card.t](card, el);
     // Кнопка «Скопировать» у длинных блоков GDScript внутри текста — чтобы перенести код в Godot.
@@ -279,6 +280,25 @@
     });
   }
   const attempt = (card) => card._onAttempt && card._onAttempt();
+
+  function practiceStorage(onAttempt) {
+    if (!S.practice || typeof S.practice !== "object" || Array.isArray(S.practice)) S.practice = {};
+    return {read:id=>S.practice[id],write:(id,state)=>{S.practice[id]=state;save();},attempt:onAttempt};
+  }
+  function viewPractice(id) {
+    setNav("practice");
+    const catalog = window.GODOT_PRACTICE || {};
+    const config = Object.prototype.hasOwnProperty.call(catalog,id) ? catalog[id] : null;
+    document.title = (config ? config.title : "Практика в редакторе") + T.titleSuffix;
+    if (config) {
+      app.innerHTML = `<div class="wrap-wide practice-page"><a href="#/practice">← Все задания</a><h1>${esc(config.title)}</h1><div id="practice-host"></div><div class="row"><a class="btn btn-quiet" href="#/l/${config.lesson}">К уроку по теме</a><a class="btn btn-quiet" href="#/practice">Другие задания</a></div></div>`;
+      RK.renderPractice(id,document.getElementById("practice-host"),practiceStorage());
+    } else {
+      const completed = Object.keys(catalog).filter(key=>S.practice?.[key]?.passed).length;
+      app.innerHTML = `<div class="wrap-wide"><h1>Практика в редакторе</h1><p class="practice-hub-note">Собирай сцены, меняй свойства и проверяй результат. Можно ошибаться и пробовать разные решения. Задания доступны сразу; каждое сохраняется отдельно.</p><p class="practice-summary">Выполнено ${completed} из ${Object.keys(catalog).length}. Учебная модель помогает освоить интерфейс Godot 4; затем перенеси результат в настоящий редактор.</p><div class="practice-grid">${Object.entries(catalog).map(([key,c])=>`<article class="practice-mission"><span class="small muted">Модуль ${Number(c.lesson.slice(1).split('-')[0])}${S.practice?.[key]?.passed ? " · Выполнено" : ""}</span><h2>${esc(c.title)}</h2><p>${esc(c.brief)}</p><div class="row"><a class="btn btn-sm" href="#/practice/${key}">${S.practice?.[key]?"Продолжить":"Попробовать"}</a><a href="#/l/${c.lesson}">Урок</a></div></article>`).join('')}</div></div>`;
+    }
+    window.scrollTo(0,0);
+  }
 
   function cText(c, el) { el.insertAdjacentHTML("beforeend", md(c.md)); }
 
@@ -764,6 +784,7 @@
     document.body.classList.toggle("focus", inLesson && S.settings.focus);
     if (!inLesson) L = null;
     if (inLesson) viewLesson(p[1], p[2] != null && p[2] !== "" ? +p[2] : null);
+    else if (p[0] === "practice") viewPractice(p[1]);
     else if (p[0] === "review") viewReview();
     else if (p[0] === "glossary") viewGlossary();
     else if (p[0] === "cheat") viewCheat();
@@ -775,6 +796,7 @@
   document.addEventListener("keydown", (e) => {
     if (!location.hash.startsWith("#/l/") || e.altKey || e.ctrlKey || e.metaKey) return;
     if (/^(INPUT|TEXTAREA|SELECT|SUMMARY)$/.test(document.activeElement.tagName)) return;
+    if (document.activeElement.closest(".practice-lab")) return;
     if (e.key === "ArrowRight") { const b = document.getElementById("next"); b && b.click(); }
     if (e.key === "ArrowLeft") { const b = document.getElementById("prev"); b && !b.disabled && b.click(); }
   });

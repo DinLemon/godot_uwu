@@ -69,7 +69,7 @@
     if (!data) return;
     const root = document.createElement("details");
     root.className = "lesson-visual";
-    root.open = true;
+    root.open = !card.lab;
     const isGuide = card.t === "steps";
     root.innerHTML = `<summary>${esc(data.title)}<span>${isGuide ? "Куда нажимать" : "Наглядно"}</span></summary>
       <figure><div class="visual-picture">${draw(data.frames?.[0] || data)}</div>
