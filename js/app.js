@@ -73,6 +73,37 @@
   }
   function h(html) { const d = document.createElement("div"); d.innerHTML = html; return d.firstElementChild; }
 
+  function bindCompanion() {
+    const button = app.querySelector(".companion-trigger");
+    const art = app.querySelector(".companion-art");
+    const status = app.querySelector(".companion-status");
+    const wave = art.querySelector(".companion-wave");
+    const reactions = ["wave", "play", "celebrate"];
+    let next = 0, timer, revision = 0;
+    button.addEventListener("click", async () => {
+      const selected = ++revision;
+      clearTimeout(timer);
+      delete art.dataset.reaction;
+      void art.offsetWidth;
+      const reaction = reactions[next];
+      next = (next + 1) % reactions.length;
+      if (reaction === "wave" || reaction === "celebrate") {
+        status.textContent = T.companion.loading;
+        try { await wave.decode(); }
+        catch (error) {
+          if (selected === revision && art.isConnected) status.textContent = T.companion.imageError;
+          return;
+        }
+        if (selected !== revision || !art.isConnected) return;
+      }
+      art.dataset.reaction = reaction;
+      status.textContent = T.companion.reactions[reaction];
+      if (S.settings.motion && window.matchMedia("(prefers-reduced-motion: no-preference)").matches) {
+        timer = setTimeout(() => { delete art.dataset.reaction; }, 1400);
+      }
+    });
+  }
+
   // ---------- Главная ----------
   function viewHome() {
     setNav("home");
@@ -82,6 +113,8 @@
     const started = doneCount() > 0 || S.last;
     let html = `<div class="wrap-wide">
       <section class="hero">
+        <div class="hero-copy">
+        <span class="hero-kicker">Godot UwU</span>
         <h1>${T.heroTitle}</h1>
         <p>${T.heroText}</p>
         <div class="hero-actions">
@@ -92,6 +125,20 @@
           <span>${T.statLessons(doneCount(), lessons.length)}</span>
           <span>${T.statModules(COURSE.modules.length)}</span>
           <span>${T.statHours(Math.round(totalMin / 60))}</span>
+        </div>
+        <a class="visual-intro" href="#/l/m01-3">${T.visualIntro}</a>
+        </div>
+        <div class="companion">
+          <div class="companion-art">
+            <img class="companion-idle" src="assets/fox-godot-960.webp" srcset="assets/fox-godot-960.webp 960w, assets/fox-godot.webp 1374w" sizes="(max-width: 650px) 19rem, 28rem" width="1374" height="1145" alt="" fetchpriority="high">
+            <img class="companion-wave" src="assets/fox-godot-wave-960.webp" width="1374" height="1145" alt="" loading="lazy">
+            <svg class="companion-effects" viewBox="0 0 120 100" aria-hidden="true" focusable="false">
+              <g class="game-particles" fill="#ffdb75" stroke="#bc8443" stroke-width=".7"><circle cx="15" cy="36" r="2.5"/><circle cx="99" cy="25" r="2.5"/><path d="m104 48 2-5 2 5 5 2-5 2-2 5-2-5-5-2Z"/></g>
+              <g class="game-trail" fill="none" stroke="#83cce8" stroke-width="2.2" stroke-linecap="round"><path d="m79 17 6-5 6 5m-6-5v12M18 64l-5 5 5 5m-5-5h11"/></g>
+            </svg>
+            <button type="button" class="companion-trigger" aria-label="${esc(T.companion.prompt)}"></button>
+          </div>
+          <span class="companion-status" role="status">${T.companion.prompt}</span>
         </div>
       </section>
       <div class="how">
@@ -118,6 +165,7 @@
     });
     html += `<p class="muted small" style="margin-top:1.5rem">${T.storageNote}</p></div>`;
     app.innerHTML = html;
+    bindCompanion();
   }
 
   // ---------- Урок ----------
@@ -220,6 +268,7 @@
     const kind = card.t === "text" ? "" : (card.warm ? T.kindTitle.warm : T.kindTitle[card.t]);
     el.innerHTML = kind ? `<span class="card-kind">${kind}</span>` : "";
     if (card.title && card.t !== "deep") el.insertAdjacentHTML("beforeend", `<h2>${inline(card.title)}</h2>`);
+    if (card.visual) RK.renderVisual(card, el);
     ({ text: cText, code: cCode, quiz: cQuiz, fill: cFill, order: cOrder, task: cTask, recap: cRecap, goals: cGoals, deep: cDeep, steps: cSteps })[card.t](card, el);
     // Кнопка «Скопировать» у длинных блоков GDScript внутри текста — чтобы перенести код в Godot.
     el.querySelectorAll("pre.code:not(.tree):not(.fill-code):not(.has-copy)").forEach((pre) => {
