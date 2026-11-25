@@ -83,6 +83,8 @@ def parse_card(kind, title, lines, where):
             card.setdefault("mustContain", []).append(line[10:].strip())
         elif line.startswith("visual: "):
             card["visual"] = line[8:].strip()
+        elif line.startswith("lab: "):
+            card["lab"] = line[5:].strip()
         elif (kind == "code" and seen_fence) or (kind == "steps" and items):
             after.append(line)
         else:
@@ -283,10 +285,18 @@ def main():
         del courses["en"], glossaries["en"]
     visuals_path = ROOT / "course" / "visuals.json"
     visuals = json.loads(visuals_path.read_text(encoding="utf-8")) if visuals_path.exists() else {}
+    practice_path = ROOT / "course" / "practice.json"
+    practice = json.loads(practice_path.read_text(encoding="utf-8")) if practice_path.exists() else {}
+    linked_labs = set()
     for lang, modules in courses.items():
         for module in modules:
             for lesson in module["lessons"]:
                 for card in lesson["cards"]:
+                    if "lab" in card:
+                        lab = practice.get(card["lab"])
+                        if not lab or lab.get("lesson") != lesson["id"] or not lab.get("goals") or not lab.get("hints"):
+                            raise SystemExit(f"{lang}/{lesson['id']}: неверное практическое задание {card['lab']}")
+                        linked_labs.add(card["lab"])
                     if "visual" not in card:
                         continue
                     visual = visuals.get(card["visual"])
@@ -302,6 +312,8 @@ def main():
                         frame = visual.get("frames", {}).get(str(index), visual)
                         if not set(area.split()).issubset(regions.get(frame["kind"], set())):
                             raise SystemExit(f"{lang}/{lesson['id']}: область действия {index + 1} отсутствует на схеме")
+    if set(practice) != linked_labs:
+        raise SystemExit(f"Практические задания без карточки: {sorted(set(practice) - linked_labs)}")
     out = ROOT / "content" / "course-data.js"
     out.parent.mkdir(exist_ok=True)
     out.write_text(
@@ -314,6 +326,8 @@ def main():
     if visuals:
         with out.open("a", encoding="utf-8") as stream:
             stream.write(f"window.GODOT_VISUALS = {json.dumps(visuals, ensure_ascii=False, indent=0)};\n")
+    with out.open("a", encoding="utf-8") as stream:
+        stream.write(f"window.GODOT_PRACTICE = {json.dumps(practice, ensure_ascii=False, indent=0)};\n")
     for lang, modules in courses.items():
         n_l = sum(len(m["lessons"]) for m in modules)
         n_c = sum(len(l["cards"]) for m in modules for l in m["lessons"])
