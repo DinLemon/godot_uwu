@@ -7,6 +7,7 @@
 - Что такое форма столкновения
 
 :: text Тела в Godot
+visual: concept-m12
 Чтобы предметы сталкивались, им нужно **тело** (body). В 2D есть четыре главных узла:
 
 - **StaticBody2D** — неподвижное: пол, стены, платформы. Само не двигается, но об него ударяются.
@@ -203,6 +204,7 @@ explain: Прыжок — одно нажатие (`just_pressed`) и тольк
 - Сделать пол
 
 :: steps Пол
+visual: guide-m12-4-0
 Создадим новую сцену-уровень.
 - **Scene → New Scene**. Корень — **Node2D**, переименуй в `Level`. Сохрани как `level.tscn`.
 - Добавь ребёнка **StaticBody2D**, назови `Floor`.
@@ -211,6 +213,7 @@ explain: Прыжок — одно нажатие (`just_pressed`) и тольк
 - Чтобы пол было видно, добавь в `Floor` узел **ColorRect** и растяни его так же. (Или включи **Debug → Visible Collision Shapes** — формы будут видны при запуске.)
 
 :: steps Персонаж
+visual: guide-m12-4-1
 - Нажми **Scene → New Scene**, выбери **Other Node** → **CharacterBody2D**. Назови `Player`.
 - Добавь в него **Sprite2D** и перетащи `icon.svg` в **Texture**.
 - Добавь **CollisionShape2D**, Shape → **New RectangleShape2D**. Подгони под картинку.
@@ -247,6 +250,7 @@ norun: yes
 `if direction:` — то же, что `if direction != 0:`. Ноль считается «ложью». `move_toward(velocity.x, 0, SPEED)` плавно гасит скорость до нуля.
 
 :: steps Собираем
+visual: guide-m12-4-2
 - Открой `level.tscn`. Перетащи файл `player.tscn` из FileSystem в окно 2D, над полом.
 - Нажми `F6`. Стрелки — бег, пробел или Enter — прыжок.
 - Поменяй в скрипте `ui_accept` на своё действие `jump`, а `ui_left`/`ui_right` — на `move_left`/`move_right` из модуля 11.

@@ -6,6 +6,7 @@
 - Главные узлы интерфейса
 
 :: text Зелёные узлы
+visual: concept-m17
 Узлы интерфейса (UI) — **зелёные**. Их общий предок — **Control**. Они не участвуют в физике, зато умеют то, что нужно меню:
 
 - растягиваться под размер окна;
@@ -85,6 +86,7 @@ MainMenu (Control, якорь Full Rect)
 ```
 
 :: steps Главное меню
+visual: guide-m17-2-0
 - **Scene → New Scene → User Interface**. Корень — `Control`, назови `MainMenu`. Сохрани `main_menu.tscn`.
 - **Anchor preset → Full Rect** — меню на весь экран.
 - Добавь **CenterContainer** и тоже поставь **Full Rect**.
@@ -238,6 +240,7 @@ func _on_play_pressed():
 `disabled = true` выключает кнопку — её нельзя нажать мышкой. Удобно, например, пока не хватает денег на покупку.
 
 :: steps Меню → игра
+visual: guide-m17-4-0
 - Прикрепи к `MainMenu` скрипт из первого примера урока.
 - Проверь пути к кнопкам. Если дерево другое, перетащи кнопку в код с `Ctrl` — Godot напишет путь сам.
 - Сделай `main_menu.tscn` главной сценой: **Project → Project Settings → Application → Run → Main Scene**.
