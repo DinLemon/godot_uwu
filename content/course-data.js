@@ -282,6 +282,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Осмотрись",
+"lab": "editor-tour",
 "visual": "guide-m01-3-0",
 "items": [
 "Найди панель **Scene** слева вверху. Сейчас там кнопки «2D Scene», «3D Scene», «User Interface».",
@@ -522,6 +523,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Создаём сцену",
+"lab": "first-scene",
 "visual": "guide-m02-4-0",
 "md": "Открой свой проект из модуля 1.",
 "items": [
@@ -616,6 +618,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Прикрепляем скрипт",
+"lab": "attach-script",
 "visual": "guide-m03-1-0",
 "md": "Открой сцену `main.tscn` из прошлого модуля.",
 "items": [
@@ -2447,6 +2450,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Попробуй",
+"lab": "inspector-speed",
 "visual": "guide-m09-3-0",
 "md": "Открой проект и сцену `main.tscn`. У узла `Main` есть скрипт `main.gd`.",
 "items": [
@@ -2600,6 +2604,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Точка — два числа",
+"lab": "position-sprite",
 "visual": "concept-m10",
 "md": "Любое место на экране — это два числа:\n- **x** — сколько пикселей вправо от начала;\n- **y** — сколько пикселей **вниз** от начала.\n\nНачало (0, 0) — левый верхний угол экрана.\n\n```tree\n(0,0) ────────── x растёт вправо ──▶\n  │\n  │       • (200, 100)\n  │\n  ▼\ny растёт ВНИЗ\n```\n\n!> В школе ось y смотрела вверх. В Godot (и почти во всех 2D-движках) она смотрит **вниз**. Чтобы подняться вверх, y надо **уменьшать**."
 },
@@ -2861,6 +2866,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Создаём свои действия",
+"lab": "input-map",
 "visual": "guide-m11-1-0",
 "items": [
 "Открой **Project → Project Settings** (Проект → Настройки проекта).",
@@ -3250,6 +3256,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Пол",
+"lab": "solid-floor",
 "visual": "guide-m12-4-0",
 "md": "Создадим новую сцену-уровень.",
 "items": [
@@ -3408,6 +3415,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Кнопка, которая отвечает",
+"lab": "button-signal",
 "visual": "guide-m13-2-0",
 "md": "Открой `main.tscn`. У корня `Main` есть скрипт.",
 "items": [
@@ -3577,6 +3585,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Монетка-шаблон",
+"lab": "coin-instances",
 "visual": "guide-m14-1-0",
 "items": [
 "**Scene → New Scene**, корень **Area2D**, назови `Coin`.",
@@ -3911,6 +3920,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Мигающая монетка",
+"lab": "blink-animation",
 "visual": "guide-m15-3-0",
 "md": "Открой `coin.tscn`.",
 "items": [
@@ -4031,6 +4041,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Камера за игроком",
+"lab": "follow-camera",
 "visual": "guide-m16-1-0",
 "items": [
 "Открой `player.tscn`. Добавь в `Player` узел **Camera2D**.",
@@ -4087,6 +4098,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Создаём TileSet",
+"lab": "paint-level",
 "visual": "guide-m16-2-0",
 "md": "Скачай набор плиток (tileset), например на [kenney.nl](https://kenney.nl/assets) — «Pixel Platformer». Перетащи картинку в FileSystem.",
 "items": [
@@ -4266,6 +4278,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Главное меню",
+"lab": "game-menu",
 "visual": "guide-m17-2-0",
 "items": [
 "**Scene → New Scene → User Interface**. Корень — `Control`, назови `MainMenu`. Сохрани `main_menu.tscn`.",
@@ -4468,6 +4481,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Узел Timer",
+"lab": "timer-event",
 "visual": "concept-m18",
 "md": "Ты уже встречал **Timer** в модулях 13–14. Его главные свойства:\n\n- `wait_time` — сколько секунд ждать;\n- `one_shot` — сработать один раз (`true`) или повторяться (`false`);\n- `autostart` — запуститься сам при старте сцены;\n- `time_left` — сколько осталось.\n\nФункции: `start()`, `stop()`, `is_stopped()`. Сигнал: `timeout`."
 },
@@ -5153,6 +5167,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Точка останова",
+"lab": "repair-scene",
 "visual": "guide-m21-2-0",
 "md": "Открой скрипт игрока.",
 "items": [
@@ -5398,6 +5413,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Сцена с кубом",
+"lab": "first-3d",
 "visual": "guide-m22-2-0",
 "md": "Лучше делать в новом проекте с рендерером **Forward+** или **Mobile** — в 3D они красивее. Можно и в текущем.",
 "items": [
@@ -5712,6 +5728,7 @@ window.COURSES = {
 {
 "t": "steps",
 "title": "Собираем уровень",
+"lab": "coin-playtest",
 "visual": "guide-m23-5-0",
 "items": [
 "Новая сцена, корень **Node2D**, имя `Level`. Сохрани `scenes/level.tscn`.",
@@ -7913,5 +7930,1111 @@ window.GODOT_VISUALS = {
 "confirm": "Save & view"
 }
 }
+}
+};
+window.GODOT_PRACTICE = {
+"editor-tour": {
+"lesson": "m01-3",
+"mode": "scene",
+"title": "Освойся в редакторе",
+"brief": "Найди Scene, FileSystem и Inspector, затем открой 2D, 3D и Script. Нажимай на панели внутри тренажёра.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "visit",
+"label": "Открыть три панели редактора",
+"hint": "Нажми Scene, FileSystem и Inspector.",
+"values": [
+"Scene",
+"FileSystem",
+"Inspector"
+]
+},
+{
+"kind": "visit",
+"label": "Посетить три рабочих пространства",
+"hint": "Переключи 2D, 3D и Script.",
+"values": [
+"2D",
+"3D",
+"Script"
+]
+}
+],
+"hints": [
+"Scene содержит дерево узлов. FileSystem — файлы. Inspector — свойства выбранного узла."
+],
+"transfer": "В Godot найди эти же панели. В учебной модели их расположение упрощено, особенно на телефоне.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"first-scene": {
+"lesson": "m02-4",
+"mode": "scene",
+"title": "Собери первую сцену",
+"brief": "Создай корень Node2D. Добавь к нему Label с любым непустым текстом и Sprite2D с текстурой icon.svg. Названия узлов можешь выбрать сам.",
+"nodes": [],
+"goals": [
+{
+"kind": "node",
+"label": "Корень Node2D с надписью и картинкой",
+"hint": "Создай Node2D, затем выбери его перед добавлением дочерних Label и Sprite2D.",
+"pattern": {
+"type": "Node2D",
+"children": [
+{
+"type": "Label",
+"props": {
+"text": {
+"nonempty": true
+}
+}
+},
+{
+"type": "Sprite2D",
+"props": {
+"texture": {
+"eq": "icon.svg"
+}
+}
+}
+]
+}
+},
+{
+"kind": "run",
+"label": "Запустить собранную сцену",
+"hint": "Нажми F6 · Запустить."
+}
+],
+"hints": [
+"Кнопка «+ Узел» открывает поиск типа. Первый узел становится корнем.",
+"Чтобы узлы были соседями, перед каждым Create выбирай корневой Node2D.",
+"Выбери Label и заполни Text. У Sprite2D выбери Texture → icon.svg."
+],
+"transfer": "В Godot сохрани сцену как main.tscn и запусти F6. Здесь проверяются типы, свойства и связи узлов, а не их имена.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"attach-script": {
+"lesson": "m03-1",
+"mode": "script",
+"title": "Заставь узел говорить",
+"brief": "Выбери Main, прикрепи скрипт через Attach Script. Измени сообщение print на своё и запусти сцену. Подойдёт любой непустой вывод.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "node",
+"label": "У Node2D прикреплён скрипт",
+"hint": "Выбери Main → Attach Script → Create · Attach.",
+"pattern": {
+"type": "Node2D",
+"script": true
+}
+},
+{
+"kind": "print",
+"label": "Скрипт успешно напечатал сообщение",
+"hint": "Оставь print внутри _ready и нажми запуск."
+}
+],
+"hints": [
+"Вкладка Script открывается после прикрепления файла.",
+"Строка внутри print может быть любой. Сохрани кавычки и отступ перед print."
+],
+"transfer": "В Godot путь скрипта связывает файл с узлом. Здесь используется тот же учебный интерпретатор GDScript, что и в примерах курса.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"inspector-speed": {
+"lesson": "m09-3",
+"mode": "scene",
+"title": "Настрой персонажа через Inspector",
+"brief": "Выбери Player и настрой Speed в диапазоне 180–260. Добавь ребёнка Sprite2D с icon.svg. Имя и точное значение скорости свободные.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+},
+{
+"id": "Player",
+"type": "CharacterBody2D",
+"name": "Player",
+"parent": "Main",
+"props": {
+"x": 80,
+"y": 160,
+"speed": 160
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "node",
+"label": "Скорость персонажа 180–260 и видимый спрайт",
+"hint": "Выбери Player, измени Speed и добавь ему Sprite2D с Texture.",
+"pattern": {
+"type": "CharacterBody2D",
+"children": [
+{
+"type": "Sprite2D",
+"props": {
+"texture": {
+"eq": "icon.svg"
+}
+}
+}
+],
+"props": {
+"speed": {
+"min": 180,
+"max": 260
+}
+}
+}
+}
+],
+"hints": [
+"Speed — пример экспортируемого свойства. В Godot такое поле появляется после @export var speed.",
+"Выбери Player перед добавлением Sprite2D — картинка должна двигаться вместе с ним."
+],
+"transfer": "Повтори в Godot с @export var speed. Учебное поле Speed уже подготовлено и не заменяет объявление переменной в скрипте.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"position-sprite": {
+"lesson": "m10-1",
+"mode": "scene",
+"title": "Поставь картинку в нужную область",
+"brief": "Выбери Sprite2D, назначь icon.svg и поставь картинку в правую нижнюю область: X от 190 до 260, Y от 130 до 190.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+},
+{
+"id": "Sprite2D",
+"type": "Sprite2D",
+"name": "Sprite2D",
+"parent": "Main",
+"props": {
+"x": 160,
+"y": 100,
+"texture": "",
+"scale": 1,
+"alpha": 1
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "node",
+"label": "Картинка справа внизу",
+"hint": "В Inspector измени Position · X, Position · Y и Texture.",
+"pattern": {
+"type": "Sprite2D",
+"props": {
+"texture": {
+"eq": "icon.svg"
+},
+"x": {
+"min": 190,
+"max": 260
+},
+"y": {
+"min": 130,
+"max": 190
+}
+}
+}
+}
+],
+"hints": [
+"В 2D X растёт вправо, Y — вниз.",
+"Любая точка внутри заданной области подходит. Точного пикселя не требуется."
+],
+"transfer": "В Godot те же координаты находятся в Node2D → Transform → Position. Посмотри, как движется картинка при изменении X и Y.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"input-map": {
+"lesson": "m11-1",
+"mode": "input",
+"title": "Настрой управление",
+"brief": "В Input Map создай move_left, move_right и jump. Привяжи A и стрелку влево, D и стрелку вправо, а к jump — Space. Дополнительные клавиши разрешены.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+},
+{
+"id": "Player",
+"type": "CharacterBody2D",
+"name": "Player",
+"parent": "Main",
+"props": {
+"x": 80,
+"y": 160,
+"speed": 160
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "action",
+"label": "move_left: A и ArrowLeft",
+"hint": "Добавь move_left, затем назначь обе клавиши через + Клавиша.",
+"name": "move_left",
+"keys": [
+"A",
+"ArrowLeft"
+]
+},
+{
+"kind": "action",
+"label": "move_right: D и ArrowRight",
+"hint": "Добавь move_right и обе клавиши направления.",
+"name": "move_right",
+"keys": [
+"D",
+"ArrowRight"
+]
+},
+{
+"kind": "action",
+"label": "jump: Space",
+"hint": "Добавь jump и Space.",
+"name": "jump",
+"keys": [
+"Space"
+]
+},
+{
+"kind": "run",
+"label": "Запустить предпросмотр управления",
+"hint": "Запусти F6 и попробуй кнопки направления под Output."
+}
+],
+"hints": [
+"Add New Action создаёт действие. Кнопка + Клавиша добавляет ещё одну привязку, не заменяя предыдущую.",
+"Здесь имена действий заданы условиями: по этим именам код обращается к Input Map."
+],
+"transfer": "В Godot открой Project → Project Settings → Input Map. В учебной модели события выбираются из списка, чтобы не перехватывать клавиши браузера.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"solid-floor": {
+"lesson": "m12-4",
+"mode": "scene",
+"title": "Почини столкновения",
+"brief": "У персонажа и пола пока нет форм. Добавь CollisionShape2D каждому телу, выбери Shape и оставь Disabled выключенным. Запусти проверку пола.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+},
+{
+"id": "Player",
+"type": "CharacterBody2D",
+"name": "Player",
+"parent": "Main",
+"props": {
+"x": 80,
+"y": 160,
+"speed": 160
+},
+"script": ""
+},
+{
+"id": "Sprite2D",
+"type": "Sprite2D",
+"name": "Sprite2D",
+"parent": "Player",
+"props": {
+"x": 160,
+"y": 100,
+"texture": "icon.svg",
+"scale": 1,
+"alpha": 1
+},
+"script": ""
+},
+{
+"id": "Ground",
+"type": "StaticBody2D",
+"name": "Ground",
+"parent": "Main",
+"props": {
+"x": 160,
+"y": 210
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "node",
+"label": "У CharacterBody2D есть активная форма",
+"hint": "Выбери Player и добавь CollisionShape2D с Shape.",
+"pattern": {
+"type": "CharacterBody2D",
+"children": [
+{
+"type": "CollisionShape2D",
+"props": {
+"shape": {
+"nonempty": true
+},
+"disabled": {
+"eq": false
+}
+}
+}
+]
+}
+},
+{
+"kind": "node",
+"label": "У StaticBody2D есть активная форма",
+"hint": "Выбери Ground и добавь CollisionShape2D с Shape.",
+"pattern": {
+"type": "StaticBody2D",
+"children": [
+{
+"type": "CollisionShape2D",
+"props": {
+"shape": {
+"nonempty": true
+},
+"disabled": {
+"eq": false
+}
+}
+}
+]
+}
+},
+{
+"kind": "grounded",
+"label": "Персонаж опирается на пол",
+"hint": "Запусти F6 после настройки обеих форм."
+}
+],
+"hints": [
+"Картинка и форма столкновения — разные узлы. Sprite2D не останавливает падение.",
+"CollisionShape2D должен быть ребёнком физического тела, не его соседом."
+],
+"transfer": "В Godot настрой размеры форм и movement-код. Здесь показана упрощённая проверка опоры, а не полноценное падение с гравитацией.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"button-signal": {
+"lesson": "m13-2",
+"mode": "signal",
+"title": "Соедини кнопку с обработчиком",
+"brief": "Выбери Button и подключи pressed к Main через Signals. Main уже содержит подготовленный обработчик. Запусти сцену и нажми кнопку в игре.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": "main.gd"
+},
+{
+"id": "Button",
+"type": "Button",
+"name": "Button",
+"parent": "Main",
+"props": {
+"x": 24,
+"y": 80,
+"text": "Играть"
+},
+"script": ""
+},
+{
+"id": "Label",
+"type": "Label",
+"name": "Label",
+"parent": "Main",
+"props": {
+"x": 24,
+"y": 24,
+"text": "Жду нажатия",
+"font_size": 24
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "signal",
+"label": "Сигнал дошёл до обработчика",
+"hint": "Выбери Button → Signals · pressed → Main → Connect, затем F6 и «Нажать кнопку в игре»."
+}
+],
+"hints": [
+"Узел-получатель должен иметь скрипт. Здесь он уже прикреплён к Main.",
+"Connect настраивает связь. Для проверки события нажми кнопку после запуска."
+],
+"transfer": "В Godot открой Signals рядом с Inspector и подключи pressed. Внутри _on_button_pressed() присвой $Label.text = \"Работает!\".",
+"success": "Теперь повтори результат в настоящем редакторе.",
+"code": "extends Node\n\nfunc _ready():\n\tpass\n\nfunc _on_button_pressed():\n\t$Label.text = \"Работает!\""
+},
+"coin-instances": {
+"lesson": "m14-1",
+"mode": "instance",
+"title": "Размножь сцену монетки",
+"brief": "Выбери Main и создай три экземпляра coin.tscn. Это готовый шаблон Area2D с картинкой и формой. Затем сдвинь одну монетку через Inspector.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "node",
+"label": "Три экземпляра одной сцены",
+"hint": "Выбери Main и трижды нажми Instantiate · coin.tscn.",
+"pattern": {
+"type": "Area2D",
+"template": "coin"
+},
+"count": 3
+},
+{
+"kind": "node",
+"label": "Хотя бы одна монетка правее X = 250",
+"hint": "Выбери любую Coin в дереве и поставь Position · X между 250 и 300.",
+"pattern": {
+"type": "Area2D",
+"props": {
+"x": {
+"min": 250,
+"max": 300
+}
+}
+}
+}
+],
+"hints": [
+"Каждое нажатие Instantiate создаёт независимый экземпляр готовой сцены.",
+"Выбирай Main перед каждым добавлением, чтобы монетки были на одном уровне дерева."
+],
+"transfer": "В Godot перетащи coin.tscn из FileSystem в сцену три раза. У каждого экземпляра свои Transform, общая исходная сцена одна.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"blink-animation": {
+"lesson": "m15-3",
+"mode": "animation",
+"title": "Собери мигающую монетку",
+"brief": "Для Sprite2D создай анимацию modulate:a: в момент 0 значение 1, в конце значение 0. Включи Loop. Проведи курсор времени и посмотри результат.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+},
+{
+"id": "Sprite2D",
+"type": "Sprite2D",
+"name": "Sprite2D",
+"parent": "Main",
+"props": {
+"x": 160,
+"y": 100,
+"texture": "icon.svg",
+"scale": 1,
+"alpha": 1
+},
+"script": ""
+},
+{
+"id": "AnimationPlayer",
+"type": "AnimationPlayer",
+"name": "AnimationPlayer",
+"parent": "Main",
+"props": {},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "timeline",
+"label": "Два ключа прозрачности и Loop",
+"hint": "Выбери Sprite2D в «Узел анимации», modulate:a, Loop. Добавь ключ 0 → 1 и ключ в конце анимации → 0."
+},
+{
+"kind": "node",
+"label": "AnimationPlayer остаётся в сцене",
+"hint": "Сохрани подготовленный AnimationPlayer или добавь свой.",
+"pattern": {
+"type": "AnimationPlayer"
+}
+}
+],
+"hints": [
+"Время ключа должно лежать от 0 до длины анимации. Длина может быть любой положительной.",
+"Alpha 1 — видно, Alpha 0 — прозрачно. Курсор времени показывает промежуточные значения."
+],
+"transfer": "В Godot ключи добавляются в AnimationPlayer. Учебная шкала показывает линейную интерполяцию; здесь нет полноценного редактора дорожек.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"follow-camera": {
+"lesson": "m16-1",
+"mode": "scene",
+"title": "Добавь камеру игроку",
+"brief": "Создай Camera2D ребёнком Player и включи Enabled. Zoom поставь от 1 до 2. Проверь, что рамка камеры появилась в предпросмотре.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+},
+{
+"id": "Player",
+"type": "CharacterBody2D",
+"name": "Player",
+"parent": "Main",
+"props": {
+"x": 80,
+"y": 160,
+"speed": 160
+},
+"script": ""
+},
+{
+"id": "Sprite2D",
+"type": "Sprite2D",
+"name": "Sprite2D",
+"parent": "Player",
+"props": {
+"x": 160,
+"y": 100,
+"texture": "icon.svg",
+"scale": 1,
+"alpha": 1
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "node",
+"label": "Активная камера внутри Player",
+"hint": "Выбери Player → + Узел → Camera2D, затем Enabled и Zoom.",
+"pattern": {
+"type": "CharacterBody2D",
+"children": [
+{
+"type": "Camera2D",
+"props": {
+"enabled": {
+"eq": true
+},
+"zoom": {
+"min": 1,
+"max": 2
+}
+}
+}
+]
+}
+}
+],
+"hints": [
+"Если добавить Camera2D к Main, она будет соседом Player, а не его частью.",
+"В учебном предпросмотре активная камера обозначена пунктирной рамкой."
+],
+"transfer": "В Godot Camera2D как ребёнок Player следует за его позицией. Отдельно можно включить Position Smoothing.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"paint-level": {
+"lesson": "m16-2",
+"mode": "tiles",
+"title": "Нарисуй проходимый участок",
+"brief": "Выбери кисть «Земля» и нарисуй непрерывный пол в нижнем ряду под столбцами 2–7. Поставь хотя бы одну монету прямо над ним. Ластик исправляет ошибки.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+},
+{
+"id": "TileMapLayer",
+"type": "TileMapLayer",
+"name": "TileMapLayer",
+"parent": "Main",
+"props": {},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "tiles",
+"label": "Сплошной пол и монета над маршрутом",
+"hint": "Закрась нижние клетки в столбцах 2–7 землёй. Кистью «Монета» выбери клетку над этим полом."
+},
+{
+"kind": "node",
+"label": "TileMapLayer остаётся в сцене",
+"hint": "Сохрани подготовленный TileMapLayer или добавь свой.",
+"pattern": {
+"type": "TileMapLayer"
+}
+}
+],
+"hints": [
+"Нижний ряд — пятый. Рабочий участок — шесть средних столбцов.",
+"Монета должна быть в четвёртом ряду над любой клеткой построенного участка."
+],
+"transfer": "В Godot это кисти TileMapLayer и палитра TileSet. Подготовка атласа и физических слоёв остаётся отдельным шагом в настоящем редакторе.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"game-menu": {
+"lesson": "m17-2",
+"mode": "scene",
+"title": "Собери меню игры",
+"brief": "У Control создай Label с названием своей игры, Button с непустой надписью и ProgressBar с Max Value = 100 и Value от 40 до 80. Расположение свободное.",
+"nodes": [
+{
+"id": "Menu",
+"type": "Control",
+"name": "Menu",
+"parent": null,
+"props": {},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "node",
+"label": "Control содержит заголовок, кнопку и индикатор",
+"hint": "Создай три дочерних узла у Menu и заполни их свойства.",
+"pattern": {
+"type": "Control",
+"children": [
+{
+"type": "Label",
+"props": {
+"text": {
+"nonempty": true
+}
+}
+},
+{
+"type": "Button",
+"props": {
+"text": {
+"nonempty": true
+}
+}
+},
+{
+"type": "ProgressBar",
+"props": {
+"max_value": {
+"eq": 100
+},
+"value": {
+"min": 40,
+"max": 80
+}
+}
+}
+]
+}
+}
+],
+"hints": [
+"Выбирай Menu перед каждым добавлением.",
+"Text можно написать свой. Проверяется непустая надпись, не заранее заданная фраза."
+],
+"transfer": "В Godot для адаптивной раскладки используй контейнеры и anchors. Здесь отрабатываются дерево Control и свойства элементов интерфейса.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"timer-event": {
+"lesson": "m18-2",
+"mode": "timer",
+"title": "Настрой отложенное событие",
+"brief": "Добавь Timer к Main. Выставь Wait Time от 0.5 до 3 секунд, включи One Shot и Autostart. Запусти сцену и пропусти три учебные секунды.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "node",
+"label": "Timer запускается один раз с задержкой",
+"hint": "В Inspector Timer настрой Wait Time, One Shot и Autostart.",
+"pattern": {
+"type": "Timer",
+"props": {
+"wait_time": {
+"min": 0.5,
+"max": 3
+},
+"one_shot": {
+"eq": true
+},
+"autostart": {
+"eq": true
+}
+}
+}
+},
+{
+"kind": "timer",
+"label": "Получить timeout в предпросмотре",
+"hint": "Нажми F6, затем «Пропустить 3 учебные секунды»."
+}
+],
+"hints": [
+"Autostart запускает Timer вместе со сценой. One Shot останавливает его после первого timeout.",
+"Здесь учебное время продвигается кнопкой, чтобы не заставлять тебя ждать."
+],
+"transfer": "В Godot подключи timeout к обработчику. Реальный Timer отсчитывает время движка, здесь проверяется настройка и наступление события.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"repair-scene": {
+"lesson": "m21-2",
+"mode": "scene",
+"title": "Найди причину проваливания",
+"brief": "Картинка и форма есть, пол тоже есть, но персонаж не сталкивается. Исследуй свойства, исправь причину и запусти предпросмотр. Можно чинить существующую форму или добавить рабочую.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+},
+{
+"id": "Player",
+"type": "CharacterBody2D",
+"name": "Player",
+"parent": "Main",
+"props": {
+"x": 80,
+"y": 160,
+"speed": 160
+},
+"script": ""
+},
+{
+"id": "Sprite2D",
+"type": "Sprite2D",
+"name": "Sprite2D",
+"parent": "Player",
+"props": {
+"x": 160,
+"y": 100,
+"texture": "icon.svg",
+"scale": 1,
+"alpha": 1
+},
+"script": ""
+},
+{
+"id": "Ground",
+"type": "StaticBody2D",
+"name": "Ground",
+"parent": "Main",
+"props": {
+"x": 160,
+"y": 210
+},
+"script": ""
+},
+{
+"id": "BodyShape",
+"type": "CollisionShape2D",
+"name": "BodyShape",
+"parent": "Player",
+"props": {
+"shape": "RectangleShape2D",
+"disabled": true
+},
+"script": ""
+},
+{
+"id": "FloorShape",
+"type": "CollisionShape2D",
+"name": "FloorShape",
+"parent": "Ground",
+"props": {
+"shape": "RectangleShape2D",
+"disabled": false
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "grounded",
+"label": "Рабочая опора под персонажем",
+"hint": "Проверь Disabled у формы Player и запусти F6."
+}
+],
+"hints": [
+"В Scene раскрой смысл типов: тело, спрайт и форма отвечают за разное.",
+"У BodyShape включён Disabled. Выключи его."
+],
+"transfer": "В Godot включи Debug → Visible Collision Shapes и проверь положение и размеры форм. Здесь специально сломан флаг Disabled.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"first-3d": {
+"lesson": "m22-2",
+"mode": "scene",
+"title": "Поставь куб, свет и камеру",
+"brief": "У Node3D создай MeshInstance3D с BoxMesh, DirectionalLight3D с Energy выше нуля и Camera3D с Current. Переключись в 3D.",
+"nodes": [
+{
+"id": "World",
+"type": "Node3D",
+"name": "World",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0,
+"z": 0
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "node",
+"label": "В 3D-сцене есть куб, свет и активная камера",
+"hint": "Добавь три дочерних узла World, настрой Mesh, Light Energy и Current.",
+"pattern": {
+"type": "Node3D",
+"children": [
+{
+"type": "MeshInstance3D",
+"props": {
+"mesh": {
+"eq": "BoxMesh"
+}
+}
+},
+{
+"type": "DirectionalLight3D",
+"props": {
+"energy": {
+"min": 0.1
+}
+}
+},
+{
+"type": "Camera3D",
+"props": {
+"current": {
+"eq": true
+}
+}
+}
+]
+}
+},
+{
+"kind": "visit",
+"label": "Открыть 3D",
+"hint": "Нажми вкладку 3D.",
+"values": [
+"3D"
+]
+}
+],
+"hints": [
+"MeshInstance3D показывает геометрию, но только после назначения Mesh.",
+"Камера без Current не выбрана для запуска. Свет с нулевой энергией не освещает сцену."
+],
+"transfer": "В Godot дополнительно направь камеру на куб. Учебная 3D-картинка схематична и показывает состав сцены, не рассчитывает свет и проекцию.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
+"coin-playtest": {
+"lesson": "m23-5",
+"mode": "final",
+"title": "Собери и проверь игровой фрагмент",
+"brief": "Физические тела уже подготовлены. Выбери Main и добавь экземпляр coin.tscn. Поставь монету на X от 110 до 290. Запусти сцену и дойди до неё кнопками направления.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+},
+{
+"id": "Player",
+"type": "CharacterBody2D",
+"name": "Player",
+"parent": "Main",
+"props": {
+"x": 80,
+"y": 160,
+"speed": 160
+},
+"script": ""
+},
+{
+"id": "Sprite2D",
+"type": "Sprite2D",
+"name": "Sprite2D",
+"parent": "Player",
+"props": {
+"x": 160,
+"y": 100,
+"texture": "icon.svg",
+"scale": 1,
+"alpha": 1
+},
+"script": ""
+},
+{
+"id": "Ground",
+"type": "StaticBody2D",
+"name": "Ground",
+"parent": "Main",
+"props": {
+"x": 160,
+"y": 210
+},
+"script": ""
+},
+{
+"id": "BodyShape",
+"type": "CollisionShape2D",
+"name": "BodyShape",
+"parent": "Player",
+"props": {
+"shape": "RectangleShape2D",
+"disabled": false
+},
+"script": ""
+},
+{
+"id": "FloorShape",
+"type": "CollisionShape2D",
+"name": "FloorShape",
+"parent": "Ground",
+"props": {
+"shape": "RectangleShape2D",
+"disabled": false
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "collect",
+"label": "Собрать монету при работающих столкновениях",
+"hint": "Выбери Main → Instantiate · coin.tscn, запусти F6 и двигайся вправо до монеты.",
+"count": 1
+}
+],
+"hints": [
+"Монета создана из готового шаблона с Area2D и CollisionShape2D.",
+"Player начинает на X = 80. Одно нажатие направления перемещает его на 32 учебных пикселя."
+],
+"transfer": "В Godot сбор монеты реализуется через body_entered и queue_free. Здесь игровой тест намеренно упрощён: движение по X и контакт с монетой.",
+"success": "Теперь повтори результат в настоящем редакторе."
 }
 };
