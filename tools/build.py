@@ -81,6 +81,8 @@ def parse_card(kind, title, lines, where):
             card["fails"] = line[7:].strip() in ("yes", "true", "да")
         elif line.startswith("contains: "):
             card.setdefault("mustContain", []).append(line[10:].strip())
+        elif line.startswith("visual: "):
+            card["visual"] = line[8:].strip()
         elif (kind == "code" and seen_fence) or (kind == "steps" and items):
             after.append(line)
         else:
@@ -279,14 +281,39 @@ def main():
         print(f"ВНИМАНИЕ: {len(missing_en)} уроков без перевода, вставлены по-русски")
     if single:
         del courses["en"], glossaries["en"]
+    visuals_path = ROOT / "course" / "visuals.json"
+    visuals = json.loads(visuals_path.read_text(encoding="utf-8")) if visuals_path.exists() else {}
+    for lang, modules in courses.items():
+        for module in modules:
+            for lesson in module["lessons"]:
+                for card in lesson["cards"]:
+                    if "visual" not in card:
+                        continue
+                    visual = visuals.get(card["visual"])
+                    if not visual:
+                        raise SystemExit(f"{lang}/{lesson['id']}: неизвестная схема {card['visual']}")
+                    if card["t"] == "steps" and len(visual.get("areas", [])) != len(card["items"]):
+                        raise SystemExit(f"{lang}/{lesson['id']}: число отметок на схеме не совпадает с действиями")
+                    regions = {
+                        "editor": {"menu", "scene", "center", "inspector", "files", "bottom"},
+                        "dialog": {"menu", "tabs", "field", "list", "confirm"},
+                    }
+                    for index, area in enumerate(visual.get("areas", [])):
+                        frame = visual.get("frames", {}).get(str(index), visual)
+                        if not set(area.split()).issubset(regions.get(frame["kind"], set())):
+                            raise SystemExit(f"{lang}/{lesson['id']}: область действия {index + 1} отсутствует на схеме")
     out = ROOT / "content" / "course-data.js"
     out.parent.mkdir(exist_ok=True)
     out.write_text(
         "// Сгенерировано tools/build.py из course/<язык>/*.txt. Не редактируй вручную.\n"
         f"window.COURSES = {json.dumps({k: {'modules': v} for k, v in courses.items()}, ensure_ascii=False, indent=0)};\n"
         f"window.GLOSSARIES = {json.dumps(glossaries, ensure_ascii=False, indent=0)};\n",
+        # Схемы добавляют иллюстрации внутрь карточек, сохраняя их порядок.
         encoding="utf-8",
     )
+    if visuals:
+        with out.open("a", encoding="utf-8") as stream:
+            stream.write(f"window.GODOT_VISUALS = {json.dumps(visuals, ensure_ascii=False, indent=0)};\n")
     for lang, modules in courses.items():
         n_l = sum(len(m["lessons"]) for m in modules)
         n_c = sum(len(l["cards"]) for m in modules for l in m["lessons"])
