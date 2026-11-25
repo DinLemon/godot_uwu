@@ -1,0 +1,249 @@
+# MODULE m17 | Интерфейс | Надписи, кнопки, полоски здоровья и меню
+
+## LESSON m17-1 | Control-узлы | 7
+:: goals
+- Чем узлы интерфейса отличаются от Node2D
+- Главные узлы интерфейса
+
+:: text Зелёные узлы
+Узлы интерфейса (UI) — **зелёные**. Их общий предок — **Control**. Они не участвуют в физике, зато умеют то, что нужно меню:
+
+- растягиваться под размер окна;
+- выравниваться по краям и по центру;
+- реагировать на мышь и клавиатуру.
+
+Главные:
+- **Label** — текст;
+- **Button** — кнопка;
+- **TextureRect** — картинка (иконка, фон);
+- **ProgressBar** / **TextureProgressBar** — полоска (здоровье, загрузка);
+- **Panel** — подложка;
+- **LineEdit** — поле для ввода текста.
+
+:: code
+Свойства интерфейса меняют так же, как любые другие.
+```gd
+extends Control
+
+func _ready():
+	var label = Label.new()
+	add_child(label)
+	label.text = "Очки: 0"
+	var bar = ProgressBar.new()
+	add_child(bar)
+	bar.max_value = 5
+	bar.value = 3
+	print(label.text)
+	print(bar.value, " из ", bar.max_value)
+```
+```out
+Очки: 0
+3.0 из 5.0
+```
+`value` у ProgressBar — дробное число, поэтому печатается `3.0`.
+
+:: quiz
+Каким узлом сделать полоску здоровья?
+[ ] Label => Он показывает текст.
+[x] ProgressBar => Верно. У него есть `value`, `min_value` и `max_value`.
+[ ] Sprite2D => Можно, но придётся всё считать самому. ProgressBar делает это сам.
+
+:: recap
+- Узлы интерфейса — зелёные, наследники **Control**.
+- **Label**, **Button**, **TextureRect**, **ProgressBar**, **Panel**.
+
+## LESSON m17-2 | Якоря и контейнеры | 8
+:: goals
+- Как прибить элемент к углу экрана
+- Как контейнеры раскладывают элементы сами
+
+:: text Якоря
+Экраны бывают разные. Если поставить счёт в точку (1800, 20), на маленьком экране он уедет за край.
+
+**Якоря** (anchors) прибивают элемент к краю или центру окна. Счёт прибит к правому верхнему углу — он там на любом экране.
+
+Быстро поставить якоря: выбери Control-узел, над окном 2D нажми зелёную иконку **Anchor preset** (крестик в рамке) и выбери, например, **Top Right**.
+
+:: text Контейнеры
+Расставлять кнопки по пикселям — долго. **Контейнеры** раскладывают детей сами:
+
+- **VBoxContainer** — столбиком (сверху вниз);
+- **HBoxContainer** — в строку (слева направо);
+- **GridContainer** — сеткой;
+- **MarginContainer** — с отступами от краёв;
+- **CenterContainer** — по центру.
+
+Положил три кнопки в VBoxContainer — они выстроились столбиком с одинаковыми промежутками.
+
+```tree
+MainMenu (Control, якорь Full Rect)
+└── CenterContainer (якорь Full Rect)
+    └── VBoxContainer
+        ├── Title (Label)
+        ├── PlayButton (Button)
+        └── QuitButton (Button)
+```
+
+:: steps Главное меню
+- **Scene → New Scene → User Interface**. Корень — `Control`, назови `MainMenu`. Сохрани `main_menu.tscn`.
+- **Anchor preset → Full Rect** — меню на весь экран.
+- Добавь **CenterContainer** и тоже поставь **Full Rect**.
+- В него добавь **VBoxContainer**. В него — **Label** (текст `Моя игра`) и две **Button**: `Играть` и `Выход`.
+- Переименуй кнопки в `PlayButton` и `QuitButton`.
+- Запусти `F6` и поменяй размер окна мышкой. Меню остаётся в центре.
+
+:: quiz
+Нужно три кнопки ровно друг под другом. Что проще всего?
+[x] Положить их в VBoxContainer => Верно. Контейнер расставит их сам.
+[ ] Двигать каждую мышкой по пикселям => Долго и съедет на другом экране.
+[ ] Сделать их детьми друг друга => Так они не выстроятся.
+
+:: recap
+- **Якоря** прибивают элемент к краю или центру окна.
+- **Контейнеры** (VBox, HBox, Grid, Margin, Center) раскладывают детей сами.
+- Меню: Control (Full Rect) → CenterContainer → VBoxContainer → кнопки.
+
+## LESSON m17-3 | HUD поверх игры: CanvasLayer | 7
+:: goals
+- Почему счёт не должен уезжать с камерой
+- Что такое CanvasLayer
+
+:: text Интерфейс поверх мира
+Если положить Label со счётом прямо в уровень, при движении камеры он уедет вместе с миром.
+
+**CanvasLayer** — отдельный слой поверх игры. Всё, что внутри него, **не двигается с камерой**. Туда кладут **HUD** — счёт, здоровье, таймер.
+
+```tree
+Level
+├── Player
+├── Ground (TileMapLayer)
+└── HUD (CanvasLayer)
+    ├── ScoreLabel (Label)
+    └── HealthBar (ProgressBar)
+```
+
+:: code
+Скрипт HUD обычно простой: функции, которые обновляют надписи. Их вызывает уровень, когда что-то изменилось.
+```gd
+extends CanvasLayer
+
+@onready var score_label = $ScoreLabel
+@onready var health_bar = $HealthBar
+
+func set_score(value):
+	score_label.text = "Очки: %d" % value
+
+func set_health(value):
+	health_bar.value = value
+```
+norun: yes
+Удобно подключить к этим функциям сигналы игрока: `player.health_changed.connect(hud.set_health)`.
+
+:: task
+Напиши функцию `format_time(seconds)`, которая превращает секунды в текст `минуты:секунды` для таймера на экране. Секунды всегда двумя цифрами. Проверки уже в `_ready`:
+```text
+1:05
+0:59
+12:00
+```
+```gd
+extends CanvasLayer
+
+func _ready():
+	print(format_time(65))
+	print(format_time(59))
+	print(format_time(720))
+
+func format_time(seconds):
+	pass
+```
+```solution
+extends CanvasLayer
+
+func _ready():
+	print(format_time(65))
+	print(format_time(59))
+	print(format_time(720))
+
+func format_time(seconds):
+	var m = seconds / 60
+	var s = seconds % 60
+	return "%d:%02d" % [m, s]
+```
+```expect
+1:05
+0:59
+12:00
+```
+hint: Минуты — целое деление на 60. Секунды — остаток `% 60`.
+hint: Шаблон `%02d` печатает число двумя цифрами с нулём впереди: 5 → `05`.
+
+:: recap
+- **CanvasLayer** — слой поверх игры, не двигается с камерой.
+- HUD (счёт, здоровье, таймер) кладут в CanvasLayer.
+- `"%02d"` — число двумя цифрами: `05`.
+
+## LESSON m17-4 | Кнопки и смена экрана | 7
+:: goals
+- Как реагировать на нажатие кнопки
+- Как перейти из меню в игру
+
+:: code
+Скрипт меню: две кнопки, два сигнала `pressed`.
+```gd
+extends Control
+
+func _ready():
+	$CenterContainer/VBoxContainer/PlayButton.pressed.connect(_on_play_pressed)
+	$CenterContainer/VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
+	$CenterContainer/VBoxContainer/PlayButton.grab_focus()
+
+func _on_play_pressed():
+	get_tree().change_scene_to_file("res://level.tscn")
+
+func _on_quit_pressed():
+	get_tree().quit()
+```
+norun: yes
+- `change_scene_to_file` — выгрузить текущую сцену и загрузить другую.
+- `quit()` — закрыть игру.
+- `grab_focus()` — кнопка выбрана сразу, можно нажать Enter или кнопку геймпада.
+
+> Сигналы можно подключить и мышкой во вкладке **Node → Signals** — как в модуле 13.
+
+:: code
+В тренажёре сменить сцену нельзя, но можно проверить логику кнопок через `emit()`.
+```gd
+extends Control
+
+var clicks = 0
+
+func _ready():
+	var play = Button.new()
+	play.text = "Играть"
+	add_child(play)
+	play.pressed.connect(_on_play_pressed)
+	play.pressed.emit()
+	play.disabled = true
+	print("Кнопка выключена: ", play.disabled)
+
+func _on_play_pressed():
+	clicks += 1
+	print("Нажата кнопка, раз: ", clicks)
+```
+```out
+Нажата кнопка, раз: 1
+Кнопка выключена: true
+```
+`disabled = true` выключает кнопку — её нельзя нажать мышкой. Удобно, например, пока не хватает денег на покупку.
+
+:: steps Меню → игра
+- Прикрепи к `MainMenu` скрипт из первого примера урока.
+- Проверь пути к кнопкам. Если дерево другое, перетащи кнопку в код с `Ctrl` — Godot напишет путь сам.
+- Сделай `main_menu.tscn` главной сценой: **Project → Project Settings → Application → Run → Main Scene**.
+- Нажми `F5`: меню → «Играть» → уровень.
+
+:: recap
+- Кнопка → сигнал `pressed` → твоя функция.
+- `get_tree().change_scene_to_file("res://x.tscn")` — сменить сцену.
+- `get_tree().quit()` — выйти из игры.

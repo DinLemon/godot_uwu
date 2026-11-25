@@ -1,0 +1,180 @@
+# MODULE m20 | Сохранение | Рекорды и прогресс между запусками
+
+## LESSON m20-1 | res:// и user:// | 6
+:: goals
+- Куда игра может сохранять файлы
+- Чем `res://` отличается от `user://`
+
+:: text Два адреса
+В Godot пути к файлам начинаются с одного из двух адресов:
+
+- `res://` — папка **проекта**. Там картинки, сцены, скрипты. В готовой игре эта папка **только для чтения**.
+- `user://` — личная папка игры на компьютере игрока. Туда **можно записывать**: сохранения, настройки, рекорды.
+
+!> Сохранять в `res://` нельзя: в готовой игре это не сработает.
+
+Где лежит `user://` на самом деле: **Project → Open User Data Folder** откроет её в проводнике.
+
+:: quiz
+Куда сохранить рекорд игрока?
+[ ] `res://record.txt` => В готовой игре `res://` только для чтения.
+[x] `user://record.txt` => Верно. Это папка для данных игрока.
+[ ] Никуда, переменные сохраняются сами => После закрытия игры переменные пропадают.
+
+:: recap
+- `res://` — файлы проекта, только чтение в готовой игре.
+- `user://` — сюда пишут сохранения и настройки.
+
+## LESSON m20-2 | JSON — данные в виде текста | 8
+:: goals
+- Что такое JSON
+- Как превратить словарь в текст и обратно
+
+:: text Словарь → текст → словарь
+Файл — это текст. А данные игры — словари, массивы, числа. Их надо превратить в текст и обратно.
+
+Самый популярный формат — **JSON**. Он очень похож на словари GDScript:
+
+```text
+{"level": 3, "coins": 120, "items": ["меч", "ключ"]}
+```
+
+- `JSON.stringify(данные)` — превратить в текст;
+- `JSON.parse_string(текст)` — превратить текст обратно в данные.
+
+:: code
+```gd
+extends Node
+
+func _ready():
+	var save = {"level": 3, "coins": 120, "items": ["меч", "ключ"]}
+	var text = JSON.stringify(save)
+	print(text)
+	var back = JSON.parse_string(text)
+	print(back["items"][1])
+	print(back["level"])
+```
+```out
+{"coins":120,"items":["меч","ключ"],"level":3}
+ключ
+3.0
+```
+Две особенности:
+- ключи в тексте отсортированы по алфавиту — Godot так делает по умолчанию;
+- `level` вернулся как `3.0`. В JSON все числа — дробные. Если нужно целое — `int(back["level"])`.
+
+:: text Чего JSON не умеет
+JSON хранит только простые вещи: числа, строки, true/false, null, массивы и словари со **строковыми** ключами.
+
+`Vector2`, `Color` и узлы напрямую не сохранить. Их раскладывают на числа:
+
+```gd
+var data = {"x": position.x, "y": position.y}
+# а при загрузке:
+position = Vector2(data["x"], data["y"])
+```
+
+:: fill
+Преврати словарь в текст JSON и обратно.
+```gd
+extends Node
+
+func _ready():
+	var d = {"hp": 5}
+	var s = JSON.___(d)
+	var back = JSON.___(s)
+	print(int(back["hp"]))
+```
+= stringify
+= parse_string
+explain: `stringify` — в текст, `parse_string` — обратно в данные.
+
+:: recap
+- `JSON.stringify(данные)` → текст, `JSON.parse_string(текст)` → данные.
+- Числа из JSON возвращаются дробными: используй `int()`.
+- Vector2 и Color раскладывают на числа.
+
+## LESSON m20-3 | FileAccess: запись и чтение | 8
+:: goals
+- Как записать текст в файл
+- Как прочитать его обратно
+- Что делать, если файла ещё нет
+
+:: code
+Сохранение и загрузка. Это код для Godot — в тренажёре нет файлов.
+```gd
+extends Node
+
+const SAVE_PATH = "user://save.json"
+
+func save_game(data: Dictionary):
+	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	file.store_string(JSON.stringify(data))
+	# файл закроется сам, когда переменная file пропадёт
+
+func load_game() -> Dictionary:
+	if not FileAccess.file_exists(SAVE_PATH):
+		return {"level": 1, "coins": 0}     # первый запуск: значения по умолчанию
+	var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
+	var data = JSON.parse_string(file.get_as_text())
+	if data == null:
+		return {"level": 1, "coins": 0}     # файл испорчен
+	return data
+```
+norun: yes
+- `FileAccess.WRITE` — открыть для записи (старое содержимое стирается).
+- `FileAccess.READ` — для чтения.
+- `file_exists` — есть ли файл. При первом запуске его нет.
+- `parse_string` вернёт `null`, если текст сломан.
+
+:: text Когда сохранять
+- При выходе с уровня или в контрольной точке.
+- Когда изменились настройки.
+- **Не** каждый кадр: запись на диск медленная.
+
+Удобно держать функции сохранения в Autoload (`Game.save_game()`), чтобы вызывать из любого места.
+
+:: quiz
+Игрок запустил игру впервые. Что вернёт `FileAccess.file_exists("user://save.json")`?
+[x] `false` => Верно. Сохранения ещё не было — значит, нужны значения по умолчанию.
+[ ] `true` => Файл появится только после первой записи.
+[ ] Ошибку => Проверка существования не падает.
+
+:: recap
+- `FileAccess.open(путь, FileAccess.WRITE)` + `store_string(текст)` — записать.
+- `FileAccess.open(путь, FileAccess.READ)` + `get_as_text()` — прочитать.
+- Сначала проверяй `FileAccess.file_exists(путь)`.
+
+## LESSON m20-4 | ConfigFile для настроек | 6
+:: goals
+- Простой способ хранить настройки
+
+:: text Файл настроек
+Для настроек (громкость, полноэкранный режим, управление) есть **ConfigFile**. Он хранит данные по разделам и умеет сохранять Vector2 и Color.
+
+```gd
+var config = ConfigFile.new()
+config.set_value("audio", "music", 0.8)
+config.set_value("video", "fullscreen", true)
+config.save("user://settings.cfg")
+```
+
+Загрузка:
+
+```gd
+var config = ConfigFile.new()
+if config.load("user://settings.cfg") == OK:
+	var music = config.get_value("audio", "music", 1.0)
+```
+
+Третий параметр `get_value` — значение по умолчанию, если такой настройки нет.
+
+:: quiz
+Что вернёт `config.get_value("audio", "sfx", 0.5)`, если настройки `sfx` в файле нет?
+[x] `0.5` => Верно. Это значение по умолчанию.
+[ ] `null` => Было бы `null`, если бы не указали третий параметр.
+[ ] Ошибку => Не будет, потому что есть значение по умолчанию.
+
+:: recap
+- **ConfigFile** — для настроек: `set_value(раздел, ключ, значение)`, `save`, `load`, `get_value`.
+- JSON — для сохранений игры, ConfigFile — для настроек.

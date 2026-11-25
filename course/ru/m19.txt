@@ -1,0 +1,386 @@
+# MODULE m19 | Классы и наследование | Свои типы объектов и ресурсы
+
+## LESSON m19-1 | Скрипт — это класс | 7
+:: goals
+- Что такое класс и объект
+- Как дать скрипту имя: `class_name`
+
+:: text Чертёж и изделия
+**Класс** — чертёж. **Объект** (экземпляр) — изделие по этому чертежу.
+
+Каждый скрипт в Godot — это класс. Скрипт `enemy.gd` — чертёж врага. Каждый враг на уровне — отдельный объект: у каждого своё `hp` и своя позиция, а код один.
+
+Ты уже создавал объекты: `Timer.new()`, `Node2D.new()` — это объекты встроенных классов.
+
+:: text class_name — имя для своего класса
+Если в начале скрипта написать `class_name`, у класса появится имя на весь проект:
+
+```gd
+class_name Enemy
+extends CharacterBody2D
+
+var hp = 3
+```
+
+Что это даёт:
+- проверка типа: `if body is Enemy:`;
+- подсказка типа: `var target: Enemy`;
+- узел `Enemy` появится в окне **Add Child Node**, как встроенный.
+
+:: code
+В тренажёре классы можно писать прямо внутри скрипта словом `class`. Это **внутренний класс**. Идея та же, что у отдельного файла с `class_name`.
+```gd
+extends Node
+
+class Monster:
+	var title = "Монстр"
+	var hp = 10
+
+	func hit(dmg):
+		hp -= dmg
+		print(title, ": осталось ", hp)
+
+func _ready():
+	var a = Monster.new()
+	var b = Monster.new()
+	b.title = "Босс"
+	b.hp = 50
+	a.hit(3)
+	b.hit(3)
+	print(a is Monster)
+```
+```out
+Монстр: осталось 7
+Босс: осталось 47
+true
+```
+`a` и `b` — разные объекты одного класса. Урон по `a` не трогает `b`.
+
+:: quiz
+Что такое объект в программировании?
+[ ] Файл с кодом => Это скрипт (класс).
+[x] Экземпляр класса — изделие по чертежу со своими значениями => Верно.
+[ ] Любая переменная типа int => Число — это просто значение.
+
+:: recap
+- **Класс** — чертёж, **объект** — экземпляр со своими данными.
+- Каждый скрипт — класс. `class_name Имя` даёт ему имя на весь проект.
+- `Класс.new()` создаёт объект.
+
+## LESSON m19-2 | _init — конструктор | 6
+:: goals
+- Как настроить объект при создании
+
+:: text Функция _init
+`_init` вызывается **при создании** объекта — раньше всех остальных. Её параметры — это то, что передают в `new()`:
+
+```gd
+class Item:
+	var title
+	var price
+
+	func _init(t, p):
+		title = t
+		price = p
+
+var sword = Item.new("Меч", 50)
+```
+
+Такую функцию называют **конструктором**.
+
+!> Для узлов, которые появляются из сцены `.tscn`, `_init` с обязательными параметрами не подходит: Godot создаёт их сам и ничего не передаёт. Для узлов настройку делают в `_ready` или через `@export`.
+
+:: code
+```gd
+extends Node
+
+class Item:
+	var title: String
+	var price: int
+
+	func _init(t: String, p: int):
+		title = t
+		price = p
+
+	func describe():
+		return "%s — %d монет" % [title, price]
+
+func _ready():
+	var shop = [Item.new("Меч", 50), Item.new("Щит", 35)]
+	for it in shop:
+		print(it.describe())
+```
+```out
+Меч — 50 монет
+Щит — 35 монет
+```
+
+:: fill
+Допиши конструктор: сохрани имя героя.
+```gd
+extends Node
+
+class Hero:
+	var hero_name
+
+	func ___(n):
+		hero_name = n
+
+func _ready():
+	var h = Hero.___("Лиса")
+	print(h.hero_name)
+```
+= _init
+= new
+explain: `new("Лиса")` создаёт объект и передаёт `"Лиса"` в `_init`.
+
+:: recap
+- `func _init(...)` — конструктор, вызывается при `new(...)`.
+- Узлам из сцен параметры в `_init` не передать — используй `_ready` и `@export`.
+
+## LESSON m19-3 | Наследование | 8
+:: goals
+- Как сделать класс на основе другого
+- Как переопределить функцию
+- Что делает `super`
+
+:: text extends для своих классов
+Ты уже пишешь `extends Node2D` — это наследование. Своё тоже можно наследовать:
+
+```gd
+class_name Enemy
+extends CharacterBody2D
+# общее для всех врагов: hp, урон, смерть
+```
+```gd
+class_name Slime
+extends Enemy
+# только то, чем слизень отличается
+```
+
+`Slime` получает всё от `Enemy` и добавляет своё. Общий код пишется один раз.
+
+**Аналогия:** «транспорт» умеет ехать. «Велосипед» — это транспорт, плюс у него звонок.
+
+:: text Переопределение и super
+Если наследник объявляет функцию с тем же именем, он её **переопределяет**: вызывается его версия.
+
+Чтобы внутри новой версии вызвать старую (родительскую), пишут `super.имя()`.
+
+:: code
+```gd
+extends Node
+
+class Enemy:
+	var hp = 10
+	func attack():
+		return "удар"
+	func describe():
+		return "Враг (hp %d) делает: %s" % [hp, attack()]
+
+class Slime extends Enemy:
+	func attack():
+		return "плевок слизью"
+
+class Boss extends Enemy:
+	func _init():
+		hp = 100
+	func describe():
+		return super.describe() + " — и ещё злится!"
+
+func _ready():
+	for e in [Enemy.new(), Slime.new(), Boss.new()]:
+		print(e.describe())
+	print(Slime.new() is Enemy)
+```
+```out
+Враг (hp 10) делает: удар
+Враг (hp 10) делает: плевок слизью
+Враг (hp 100) делает: удар — и ещё злится!
+true
+```
+`describe` написан один раз в `Enemy`, а работает по-разному: он вызывает `attack()` того объекта, который на самом деле создан.
+
+:: quiz
+`class Slime extends Enemy`. Что даст `Slime.new() is Enemy`?
+[x] `true` => Верно. Слизень — это враг (наследник).
+[ ] `false` => Наследник считается и своим типом, и типом родителя.
+[ ] Ошибку => Проверка `is` работает с любыми классами.
+
+:: task
+Есть класс `Animal` с функцией `sound()`. Сделай наследников `Cat` и `Dog`, которые переопределяют `sound()`. Цикл уже написан, должно напечататься:
+```text
+...
+Мяу
+Гав
+```
+```gd
+extends Node
+
+class Animal:
+	func sound():
+		return "..."
+
+# сделай классы Cat и Dog
+
+func _ready():
+	for a in [Animal.new(), Cat.new(), Dog.new()]:
+		print(a.sound())
+```
+```solution
+extends Node
+
+class Animal:
+	func sound():
+		return "..."
+
+class Cat extends Animal:
+	func sound():
+		return "Мяу"
+
+class Dog extends Animal:
+	func sound():
+		return "Гав"
+
+func _ready():
+	for a in [Animal.new(), Cat.new(), Dog.new()]:
+		print(a.sound())
+```
+```expect
+...
+Мяу
+Гав
+```
+hint: `class Cat extends Animal:` — и внутри своя `func sound():`.
+hint: Не забудь отступы: функция внутри класса сдвинута на один Tab, её тело — на два.
+
+:: recap
+- `extends Родитель` — получить всё от родителя.
+- Функция с тем же именем в наследнике **переопределяет** родительскую.
+- `super.имя()` — вызвать версию родителя.
+
+## LESSON m19-4 | Свои ресурсы | 8
+:: goals
+- Что такое Resource
+- Как хранить данные предметов в файлах
+
+:: text Ресурс — данные в файле
+**Resource** (ресурс) — объект с данными, который можно сохранить в файл `.tres`. Ты уже встречал ресурсы: текстура, звук, SpriteFrames, TileSet, форма столкновения.
+
+Свои ресурсы удобны для **данных**: характеристики оружия, врагов, предметов. Данные отдельно, код отдельно.
+
+:: code
+Класс ресурса — с `extends Resource` и `@export`-полями.
+```gd
+class_name WeaponData
+extends Resource
+
+@export var title: String = "Меч"
+@export var damage: int = 10
+@export var icon: Texture2D
+@export_range(0.1, 3.0) var cooldown: float = 0.5
+```
+norun: yes
+Сохрани как `weapon_data.gd`. Теперь в FileSystem: правый клик → **New → Resource…** → найди `WeaponData`. Получится файл `sword.tres`, где поля редактируются в Инспекторе.
+
+:: code
+А в персонаже — поле для этого ресурса:
+```gd
+extends CharacterBody2D
+
+@export var weapon: WeaponData
+
+func attack(target):
+	target.take_damage(weapon.damage)
+	print("Удар оружием ", weapon.title)
+```
+norun: yes
+Перетащи `sword.tres` или `axe.tres` в поле **Weapon** — и персонаж бьёт другим оружием. Код не меняется.
+
+:: text Зачем так делать
+- Геймдизайнер меняет баланс в Инспекторе, не трогая код.
+- Новый предмет — новый файл `.tres`, а не новый скрипт.
+- Один ресурс можно дать многим: двадцать гоблинов используют один `goblin_stats.tres`.
+
+!> Ресурс по умолчанию **общий**. Если двадцать гоблинов используют один `.tres` и ты меняешь в коде `stats.hp`, поменяется у всех. Для личных копий есть галочка **Local to Scene** или `duplicate()`.
+
+:: quiz
+Тебе нужно 15 видов мечей с разным уроном и картинкой. Как удобнее?
+[ ] 15 разных скриптов => Много одинакового кода.
+[x] Один класс WeaponData и 15 файлов `.tres` => Верно. Данные в файлах, код один.
+[ ] Один огромный `if` по названию меча => Трудно читать и менять.
+
+:: recap
+- **Resource** — данные в файле `.tres`.
+- Свой ресурс: `class_name X` + `extends Resource` + поля с `@export`.
+- Ресурсы общие; личная копия — `duplicate()` или **Local to Scene**.
+
+## LESSON m19-5 | static и enum | 6
+:: goals
+- Перечисления: `enum`
+- Статические функции
+
+:: text enum — список вариантов
+**enum** (перечисление) — набор именованных вариантов. Удобно для состояний:
+
+```gd
+enum State { IDLE, RUN, JUMP, FALL }
+var state = State.IDLE
+```
+
+Внутри это просто числа 0, 1, 2, 3. Но в коде пишешь понятные имена, и Godot подсказывает их при наборе. Опечатку `State.JUMPP` Godot сразу поймает.
+
+:: code
+Машина состояний — частый приём для персонажа. `match` по `enum` выглядит как таблица правил.
+```gd
+extends Node
+
+enum State { IDLE, RUN, JUMP }
+
+var state = State.IDLE
+
+func _ready():
+	for input in ["бег", "прыжок", "ничего"]:
+		handle(input)
+
+func handle(input):
+	match state:
+		State.IDLE:
+			if input == "бег":
+				state = State.RUN
+		State.RUN:
+			if input == "прыжок":
+				state = State.JUMP
+		State.JUMP:
+			state = State.IDLE
+	print(input, " → ", State.keys()[state])
+```
+```out
+бег → RUN
+прыжок → JUMP
+ничего → IDLE
+```
+`State.keys()` — список имён вариантов. По номеру состояния достаём его имя для печати.
+
+:: text static — функция без объекта
+Функцию с `static` можно вызвать **у класса**, без создания объекта:
+
+```gd
+class_name MathUtils
+
+static func percent(part, total):
+	return part * 100 / total
+```
+
+В любом месте проекта: `MathUtils.percent(3, 4)`. Так делают для мелких помощников.
+
+:: quiz
+Чем `State.RUN` лучше просто числа `1`?
+[x] Понятно, что это значит, и Godot поймает опечатку => Верно.
+[ ] Работает быстрее => Внутри это то же число.
+[ ] Ничем => Читаемость — это важно.
+
+:: recap
+- `enum Имя { A, B, C }` — именованные варианты, внутри числа 0, 1, 2.
+- `match` по `enum` — удобная машина состояний.
+- `static func` вызывается у класса: `Класс.функция()`.

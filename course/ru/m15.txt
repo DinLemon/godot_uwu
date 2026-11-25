@@ -1,0 +1,278 @@
+# MODULE m15 | Анимация | Кадры, AnimationPlayer и плавные переходы
+
+## LESSON m15-1 | AnimatedSprite2D: покадровая анимация | 8
+:: goals
+- Как сделать анимацию из нескольких картинок
+- Что такое SpriteFrames
+
+:: text Мультик из картинок
+Самая простая анимация — как в мультике: несколько картинок сменяют друг друга. Бег персонажа — это 6–8 кадров, которые крутятся по кругу.
+
+Для этого есть узел **AnimatedSprite2D**. Он хранит набор анимаций в ресурсе **SpriteFrames**:
+
+- `idle` — стоит;
+- `run` — бежит;
+- `jump` — прыгает.
+
+У каждой анимации свои кадры и скорость (кадров в секунду, FPS).
+
+:: text Где взять картинки
+Для практики подойдут бесплатные наборы с сайта [kenney.nl](https://kenney.nl/assets) или [itch.io](https://itch.io/game-assets/free). Ищи «platformer character sprite».
+
+Картинки бывают:
+- отдельными файлами: `run_1.png`, `run_2.png`…;
+- одним листом (**spritesheet**) — все кадры на одной картинке сеткой.
+
+Godot умеет оба варианта.
+
+:: steps Делаем анимацию
+Скачай набор кадров и перетащи папку с картинками в панель FileSystem.
+- Открой `player.tscn`. Удали `Sprite2D` (выбери и `Delete`).
+- Добавь в `Player` узел **AnimatedSprite2D**.
+- В Инспекторе в поле **Sprite Frames** выбери **New SpriteFrames**. Кликни по нему — внизу откроется панель **SpriteFrames**.
+- Слева в панели есть анимация `default`. Переименуй её в `idle` (двойной клик). Перетащи в правую часть кадры стояния.
+- Нажми кнопку **Add Animation** (листок с плюсом), назови `run`, перетащи кадры бега.
+- Если кадры в одном листе — нажми иконку сетки **Add frames from sprite sheet**, укажи число столбцов и строк, выдели нужные кадры.
+- Поставь **FPS** (скорость) около 10. Включи **Autoplay on Load** (иконка с «A» и стрелкой) у `idle`.
+
+:: recap
+- **AnimatedSprite2D** — анимация из картинок.
+- Анимации и кадры хранятся в ресурсе **SpriteFrames**.
+- Spritesheet режется кнопкой **Add frames from sprite sheet**.
+
+## LESSON m15-2 | Анимация из кода | 8
+:: goals
+- Как включить нужную анимацию
+- Как развернуть персонажа
+
+:: text play и flip_h
+- `play("run")` — включить анимацию `run`. Если она уже идёт, ничего не случится.
+- `flip_h = true` — отразить картинку по горизонтали (смотреть влево).
+- `stop()` — остановить.
+- `animation` — какая анимация сейчас выбрана.
+
+```gd
+@onready var anim = $AnimatedSprite2D
+
+func _physics_process(delta):
+	# ... движение ...
+	if velocity.x != 0:
+		anim.play("run")
+		anim.flip_h = velocity.x < 0
+	else:
+		anim.play("idle")
+```
+
+`flip_h = velocity.x < 0` — одна строка вместо `if`: сравнение даёт `true` или `false`, и это сразу кладётся в `flip_h`.
+
+:: code
+В тренажёре AnimatedSprite2D ничего не рисует, но запоминает, какая анимация включена. Кадры 1–2: бег вправо, 3: стоим, 4: бег влево.
+```gd
+extends CharacterBody2D
+# тренажёр: кадров=4 нажато=ui_right@1-2,ui_left@4
+
+var anim
+
+func _ready():
+	anim = AnimatedSprite2D.new()
+	add_child(anim)
+
+func _physics_process(delta):
+	velocity.x = Input.get_axis("ui_left", "ui_right") * 200
+	move_and_slide()
+	if velocity.x != 0:
+		anim.play("run")
+		anim.flip_h = velocity.x < 0
+	else:
+		anim.play("idle")
+	print(anim.animation, " влево: ", anim.flip_h)
+```
+```out
+run влево: false
+run влево: false
+idle влево: false
+run влево: true
+```
+
+:: task
+Добавь анимацию прыжка. Правило:
+- если персонаж **не на полу** — `jump`;
+- иначе, если бежит — `run`;
+- иначе — `idle`.
+
+В тренажёре пол на y = 0, прыжок на 2-м кадре, вправо зажато всё время. Должно напечататься:
+```text
+run
+jump
+jump
+```
+```gd
+extends CharacterBody2D
+# тренажёр: кадров=3 дельта=0.1 нажато=ui_right,jump@2 пол=0
+
+var anim
+
+func _ready():
+	anim = AnimatedSprite2D.new()
+	add_child(anim)
+
+func _physics_process(delta):
+	if not is_on_floor():
+		velocity.y += 1000 * delta
+	if Input.is_action_just_pressed("jump") and is_on_floor():
+		velocity.y = -400
+	velocity.x = Input.get_axis("ui_left", "ui_right") * 200
+	move_and_slide()
+	update_animation()
+	print(anim.animation)
+
+func update_animation():
+	pass
+```
+```solution
+extends CharacterBody2D
+# тренажёр: кадров=3 дельта=0.1 нажато=ui_right,jump@2 пол=0
+
+var anim
+
+func _ready():
+	anim = AnimatedSprite2D.new()
+	add_child(anim)
+
+func _physics_process(delta):
+	if not is_on_floor():
+		velocity.y += 1000 * delta
+	if Input.is_action_just_pressed("jump") and is_on_floor():
+		velocity.y = -400
+	velocity.x = Input.get_axis("ui_left", "ui_right") * 200
+	move_and_slide()
+	update_animation()
+	print(anim.animation)
+
+func update_animation():
+	if not is_on_floor():
+		anim.play("jump")
+	elif velocity.x != 0:
+		anim.play("run")
+	else:
+		anim.play("idle")
+```
+```expect
+run
+jump
+jump
+```
+hint: Порядок проверок важен: сначала «в воздухе?», потом «бежит?».
+hint: `if not is_on_floor(): ... elif velocity.x != 0: ... else: ...`
+
+:: recap
+- `anim.play("имя")` — включить анимацию. Повторный вызов не сбрасывает её.
+- `flip_h` — смотреть в другую сторону.
+- Выбор анимации — цепочка `if/elif/else` по состоянию персонажа.
+
+## LESSON m15-3 | AnimationPlayer: анимация чего угодно | 8
+:: goals
+- Чем AnimationPlayer отличается от AnimatedSprite2D
+- Что такое ключевой кадр
+
+:: text Анимировать любое свойство
+**AnimationPlayer** умеет плавно менять **любое свойство** любого узла во времени: позицию, цвет, размер, прозрачность, текст.
+
+Примеры:
+- дверь отъезжает вверх за 1 секунду;
+- монетка мигает и исчезает;
+- надпись «Уровень 2» выплывает и пропадает.
+
+Работает через **ключевые кадры** (keyframes): «в 0 секунд позиция такая, в 1 секунду — такая». Промежуточные значения Godot посчитает сам.
+
+:: steps Мигающая монетка
+Открой `coin.tscn`.
+- Добавь в `Coin` узел **AnimationPlayer**. Внизу откроется панель **Animation**.
+- Нажми **Animation → New**, назови `spin`. Длину (справа, иконка часов) поставь `1`.
+- Выбери `Sprite2D`. В Инспекторе рядом со свойством **Scale** появилась иконка ключа 🔑. Курсор времени в 0 — нажми ключ, **Create**.
+- Передвинь курсор времени на `0.5`. Поставь **Scale** `x = 0`. Нажми ключ.
+- Передвинь на `1.0`. Верни **Scale** `x = 0.3`. Нажми ключ.
+- Включи повтор: кнопка **Animation Looping** (стрелки по кругу) справа.
+- Включи **Autoplay on Load** у анимации `spin`. Запусти `F6` — монетка крутится.
+
+:: code
+Из кода AnimationPlayer управляется так же, как AnimatedSprite2D.
+```gd
+extends Node2D
+
+@onready var player = $AnimationPlayer
+
+func open_door():
+	player.play("open")
+
+func _on_animation_player_animation_finished(anim_name):
+	if anim_name == "open":
+		print("Дверь открыта")
+```
+norun: yes
+Сигнал `animation_finished` приходит, когда анимация закончилась. Удобно, чтобы, например, удалить врага после анимации смерти.
+
+:: quiz
+Нужно, чтобы надпись плавно стала прозрачной за 2 секунды. Что подойдёт?
+[x] AnimationPlayer с ключами на свойстве `modulate` => Верно. Он анимирует любое свойство.
+[ ] AnimatedSprite2D => Он меняет только кадры-картинки.
+[ ] Только код в `_process` => Можно и так, но AnimationPlayer проще и нагляднее.
+
+:: recap
+- **AnimationPlayer** анимирует любые свойства по **ключевым кадрам**.
+- Ключ ставится иконкой 🔑 рядом со свойством в Инспекторе.
+- `play("имя")`, сигнал `animation_finished`.
+
+## LESSON m15-4 | Tween: анимация одной строкой | 7
+:: goals
+- Что такое Tween
+- Когда он удобнее AnimationPlayer
+
+:: text Анимация из кода
+**Tween** — анимация, которую создают прямо в коде. Не нужно открывать панели и ставить ключи. Хорошо для мелких эффектов: «подпрыгнуть», «моргнуть», «исчезнуть».
+
+```gd
+var tween = create_tween()
+tween.tween_property($Sprite2D, "scale", Vector2(2, 2), 0.5)
+```
+
+Читается: «измени свойство `scale` у `$Sprite2D` до `(2, 2)` за 0.5 секунды».
+
+:: code
+Шаги tween выполняются по очереди. Монетка подпрыгивает, исчезает и удаляется.
+```gd
+extends Area2D
+
+func collect():
+	var tween = create_tween()
+	tween.tween_property(self, "position:y", position.y - 40, 0.3)
+	tween.tween_property(self, "modulate:a", 0.0, 0.2)
+	tween.tween_callback(queue_free)
+```
+norun: yes
+- `"position:y"` — анимировать только y.
+- `"modulate:a"` — прозрачность (a — alpha). 1 — видно, 0 — невидимо.
+- `tween_callback(queue_free)` — в конце вызвать функцию. Без скобок!
+
+:: text Параллельно и плавно
+- `tween.set_parallel(true)` — все шаги идут одновременно, а не по очереди.
+- `.set_trans(Tween.TRANS_BOUNCE)` — характер движения: отскок, пружина, плавный разгон.
+- `.set_ease(Tween.EASE_OUT)` — быстро в начале, медленно в конце.
+
+```gd
+create_tween().tween_property(self, "scale", Vector2(1.2, 1.2), 0.2) \
+	.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+```
+
+`\` в конце строки значит «команда продолжается на следующей строке».
+
+:: quiz
+Что делает `tween.tween_callback(queue_free)`?
+[x] Удаляет узел, когда предыдущие шаги анимации закончились => Верно.
+[ ] Удаляет узел сразу => Шаги tween идут по очереди: сначала анимация, потом вызов.
+[ ] Ошибка: нужны скобки `queue_free()` => Скобки вызвали бы функцию сразу. Здесь её передают на потом.
+
+:: recap
+- `create_tween()` + `tween_property(узел, "свойство", до_чего, секунд)`.
+- Шаги идут по очереди; `set_parallel(true)` — одновременно.
+- `tween_callback(функция)` — вызвать функцию в конце.

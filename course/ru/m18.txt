@@ -1,0 +1,277 @@
+# MODULE m18 | Звук, время и глобальные данные | Музыка, таймеры, await и автозагрузка
+
+## LESSON m18-1 | Звуки и музыка | 7
+:: goals
+- Какие узлы проигрывают звук
+- Как включить звук из кода
+
+:: text Три узла для звука
+- **AudioStreamPlayer** — звук «везде», без места в мире. Для музыки и звуков интерфейса.
+- **AudioStreamPlayer2D** — звук в точке мира. Чем дальше от камеры, тем тише.
+- **AudioStreamPlayer3D** — то же для 3D.
+
+Сам звук — это файл в свойстве **Stream**. Форматы: `.ogg` (лучше для музыки), `.wav` (лучше для коротких эффектов), `.mp3`.
+
+> Бесплатные звуки: [kenney.nl](https://kenney.nl/assets) (раздел Audio), [freesound.org](https://freesound.org), генератор звуков для ретро-игр — [jsfxr](https://sfxr.me).
+
+:: steps Звук прыжка
+Скачай короткий звук прыжка и перетащи в FileSystem.
+- Открой `player.tscn`. Добавь в `Player` узел **AudioStreamPlayer2D**, назови `JumpSound`.
+- Перетащи файл звука в его свойство **Stream**.
+- В скрипте игрока там, где прыжок, добавь строку `$JumpSound.play()`.
+- Запусти и прыгни.
+
+:: text Музыка по кругу
+Для фоновой музыки:
+- узел **AudioStreamPlayer** с файлом `.ogg`;
+- включи **Autoplay** — заиграет сразу;
+- чтобы играла по кругу: выбери файл музыки в FileSystem → вкладка **Import** (рядом со Scene) → галочка **Loop** → **Reimport**.
+
+Громкость — свойство `volume_db` в децибелах. `0` — как есть, `-10` — тише, `-80` — тишина.
+
+:: code
+```gd
+extends Node
+
+@onready var music = $Music
+
+func _ready():
+	music.play()
+
+func set_music_on(on):
+	if on:
+		music.volume_db = 0
+	else:
+		music.volume_db = -80
+```
+norun: yes
+Для общей громкости в Godot есть **шины** (buses) — панель **Audio** внизу редактора. Можно сделать отдельные ползунки для музыки и эффектов.
+
+:: quiz
+Каким узлом проиграть звук взрыва, чтобы он был тише вдалеке?
+[ ] AudioStreamPlayer => Он звучит одинаково везде.
+[x] AudioStreamPlayer2D => Верно. У него есть место в мире, громкость зависит от расстояния.
+[ ] Label => Это текст.
+
+:: recap
+- **AudioStreamPlayer** — везде, **AudioStreamPlayer2D** — в точке мира.
+- Файл звука — в свойство **Stream**. Включить — `play()`.
+- Повтор музыки — галочка **Loop** во вкладке **Import**.
+
+## LESSON m18-2 | Таймеры и await | 8
+:: goals
+- Настройки узла Timer
+- Как подождать несколько секунд одной строкой
+
+:: text Узел Timer
+Ты уже встречал **Timer** в модулях 13–14. Его главные свойства:
+
+- `wait_time` — сколько секунд ждать;
+- `one_shot` — сработать один раз (`true`) или повторяться (`false`);
+- `autostart` — запуститься сам при старте сцены;
+- `time_left` — сколько осталось.
+
+Функции: `start()`, `stop()`, `is_stopped()`. Сигнал: `timeout`.
+
+:: code
+Таймер неуязвимости на 1 секунду после удара. `one_shot` — сработает один раз.
+```gd
+extends Node
+# тренажёр: кадров=5 дельта=0.25
+
+var invincible = false
+var timer
+
+func _ready():
+	timer = Timer.new()
+	timer.one_shot = true
+	timer.wait_time = 1.0
+	add_child(timer)
+	timer.timeout.connect(_on_timer_timeout)
+	take_hit()
+
+func take_hit():
+	invincible = true
+	timer.start()
+	print("Ай! Неуязвим на 1 сек")
+
+func _process(delta):
+	print("неуязвим: ", invincible, ", осталось ", timer.time_left)
+
+func _on_timer_timeout():
+	invincible = false
+	print("Неуязвимость кончилась")
+```
+```out
+Ай! Неуязвим на 1 сек
+неуязвим: true, осталось 1.0
+неуязвим: true, осталось 0.75
+неуязвим: true, осталось 0.5
+неуязвим: true, осталось 0.25
+Неуязвимость кончилась
+неуязвим: false, осталось 0.0
+```
+Таймер уменьшается в конце кадра, после `_process`. Поэтому в первом кадре ещё видно `1.0`.
+
+:: text await — подождать
+Иногда нужно просто «подождать 2 секунды, потом сделать». Создавать узел Timer ради этого долго. Есть `await`:
+
+```gd
+func game_over():
+	$GameOverLabel.show()
+	await get_tree().create_timer(2.0).timeout
+	get_tree().reload_current_scene()
+```
+
+`await` — «дождись». Функция **ставится на паузу** до сигнала `timeout`, а потом продолжается со следующей строки. Остальная игра в это время работает.
+
+!> Тренажёр не умеет `await`. Этот код проверяй в Godot.
+
+:: code
+`await` работает с любым сигналом. Например, дождаться конца анимации.
+```gd
+extends CharacterBody2D
+
+func die():
+	set_physics_process(false)
+	$AnimatedSprite2D.play("death")
+	await $AnimatedSprite2D.animation_finished
+	queue_free()
+```
+norun: yes
+`set_physics_process(false)` выключает `_physics_process` — мёртвый персонаж больше не двигается.
+
+:: quiz
+Что делает `await get_tree().create_timer(3.0).timeout`?
+[x] Ставит функцию на паузу на 3 секунды, игра продолжает работать => Верно.
+[ ] Замораживает всю игру на 3 секунды => Нет, ждёт только эта функция.
+[ ] Создаёт узел Timer в сцене => Таймер создаётся, но не как узел в дереве. Его не видно в Scene.
+
+:: recap
+- **Timer**: `wait_time`, `one_shot`, `autostart`, `start()`, сигнал `timeout`.
+- `await сигнал` — подождать сигнал и продолжить функцию.
+- `await get_tree().create_timer(сек).timeout` — подождать N секунд.
+
+## LESSON m18-3 | Смена сцен | 6
+:: goals
+- Как перейти на следующий уровень
+- Как перезапустить уровень
+
+:: text Три команды
+Всё через `get_tree()`:
+
+- `get_tree().change_scene_to_file("res://level_2.tscn")` — загрузить другую сцену по пути;
+- `get_tree().change_scene_to_packed(сцена)` — то же, но из PackedScene (например, из `@export`);
+- `get_tree().reload_current_scene()` — начать текущую сцену заново.
+
+При смене сцены всё старое удаляется: игрок, враги, счёт. Если счёт нужно сохранить между уровнями — смотри следующий урок.
+
+:: code
+Дверь-выход: когда игрок вошёл в зону, загрузить следующий уровень.
+```gd
+extends Area2D
+
+@export_file("*.tscn") var next_level: String
+
+func _ready():
+	body_entered.connect(_on_body_entered)
+
+func _on_body_entered(body):
+	if body.is_in_group("player"):
+		get_tree().change_scene_to_file.call_deferred(next_level)
+```
+norun: yes
+- `@export_file("*.tscn")` — в Инспекторе появится кнопка выбора файла сцены.
+- `call_deferred` — «вызови в конце кадра». Godot не любит менять сцену прямо внутри обработки физики. Так безопаснее.
+
+:: quiz
+Игрок упал в пропасть. Как начать уровень заново?
+[x] `get_tree().reload_current_scene()` => Верно.
+[ ] `queue_free()` у уровня => Уровень удалится, и будет пустой экран.
+[ ] `get_tree().quit()` => Это закроет игру.
+
+:: recap
+- `change_scene_to_file("res://...")` — перейти в другую сцену.
+- `reload_current_scene()` — заново.
+- При смене сцены старые узлы удаляются.
+
+## LESSON m18-4 | Autoload: данные на всю игру | 8
+:: goals
+- Как хранить счёт между сценами
+- Что такое автозагрузка (синглтон)
+
+:: text Узел, который не удаляется
+При смене сцены всё удаляется. А как же общий счёт, жизни, настройки звука?
+
+**Autoload** (автозагрузка) — скрипт, который Godot загружает **при старте игры** и **не удаляет** при смене сцен. К нему можно обратиться из любого скрипта по имени.
+
+Такие объекты ещё называют **синглтонами** (singleton — «одиночка»): он существует в одном экземпляре на всю игру.
+
+:: steps Создаём Game
+- **File → New Script** (в редакторе скриптов) или правый клик в FileSystem → **New → Script**. Тип `Node`, имя `game.gd`.
+- Впиши в него код из следующего шага и сохрани.
+- Открой **Project → Project Settings → Globals → Autoload** (в старых версиях — сразу вкладка **Autoload**).
+- В **Path** выбери `game.gd`, в **Node Name** — `Game`. Нажми **Add**.
+- Теперь в любом скрипте можно писать `Game.score += 1`.
+
+:: code
+Скрипт автозагрузки. Хранит данные и сообщает об изменениях сигналом.
+```gd
+extends Node
+
+signal score_changed(value)
+
+var score = 0
+var lives = 3
+
+func add_score(amount):
+	score += amount
+	score_changed.emit(score)
+
+func reset():
+	score = 0
+	lives = 3
+```
+norun: yes
+В монетке: `Game.add_score(1)`. В HUD: `Game.score_changed.connect(set_score)`. Монетка и HUD ничего не знают друг о друге — общаются через `Game`.
+
+:: code
+В тренажёре автозагрузки нет, но идею можно проверить: один общий объект, к которому обращаются разные узлы.
+```gd
+extends Node
+
+class GameData:
+	var score = 0
+	func add_score(n):
+		score += n
+
+var game = GameData.new()
+
+class Coin extends Node:
+	var data
+	func collect():
+		data.add_score(1)
+
+func _ready():
+	for i in 3:
+		var c = Coin.new()
+		c.data = game
+		c.collect()
+	print("Счёт: ", game.score)
+```
+```out
+Счёт: 3
+```
+
+!> Autoload удобен, но не клади туда всё подряд. Только то, что действительно нужно всей игре: счёт, настройки, сохранения, музыка.
+
+:: quiz
+Нужно, чтобы музыка не прерывалась при смене уровня. Где разместить плеер?
+[x] В сцене, добавленной в Autoload => Верно. Автозагрузка не удаляется при смене сцен.
+[ ] В каждом уровне => Тогда музыка будет начинаться заново на каждом уровне.
+[ ] В главном меню => Меню выгрузится, когда начнётся игра.
+
+:: recap
+- **Autoload** — скрипт или сцена, которые живут всю игру.
+- Настройка: **Project Settings → Globals → Autoload**.
+- Обращение по имени из любого скрипта: `Game.score`.

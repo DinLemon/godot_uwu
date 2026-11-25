@@ -1,0 +1,149 @@
+# MODULE m22 | Знакомство с 3D | Всё то же самое, только на одну ось больше
+
+## LESSON m22-1 | Третья ось | 7
+:: goals
+- Как устроены координаты в 3D
+- Vector3
+- Что меняется по сравнению с 2D
+
+:: text Добавляется глубина
+В 3D у точки три координаты:
+- **x** — вправо;
+- **y** — **вверх** (в 3D y смотрит вверх, не вниз!);
+- **z** — к зрителю (от экрана к тебе). Вперёд, «вглубь» — это **минус** z.
+
+Тип для этого — **Vector3**: `Vector3(1, 2, 3)`.
+
+Хорошая новость: почти всё, что ты знаешь, работает так же. Узлы, сцены, скрипты, сигналы, `_process`, `delta`, ввод — всё то же. У узлов просто другие имена: `Node3D` вместо `Node2D`, `CharacterBody3D` вместо `CharacterBody2D`.
+
+:: code
+Vector3 работает как Vector2, только частей три.
+```gd
+extends Node
+
+func _ready():
+	var a = Vector3(1, 2, 3)
+	var b = Vector3.UP * 5
+	print(a + b)
+	print(Vector3.FORWARD)
+	print(Vector3(0, 3, 4).length())
+```
+```out
+(1.0, 7.0, 3.0)
+(0.0, 0.0, -1.0)
+5.0
+```
+`Vector3.UP` — это `(0, 1, 0)`: в 3D вверх — плюс. `FORWARD` — `(0, 0, -1)`.
+
+:: quiz
+Куда направлен `Vector3.UP`?
+[x] Вверх: `(0, 1, 0)` => Верно. В 3D y смотрит вверх.
+[ ] Вниз: `(0, -1, 0)` => Это `Vector3.DOWN`. В 3D, в отличие от 2D, вверх — плюс.
+[ ] Вперёд: `(0, 0, -1)` => Это `Vector3.FORWARD`.
+
+:: recap
+- В 3D: x — вправо, **y — вверх**, z — к зрителю (вперёд — минус z).
+- `Vector3(x, y, z)`, `Vector3.UP`, `Vector3.FORWARD`.
+- Узлы называются с `3D`: `Node3D`, `Camera3D`, `CharacterBody3D`.
+
+## LESSON m22-2 | Первая 3D-сцена | 10
+:: goals
+- Что нужно, чтобы увидеть 3D
+- Сетка, свет и камера
+
+:: text Три обязательные вещи
+Чтобы увидеть 3D-объект, нужно:
+
+1. **MeshInstance3D** — сам объект. Свойство **Mesh** — форма: куб (BoxMesh), шар (SphereMesh), плоскость (PlaneMesh) или модель.
+2. **DirectionalLight3D** — свет, как солнце. Без света всё будет тёмным.
+3. **Camera3D** — камера. Без неё в игре ничего не покажется.
+
+А для красивого неба есть **WorldEnvironment**.
+
+:: steps Сцена с кубом
+Лучше делать в новом проекте с рендерером **Forward+** или **Mobile** — в 3D они красивее. Можно и в текущем.
+- **Scene → New Scene → 3D Scene**. Корень `Node3D`, назови `World`. Сохрани `world.tscn`.
+- Добавь **MeshInstance3D**. В Инспекторе **Mesh → New BoxMesh**. Появился куб.
+- Добавь **MeshInstance3D** ещё раз, **Mesh → New PlaneMesh**, в **Size** поставь `10, 10`. Это пол.
+- Подними куб: выбери его и потяни зелёную стрелку вверх (или **Position y = 1**).
+- Над окном 3D нажми три точки (⋮) → **Add Sun to Scene** и **Add Environment to Scene**. Появятся свет и небо.
+- Добавь **Camera3D**. Отодвинь назад и вверх: **Position** `0, 3, 6`, **Rotation** `x = -25`.
+- Нажми `F6`.
+
+:: text Как двигаться в окне 3D
+- Зажми **правую** кнопку мыши и двигай мышь — смотреть вокруг.
+- С зажатой правой кнопкой `W A S D` — летать, `Q`/`E` — вниз/вверх.
+- Колесо мыши — приближение.
+- `F` — показать выбранный объект.
+
+:: quiz
+Ты добавил куб и камеру, запустил — всё чёрное. Чего, скорее всего, не хватает?
+[x] Света (DirectionalLight3D) => Верно. Без света объекты не видно.
+[ ] Ещё одного куба => Кубов хватит одного.
+[ ] Скрипта => Для показа куба скрипт не нужен.
+
+:: recap
+- 3D-объект: **MeshInstance3D** + **Mesh** (BoxMesh, SphereMesh…).
+- Нужны свет (**DirectionalLight3D**) и **Camera3D**.
+- Навигация: правая кнопка мыши + `WASD`.
+
+## LESSON m22-3 | Персонаж в 3D | 8
+:: goals
+- Как устроен CharacterBody3D
+- Движение по полу в 3D
+
+:: text Всё знакомое
+`CharacterBody3D` работает как `CharacterBody2D`: `velocity`, `move_and_slide()`, `is_on_floor()`.
+
+Разница одна: движение по полу идёт по осям **x** и **z**, а **y** — это прыжок и гравитация.
+
+Godot и тут даёт шаблон: при создании скрипта для CharacterBody3D выбери **Template → CharacterBody3D: Basic Movement**.
+
+:: code
+Сокращённая версия шаблона. Заметь: `Input.get_vector` даёт Vector2, а мы раскладываем его на x и z.
+```gd
+extends CharacterBody3D
+
+const SPEED = 5.0
+const JUMP_VELOCITY = 4.5
+
+func _physics_process(delta):
+	if not is_on_floor():
+		velocity += get_gravity() * delta
+
+	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
+		velocity.y = JUMP_VELOCITY
+
+	var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	if direction:
+		velocity.x = direction.x * SPEED
+		velocity.z = direction.z * SPEED
+	else:
+		velocity.x = move_toward(velocity.x, 0, SPEED)
+		velocity.z = move_toward(velocity.z, 0, SPEED)
+
+	move_and_slide()
+```
+norun: yes
+- Прыжок теперь **плюс**: в 3D вверх — это +y.
+- Скорость в метрах в секунду, поэтому числа маленькие: 5, а не 300.
+- `transform.basis * ...` поворачивает направление вместе с персонажем: «вперёд» — это туда, куда он смотрит.
+
+:: steps Добавь персонажа
+- Новая сцена: **CharacterBody3D**, назови `Player3D`.
+- Добавь **MeshInstance3D** с **CapsuleMesh** и **CollisionShape3D** с **CapsuleShape3D**.
+- Прикрепи скрипт с шаблоном **Basic Movement**.
+- В `world.tscn` полу нужно тело: выбери пол, над окном 3D меню **Mesh → Create Collision Shape…**, выбери **Static Body Child** и **Trimesh**. (В старых версиях Godot: **Mesh → Create Trimesh Static Body**.) Godot сам сделает StaticBody3D с формой.
+- Перетащи `player3d.tscn` в мир над полом. Запусти. Стрелки — ходить, пробел — прыгать.
+
+:: quiz
+Почему в 3D-шаблоне `JUMP_VELOCITY` положительный, а в 2D был отрицательный?
+[x] В 3D ось y смотрит вверх, а в 2D — вниз => Верно.
+[ ] В 3D прыжок слабее => Знак — это направление, а не сила.
+[ ] Это ошибка в шаблоне => Шаблон верный.
+
+:: recap
+- `CharacterBody3D`: те же `velocity`, `move_and_slide`, `is_on_floor`.
+- Ходьба — по x и z, прыжок и гравитация — по y.
+- Шаблон **Basic Movement** есть и для 3D.

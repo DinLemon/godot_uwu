@@ -1,0 +1,463 @@
+# MODULE m23 | Итоговый проект | Собираем игру «Монетки» от начала до публикации
+
+## LESSON m23-1 | План игры | 6
+:: goals
+- Что именно мы делаем
+- Из каких сцен состоит игра
+- Подготовить проект
+
+:: text Игра «Монетки»
+Маленький платформер:
+- персонаж бегает и прыгает;
+- на уровне разбросаны монетки;
+- вверху счёт `Монеты: 3 / 10` и таймер;
+- собрал все — «Победа!»; время вышло или упал в пропасть — уровень заново.
+
+Это небольшая игра, но в ней есть всё главное: сцены, физика, ввод, сигналы, группы, интерфейс, автозагрузка, экспорт.
+
+!> Большие игры делают по кусочку. Сначала самая простая версия, которая работает. Потом улучшения. Не пытайся сделать всё сразу.
+
+:: text Список сцен и скриптов
+```tree
+game.gd        (Autoload «Game») — счёт монет на всю игру
+player.tscn    CharacterBody2D + player.gd
+coin.tscn      Area2D + coin.gd
+hud.tscn       CanvasLayer + hud.gd
+level.tscn     Node2D + level.gd
+├── Ground     (TileMapLayer)
+├── Player     (экземпляр player.tscn)
+├── Coins      (Node2D — папка для монеток)
+│   ├── Coin … (экземпляры coin.tscn)
+├── DeathZone  (Area2D под уровнем)
+└── HUD        (экземпляр hud.tscn)
+```
+
+Так и будем идти: по одной сцене за урок.
+
+:: steps Подготовка
+- Создай новый проект `coins_game`, рендерер **Compatibility**.
+- В FileSystem сделай папки: правый клик → **New → Folder**: `scenes`, `scripts`, `art`.
+- Скачай бесплатный набор [Pixel Platformer](https://kenney.nl/assets/pixel-platformer) (или любой другой) и положи картинки в `art`.
+- **Project Settings → Input Map**: создай действия `move_left` (A, ←), `move_right` (D, →), `jump` (пробел, W, ↑).
+- Для пиксельной графики: **Project Settings → Rendering → Textures → Default Texture Filter → Nearest**. Картинки не будут размытыми.
+
+:: recap
+- Сначала простая работающая версия, потом улучшения.
+- Одна «вещь» — одна сцена: игрок, монетка, HUD, уровень.
+- Действия ввода и фильтр Nearest настраиваются в Project Settings.
+
+## LESSON m23-2 | Игрок | 10
+:: goals
+- Собрать сцену игрока
+- Написать скрипт движения
+
+:: steps Сцена игрока
+- Новая сцена, корень **CharacterBody2D**, имя `Player`. Сохрани `scenes/player.tscn`.
+- Добавь **Sprite2D** (или **AnimatedSprite2D**, если есть кадры), поставь картинку персонажа.
+- Добавь **CollisionShape2D** → **New CapsuleShape2D** или **RectangleShape2D**, подгони под картинку. Чуть уже картинки — так приятнее играть.
+- Добавь **Camera2D**, включи **Position Smoothing**.
+- Прикрепи скрипт `scripts/player.gd` и вставь код из следующего шага.
+
+:: code
+Скрипт игрока. Каждую строку ты уже знаешь по модулям 11–12.
+```gd
+extends CharacterBody2D
+
+const SPEED = 220.0
+const JUMP_VELOCITY = -420.0
+
+@onready var sprite = $Sprite2D
+
+func _ready():
+	add_to_group("player")
+
+func _physics_process(delta):
+	if not is_on_floor():
+		velocity += get_gravity() * delta
+
+	if Input.is_action_just_pressed("jump") and is_on_floor():
+		velocity.y = JUMP_VELOCITY
+
+	var dir = Input.get_axis("move_left", "move_right")
+	if dir:
+		velocity.x = dir * SPEED
+		sprite.flip_h = dir < 0
+	else:
+		velocity.x = move_toward(velocity.x, 0, SPEED)
+
+	move_and_slide()
+```
+norun: yes
+`add_to_group("player")` — по этой группе монетка узнает игрока. Если у тебя AnimatedSprite2D, поменяй `$Sprite2D` на `$AnimatedSprite2D` и добавь выбор анимации из модуля 15.
+
+:: quiz
+Зачем игроку группа `player`?
+[x] Чтобы монетки и ловушки могли проверить `body.is_in_group("player")` => Верно.
+[ ] Без группы он не будет двигаться => Движению группа не нужна.
+[ ] Чтобы камера за ним следила => Камера — ребёнок игрока, ей группа не нужна.
+
+:: recap
+- Игрок: CharacterBody2D + картинка + форма + камера + скрипт.
+- Группа `player` — «пропуск» для монеток и ловушек.
+
+## LESSON m23-3 | Монетка и счёт | 10
+:: goals
+- Автозагрузка Game со счётом
+- Сцена монетки, которая сообщает о сборе
+
+:: code
+`scripts/game.gd`. Добавь его в **Project Settings → Globals → Autoload** с именем `Game`.
+```gd
+extends Node
+
+signal coins_changed(value)
+
+var coins = 0
+
+func add_coin():
+	coins += 1
+	coins_changed.emit(coins)
+
+func reset():
+	coins = 0
+	coins_changed.emit(coins)
+```
+norun: yes
+
+:: steps Сцена монетки
+- Новая сцена, корень **Area2D**, имя `Coin`. Сохрани `scenes/coin.tscn`.
+- Добавь **Sprite2D** с картинкой монетки и **CollisionShape2D** с **CircleShape2D**.
+- По желанию — **AnimationPlayer** с вращением из модуля 15.
+- Прикрепи `scripts/coin.gd` с кодом ниже.
+
+:: code
+Монетка ничего не знает про HUD и уровень. Она только сообщает `Game` и красиво исчезает.
+```gd
+extends Area2D
+
+func _ready():
+	add_to_group("coins")
+	body_entered.connect(_on_body_entered)
+
+func _on_body_entered(body):
+	if not body.is_in_group("player"):
+		return
+	set_deferred("monitoring", false)
+	Game.add_coin()
+	var tween = create_tween()
+	tween.tween_property(self, "position:y", position.y - 30, 0.25)
+	tween.tween_property(self, "modulate:a", 0.0, 0.15)
+	tween.tween_callback(queue_free)
+```
+norun: yes
+`set_deferred("monitoring", false)` — выключить зону в конце кадра. Иначе за время анимации монетку можно «собрать» второй раз.
+
+:: task
+Проверим логику счёта в тренажёре. Здесь `Game` — внутренний класс, а монетки собираются вызовом `collect()`. Подключи сигнал `coins_changed` к функции `_on_coins_changed`, которая печатает `Монеты: X / 3`, а при сборе всех трёх — ещё и `Победа!`.
+```text
+Монеты: 1 / 3
+Монеты: 2 / 3
+Монеты: 3 / 3
+Победа!
+```
+```gd
+extends Node
+
+class GameData:
+	signal coins_changed(value)
+	var coins = 0
+	func add_coin():
+		coins += 1
+		coins_changed.emit(coins)
+
+var game = GameData.new()
+var total = 3
+
+func _ready():
+	# подключи сигнал здесь
+	for i in total:
+		game.add_coin()
+
+func _on_coins_changed(value):
+	pass
+```
+```solution
+extends Node
+
+class GameData:
+	signal coins_changed(value)
+	var coins = 0
+	func add_coin():
+		coins += 1
+		coins_changed.emit(coins)
+
+var game = GameData.new()
+var total = 3
+
+func _ready():
+	game.coins_changed.connect(_on_coins_changed)
+	for i in total:
+		game.add_coin()
+
+func _on_coins_changed(value):
+	print("Монеты: ", value, " / ", total)
+	if value >= total:
+		print("Победа!")
+```
+```expect
+Монеты: 1 / 3
+Монеты: 2 / 3
+Монеты: 3 / 3
+Победа!
+```
+hint: Подключение: `game.coins_changed.connect(_on_coins_changed)`.
+hint: В функции: `print(...)`, потом `if value >= total:`.
+
+:: recap
+- Autoload `Game` хранит счёт и шлёт сигнал `coins_changed`.
+- Монетка: проверить группу → выключить зону → `Game.add_coin()` → анимация → `queue_free`.
+
+## LESSON m23-4 | HUD | 8
+:: goals
+- Счёт и таймер на экране
+
+:: steps Сцена HUD
+- Новая сцена, корень **CanvasLayer**, имя `HUD`. Сохрани `scenes/hud.tscn`.
+- Добавь **Label** `CoinsLabel`. **Anchor preset → Top Left**. Текст `Монеты: 0 / 0`.
+- Добавь **Label** `TimeLabel`. **Anchor preset → Top Right**. Текст `1:00`.
+- Добавь **Label** `Message`. **Anchor preset → Center**. Текст `Победа!`. В **Horizontal Alignment** — **Center**.
+- Сделай шрифт крупнее: у Label раскрой **Theme Overrides → Font Sizes** и поставь 32.
+- Прикрепи `scripts/hud.gd`.
+
+:: code
+```gd
+extends CanvasLayer
+
+@onready var coins_label = $CoinsLabel
+@onready var time_label = $TimeLabel
+@onready var message = $Message
+
+func _ready():
+	message.hide()
+
+func set_coins(value, total):
+	coins_label.text = "Монеты: %d / %d" % [value, total]
+
+func set_time(seconds):
+	var s = max(0, ceili(seconds))
+	time_label.text = "%d:%02d" % [s / 60, s % 60]
+
+func show_message(text):
+	message.text = text
+	message.show()
+```
+norun: yes
+`ceili` округляет вверх до целого: 59.2 секунды показываются как `1:00`, а не `0:59`. Так таймер дойдёт до `0:00` ровно в момент окончания.
+
+:: task
+Проверим `set_time` без Label: функция `time_text(seconds)` должна возвращать строку. Используй `ceili` и шаблон `%d:%02d`.
+```text
+1:00
+0:05
+0:00
+```
+```gd
+extends Node
+
+func _ready():
+	print(time_text(59.2))
+	print(time_text(4.01))
+	print(time_text(-0.3))
+
+func time_text(seconds):
+	pass
+```
+```solution
+extends Node
+
+func _ready():
+	print(time_text(59.2))
+	print(time_text(4.01))
+	print(time_text(-0.3))
+
+func time_text(seconds):
+	var s = max(0, ceili(seconds))
+	return "%d:%02d" % [s / 60, s % 60]
+```
+```expect
+1:00
+0:05
+0:00
+```
+hint: `ceili(59.2)` = 60, `ceili(4.01)` = 5.
+hint: `max(0, ...)` не даёт уйти в минус. Потом минуты `s / 60` и секунды `s % 60`.
+
+:: recap
+- HUD — CanvasLayer с Label'ами, прибитыми якорями к углам.
+- Скрипт HUD — только функции «показать»: `set_coins`, `set_time`, `show_message`.
+
+## LESSON m23-5 | Уровень и правила игры | 12
+:: goals
+- Собрать уровень
+- Написать правила: победа, время, пропасть
+
+:: steps Собираем уровень
+- Новая сцена, корень **Node2D**, имя `Level`. Сохрани `scenes/level.tscn`.
+- Добавь **TileMapLayer** `Ground` и нарисуй платформы (модуль 16). Не забудь **Physics Layer** для плиток.
+- Перетащи `player.tscn` на уровень.
+- Добавь **Node2D** `Coins` и внутрь перетащи 8–10 монеток `coin.tscn`.
+- Добавь **Area2D** `DeathZone` с длинной **CollisionShape2D** под всем уровнем — это пропасть.
+- Перетащи `hud.tscn` на уровень.
+- Прикрепи к `Level` скрипт `scripts/level.gd`. Подключи сигнал `body_entered` у `DeathZone` к `Level` (вкладка **Node → Signals**).
+- Сделай `level.tscn` главной сценой.
+
+:: code
+Правила игры собраны в одном месте.
+```gd
+extends Node2D
+
+@export var time_limit = 60.0
+
+var time_left = 0.0
+var total_coins = 0
+var finished = false
+
+@onready var hud = $HUD
+
+func _ready():
+	Game.reset()
+	time_left = time_limit
+	total_coins = get_tree().get_nodes_in_group("coins").size()
+	Game.coins_changed.connect(_on_coins_changed)
+	hud.set_coins(0, total_coins)
+
+func _process(delta):
+	if finished:
+		return
+	time_left -= delta
+	hud.set_time(time_left)
+	if time_left <= 0:
+		end_game("Время вышло!")
+
+func _on_coins_changed(value):
+	hud.set_coins(value, total_coins)
+	if value >= total_coins:
+		end_game("Победа!")
+
+func _on_death_zone_body_entered(body):
+	if body.is_in_group("player"):
+		get_tree().reload_current_scene.call_deferred()
+
+func end_game(text):
+	if finished:
+		return
+	finished = true
+	hud.show_message(text)
+	get_tree().paused = true
+	await get_tree().create_timer(3.0).timeout
+	get_tree().paused = false
+	get_tree().reload_current_scene()
+```
+norun: yes
+- Монеток считаем по группе `coins`: дети готовы раньше родителя, поэтому в `_ready` уровня они уже в группе.
+- `get_tree().paused = true` останавливает игрока и монетки. Таймер из `create_timer` продолжает идти даже на паузе.
+- Проверка `if finished: return` в `end_game` защищает от двойного вызова.
+
+:: task
+Проверим таймер уровня в тренажёре. Каждый кадр отнимай `delta` от `time_left` и печатай `Осталось: X`. Когда время кончилось — вызови `end_game("Время вышло!")`. После конца игры `_process` ничего не делает.
+```text
+Осталось: 1.0
+Осталось: 0.5
+Осталось: 0.0
+Время вышло!
+```
+```gd
+extends Node
+# тренажёр: кадров=5 дельта=0.5
+
+var time_left = 1.5
+var finished = false
+
+func _process(delta):
+	pass
+
+func end_game(text):
+	finished = true
+	print(text)
+```
+```solution
+extends Node
+# тренажёр: кадров=5 дельта=0.5
+
+var time_left = 1.5
+var finished = false
+
+func _process(delta):
+	if finished:
+		return
+	time_left -= delta
+	print("Осталось: ", time_left)
+	if time_left <= 0:
+		end_game("Время вышло!")
+
+func end_game(text):
+	finished = true
+	print(text)
+```
+```expect
+Осталось: 1.0
+Осталось: 0.5
+Осталось: 0.0
+Время вышло!
+```
+hint: Первая строка `_process`: `if finished: return`.
+hint: Потом `time_left -= delta`, `print(...)` и проверка `if time_left <= 0:`.
+
+:: recap
+- Уровень знает правила: сколько монет, сколько времени, что считать проигрышем.
+- Монетки, HUD и игрок не знают друг о друге — общаются через сигналы и `Game`.
+
+## LESSON m23-6 | Финал: меню, сборка, публикация | 10
+:: goals
+- Добавить главное меню
+- Собрать игру и выложить её
+
+:: steps Главное меню
+- Сделай `main_menu.tscn` как в модуле 17: заголовок и кнопки «Играть» и «Выход».
+- «Играть» → `get_tree().change_scene_to_file("res://scenes/level.tscn")`.
+- Сделай меню главной сценой.
+- Проверь всю игру с `F5`: меню → уровень → победа или проигрыш → уровень заново.
+
+:: steps Список «перед выпуском»
+- Убери лишние `print` из кода (или оставь — игрок их не видит, но так чище).
+- Пройди уровень сам от начала до конца. Потом дай поиграть другу и **молча посмотри**. Где он застрял — там и надо поправить.
+- Проверь, что нельзя застрять в стене и выпасть за край мира мимо DeathZone.
+- **Project Settings → Application → Config**: заполни **Name** и поставь иконку **Icon**.
+
+:: steps Публикация
+- **Project → Export → Web** (модуль 21) → папка `coins_game_web`.
+- Запакуй содержимое папки в zip.
+- Загрузи на [itch.io](https://itch.io) как HTML-проект. Проверь в режиме Draft.
+- Поставь **Public** и отправь ссылку тем, кому хочешь показать.
+
+:: text Что дальше
+Ты прошёл весь курс. Это большой путь. Вот куда можно двигаться дальше:
+
+- **Улучшай «Монетки»**: второй уровень, враги (CharacterBody2D, который ходит туда-сюда), звуки, сохранение рекорда (модуль 20).
+- **Участвуй в game jam**: соревнование «сделай игру за 48 часов». Много таких на itch.io. Маленький срок — лучший учитель.
+- **Документация Godot**: [docs.godotengine.org](https://docs.godotengine.org) — раздел «Getting Started», а потом «Your first 2D game».
+- **Сообщество**: форум [forum.godotengine.org](https://forum.godotengine.org). Спрашивать нормально — все когда-то начинали.
+- **Повторение**: раздел «Повторение» в этом курсе подбирает вопросы, где были ошибки.
+
+> Не обязательно делать большую игру. Десять маленьких законченных игр научат больше, чем одна огромная незаконченная.
+
+:: quiz
+С чего лучше начать следующую свою игру?
+[x] С самой маленькой версии, которая уже играется, и улучшать её по шагу => Верно.
+[ ] Сразу с открытого мира и сюжета на 20 часов => Такие игры делают годами и командами.
+[ ] Сначала выучить весь Godot наизусть => Учиться лучше на ходу, на своей игре.
+
+:: recap
+- Игра готова: меню, уровень, монетки, HUD, правила, экспорт.
+- Дай поиграть другим и смотри молча — это лучший тест.
+- Дальше: маленькие игры, game jam, документация, форум.
