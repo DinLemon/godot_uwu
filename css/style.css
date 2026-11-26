@@ -429,3 +429,11 @@ ul.steps li.on .n { color: var(--ok); }
 }
 .note.small { font-size: .88rem; margin-top: .5rem; }
 kbd { font-family: var(--mono); font-size: .85em; padding: .05em .4em; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: var(--surface-2); }
+/* Контекстный переход не заменяет текущий шаг и не требует прохождения. */
+.lesson-practice { margin: 1rem 0; padding: .85rem 1rem; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: .7rem; background: var(--surface); }
+.lesson-practice > strong { font-size: .9rem; }
+.lesson-practice ul { margin: .4rem 0; padding-left: 1.2rem; }
+.lesson-practice li + li { margin-top: .2rem; }
+.lesson-practice p { font-size: .8rem; color: var(--muted); margin: .4rem 0 0; }
+.practice-link-done { display: inline-block; margin-left: .6rem; color: var(--muted); font-size: .75rem; }
+.lesson-practice a, .practice-return { overflow-wrap: anywhere; }
