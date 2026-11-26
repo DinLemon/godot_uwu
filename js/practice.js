@@ -44,6 +44,9 @@
       if (node.parent == null && state.nodes.some(n=>n.parent==null)) continue;
       ids.add(node.id);
       state.nodes.push({id:node.id, type:node.type, name:String(node.name||node.type).slice(0,40), parent:node.parent ?? null, props:propsFor(node.type,node.props), script:typeof node.script==='string'?node.script.slice(0,80):"", template:node.template === "coin" ? "coin" : ""});
+      const saved=state.nodes.at(-1),parent=state.nodes.find(n=>n.id===saved.parent);
+      // Older previews hid body-owned sprites and ignored their default position.
+      if(saved.type==='Sprite2D'&&['CharacterBody2D','Area2D'].includes(parent?.type)&&saved.props.x===160&&saved.props.y===100){saved.props.x=0;saved.props.y=0;}
     }
     state.selected = ids.has(raw.selected)?raw.selected:state.nodes[0]?.id || null;
     state.tab = tabs.includes(raw.tab)?raw.tab:"2D";
@@ -57,19 +60,65 @@
     state.brush=["ground","coin","empty"].includes(raw.brush)?raw.brush:"ground";
     state.code=typeof raw.code==='string'?raw.code.slice(0,8000):state.code;
     state.passed=raw.passed===true;
+    state.showShapes=raw.showShapes===true;
     // Runtime evidence is recomputed, never trusted from an imported progress file.
     return state;
   }
   const nodeBy = (s,id) => s.nodes.find(n=>n.id===id);
   const hasShape = (s,node) => s.nodes.some(n=>n.parent===node.id&&n.type==='CollisionShape2D'&&n.props.shape&&!n.props.disabled);
-  function run(state) {
+  function worldPosition(s,node) {
+    let x=0,y=0,steps=0;
+    while(node&&steps++<40){x+=Number(node.props.x)||0;y+=Number(node.props.y)||0;node=nodeBy(s,node.parent);}
+    return {x,y};
+  }
+  function descendants(s,id) {
+    const ids=new Set([id]);let size;
+    do{size=ids.size;s.nodes.forEach(n=>{if(ids.has(n.parent))ids.add(n.id);});}while(size!==ids.size);
+    return ids;
+  }
+  function sortTree(s) {
+    const sorted=[];
+    const visit=parent=>s.nodes.filter(n=>n.parent===parent).forEach(n=>{sorted.push(n);visit(n.id);});
+    visit(null);s.nodes=sorted;
+  }
+  function floors(s,config) {
+    const list=s.nodes.filter(n=>n.type==='StaticBody2D'&&hasShape(s,n)).map(n=>{const p=worldPosition(s,n);return {left:p.x-120,right:p.x+120,y:p.y};});
+    if(config.mode==='input')list.push({left:0,right:320,y:210});
+    if(config.mode==='tiles')s.tiles.forEach((v,i)=>{if(v==='ground')list.push({left:i%8*40,right:(i%8+1)*40,y:Math.floor(i/8)*40});});
+    return list;
+  }
+  function collect(s,config) {
+    const e=s.evidence;if(!e)return;
+    const coins=s.nodes.filter(n=>n.type==='Area2D'&&hasShape(s,n)).map(n=>({id:n.id,...worldPosition(s,n)}));
+    if(config.mode==='tiles')s.tiles.forEach((v,i)=>{if(v==='coin')coins.push({id:'tile'+i,x:i%8*40+20,y:Math.floor(i/8)*40+20});});
+    coins.forEach(c=>{if(Math.abs(c.x-e.x)<28&&Math.abs(c.y-e.y)<40&&!e.collected.includes(c.id))e.collected.push(c.id);});
+  }
+  function gameFrame(s,config,dt,direction=0) {
+    const e=s.evidence;if(!e?.ran)return;
+    const actor=s.nodes.find(n=>n.type==='CharacterBody2D');
+    if(!actor&&config.mode!=='tiles')return;
+    const time=Math.max(0,Math.min(.04,Number(dt)||0));
+    e.x=Math.max(16,Math.min(304,e.x+Math.max(-1,Math.min(1,direction))*(actor?.props.speed||160)*time));
+    const surfaces=floors(s,config).filter(f=>e.x>=f.left-8&&e.x<=f.right+8);
+    const previous=e.y;e.vy+=700*time;e.y+=e.vy*time;e.grounded=false;
+    if((actor&&hasShape(s,actor))||['tiles','input'].includes(config.mode)) {
+      const landing=surfaces.filter(f=>e.vy>=0&&previous+16<=f.y+1&&e.y+16>=f.y).sort((a,b)=>a.y-b.y)[0];
+      if(landing){e.y=landing.y-16;e.vy=0;e.grounded=true;}
+    }
+    collect(s,config);
+    if(e.y>300){const fresh=run(s,config);s.evidence={...fresh,collected:e.collected,jumps:e.jumps,settled:!fresh.grounded};s.output='Персонаж вернулся на старт. Проверь, есть ли под ним пол.';}
+    else s.output=`X: ${Math.round(e.x)} · Y: ${Math.round(e.y)} · Монеты: ${e.collected.length}${e.grounded?' · на полу':''}`;
+  }
+  function run(state,config={}) {
     const actor=state.nodes.find(n=>n.type==='CharacterBody2D');
-    const floor=state.nodes.find(n=>n.type==='StaticBody2D'&&hasShape(state,n));
+    const start=actor?worldPosition(state,actor):{x:60,y:100};
+    const floor=floors(state,config).filter(f=>start.x>=f.left&&start.x<=f.right&&f.y>=start.y).sort((a,b)=>a.y-b.y)[0];
+    const grounded=!!(floor&&((actor&&hasShape(state,actor))||['tiles','input'].includes(config.mode)));
     let stdout="", scriptOk=false;
     if(state.nodes.some(n=>n.script)) {
       try {const result=RK.runGd(state.code);scriptOk=!!result.ok;stdout=result.ok?result.stdout:result.stderr;} catch(e){stdout="Не удалось выполнить скрипт.";}
     }
-    return {ran:true, grounded:!!(actor&&hasShape(state,actor)&&floor&&floor.props.y>actor.props.y), x:actor?.props.x ?? 80, collected:[], pressed:false, timer:false, stdout, scriptOk};
+    return {ran:true, grounded, x:start.x, y:grounded?floor.y-16:start.y,vy:0,jumps:0,collected:[],pressed:false,timer:false,stdout,scriptOk};
   }
   function reduce(config, previous, action) {
     const s=clone(previous); const n=nodeBy(s,s.selected);
@@ -87,6 +136,23 @@
       }
       case "set": if(n&&own(types[n.type],action.key)){n.props=propsFor(n.type,{...n.props,[action.key]:action.value});invalidate();} break;
       case "rename": if(n&&String(action.value).trim()){n.name=String(action.value).trim().slice(0,40);invalidate();} break;
+      case "transform": if(n&&own(n.props,'x')&&own(n.props,'y')){n.props.x=finite(action.x,n.props.x);n.props.y=finite(action.y,n.props.y);invalidate();}break;
+      case "reparent": {
+        const parent=nodeBy(s,action.parent);
+        if(!n||n.parent===null||!parent||descendants(s,n.id).has(parent.id))break;
+        const before=worldPosition(s,n),after=worldPosition(s,parent);
+        n.parent=parent.id;if(own(n.props,'x'))n.props.x=before.x-after.x;if(own(n.props,'y'))n.props.y=before.y-after.y;
+        sortTree(s);invalidate();break;
+      }
+      case "duplicate": {
+        if(!n||n.parent===null)break;
+        const branch=s.nodes.filter(x=>descendants(s,n.id).has(x.id));if(s.nodes.length+branch.length>40)break;
+        const mapping=new Map();let next=1;branch.forEach(x=>{while(nodeBy(s,'n'+next)||[...mapping.values()].includes('n'+next))next++;mapping.set(x.id,'n'+next++);});
+        const copies=branch.map(x=>({...clone(x),id:mapping.get(x.id),parent:mapping.get(x.parent)||x.parent,name:x.id===n.id?x.name+' copy':x.name}));
+        if(own(copies[0].props,'x'))copies[0].props.x+=32;
+        s.nodes.push(...copies);s.connections.push(...s.connections.filter(c=>mapping.has(c.from)).map(c=>({...c,from:mapping.get(c.from),target:mapping.get(c.target)||c.target})));
+        s.selected=copies[0].id;sortTree(s);invalidate();break;
+      }
       case "remove": {
         if(!n)break;const removed=new Set([n.id]); let size;
         do{size=removed.size;s.nodes.forEach(x=>{if(removed.has(x.parent))removed.add(x.id);});}while(size!==removed.size);
@@ -112,12 +178,16 @@
       case "removeKey": s.timeline.keys.splice(action.index,1);invalidate();break;
       case "brush": if(['ground','coin','empty'].includes(action.value))s.brush=action.value;break;
       case "paint": if(Number.isInteger(action.index)&&action.index>=0&&action.index<40){s.tiles[action.index]=s.brush;invalidate();}break;
-      case "run": s.evidence=run(s);s.output=s.evidence.stdout|| (s.evidence.grounded?'Персонаж стоит на полу. Форма столкновения работает.':'Предпросмотр запущен.');break;
+      case "run": s.evidence=run(s,config);s.output=s.evidence.stdout|| (s.evidence.grounded?'Персонаж стоит на полу. Форма столкновения работает.':'Предпросмотр запущен.');break;
+      case "stop": invalidate();break;
+      case "frame": gameFrame(s,config,action.dt,action.direction);break;
+      case "jump": if(config.mode==='input'&&!s.actions.some(a=>a.name==='jump'&&a.keys.length)){s.output='Назначь клавишу для jump в Input Map.';break;}if(s.evidence?.grounded){s.evidence.vy=-300;s.evidence.grounded=false;s.evidence.jumps++;}break;
       case "move": {
         if(!s.evidence?.ran)break;const direction=action.direction===-1?-1:1;
         if(config.mode==='input'&&!s.actions.some(a=>a.name===(direction<0?'move_left':'move_right')&&a.keys.length)){s.output='Для этого направления пока не назначены клавиши.';break;}
         s.evidence.x=Math.max(16,Math.min(304,s.evidence.x+direction*32));
-        s.nodes.filter(n=>n.type==='Area2D').forEach(n=>{if(Math.abs(n.props.x-s.evidence.x)<28&&hasShape(s,n)&&!s.evidence.collected.includes(n.id))s.evidence.collected.push(n.id);});
+        if(!floors(s,config).some(f=>s.evidence.x>=f.left-8&&s.evidence.x<=f.right+8&&Math.abs(s.evidence.y+16-f.y)<2))s.evidence.grounded=false;
+        collect(s,config);
         s.output='Позиция X: '+s.evidence.x+'. Собрано монет: '+s.evidence.collected.length;break;
       }
       case "press": if(s.evidence?.ran){s.evidence.pressed=s.nodes.some(n=>n.type==='Label')&&s.connections.some(c=>nodeBy(s,c.from)?.type==='Button'&&nodeBy(s,c.target)?.script);s.output=s.evidence.pressed?'Label: Работает!':'Кнопка нажата, но сигнал не подключён или в сцене нет Label.';}break;
@@ -152,6 +222,8 @@
       else if(goal.kind==='signal')ok=!!s.evidence?.pressed;
       else if(goal.kind==='timer')ok=!!s.evidence?.timer;
       else if(goal.kind==='collect')ok=s.evidence?.grounded&&s.evidence.collected.length>=(goal.count||1);
+      else if(goal.kind==='jumpCollect')ok=s.evidence?.grounded&&s.evidence.jumps>0&&s.evidence.collected.length>=(goal.count||1);
+      else if(goal.kind==='spread'){const positions=s.nodes.filter(n=>n.type==='Area2D'&&n.template==='coin').map(n=>worldPosition(s,n).x).sort((a,b)=>a-b);ok=positions.length>=3&&positions.every((v,i)=>!i||v-positions[i-1]>=35);}
       else if(goal.kind==='timeline') {
         const t=s.timeline;
         ok=nodeBy(s,t.target)?.type==='Sprite2D'&&t.property==='alpha'&&t.loop&&t.keys.some(k=>Math.abs(k.time)<.001&&k.value>=.99)&&t.keys.some(k=>Math.abs(k.time-t.duration)<.001&&k.value<=.05);
@@ -163,7 +235,7 @@
     });
     return {ok:results.every(r=>r.ok),results};
   }
-  RK.Practice={types,initial,restore,reduce,evaluate,matches};
+  RK.Practice={types,initial,restore,reduce,evaluate,matches,worldPosition};
 
   // Rendering intentionally uses native form controls: every operation also works without dragging.
   const esc=RK.esc;
@@ -172,8 +244,58 @@
   function render(id,host,storage={}) {
     const config=window.GODOT_PRACTICE?.[id]; if(!config)return;
     let state=restore(config,storage.read?.(id)),dialog=null,message='',checked=false,hintIndex=0;
+    let undo=[],redo=[],gesture=null,group=null,animation=null,frameId=0,lastTime=0,suppressClick=false;
+    const held=new Set();
+    const documentActions=new Set(['add','set','rename','remove','script','code','instance','action','bind','unbind','connect','timeline','key','removeKey','paint','transform','reparent','duplicate']);
     const root=document.createElement('section'); root.className='practice-lab';root.setAttribute('aria-label',config.title);host.appendChild(root);
-    const dispatch=(action,repaint=true)=>{state=reduce(config,state,action);if(!['select','panel','tab','brush'].includes(action.type)){checked=false;message='';}storage.write?.(id,state);if(repaint)paint();else{root.querySelector('.lab-feedback').textContent='';root.querySelector('.lab-feedback').className='lab-feedback';root.querySelectorAll('.lab-goals>div').forEach(el=>el.className='');root.querySelector('.lab-output output').textContent=state.output||'Изменено. Запусти предпросмотр ещё раз.';const work=root.querySelector('.lab-workspace');if(state.tab!=='Script'&&!['input','tiles','animation'].includes(config.mode))work.innerHTML=preview();if(config.mode==='animation'){root.querySelector('[data-scrub]')?.setAttribute('max',state.timeline.duration);root.querySelector('input[name=time]')?.setAttribute('max',state.timeline.duration);}}};
+    function remember(){undo.push(clone(state));if(undo.length>40)undo.shift();redo=[];}
+    function refresh() {
+      root.querySelectorAll('.lab-viewport').forEach(el=>{el.innerHTML=sceneSvg();el.dataset.play=String(!!state.evidence);});
+      const output=root.querySelector('.lab-output output');if(output)output.textContent=state.output||'Изменено. Запусти предпросмотр ещё раз.';
+      const feedback=root.querySelector('.lab-feedback');if(feedback){feedback.textContent='';feedback.className='lab-feedback';}
+      const assessment=evaluate(config,state);
+      root.querySelectorAll('.lab-goals>div').forEach((el,i)=>{el.className='';el.textContent='· '+assessment.results[i].label;});
+      const selected=nodeBy(state,state.selected);
+      for(const key of ['x','y']){const input=root.querySelector(`[data-prop="${key}"]`);if(input&&input!==document.activeElement&&selected)input.value=selected.props[key];}
+      root.querySelector('[data-action="undo"]')?.toggleAttribute('disabled',!undo.length);
+      root.querySelector('[data-action="redo"]')?.toggleAttribute('disabled',!redo.length);
+      if(config.mode==='animation'){root.querySelector('[data-scrub]')?.setAttribute('max',state.timeline.duration);root.querySelector('input[name=time]')?.setAttribute('max',state.timeline.duration);}
+    }
+    const dispatch=(action,repaint=true)=>{
+      if(documentActions.has(action.type)&&!gesture){
+        const signature=['set','rename','code','timeline'].includes(action.type)?action.type+':'+state.selected+':'+(action.key||''):null;
+        if(!signature||group!==signature)remember();group=signature;
+      }else if(!documentActions.has(action.type))group=null;
+      state=reduce(config,state,action);
+      if(!['select','panel','tab','brush'].includes(action.type)){checked=false;message='';}
+      if(action.type!=='frame')storage.write?.(id,state);
+      if(repaint)paint();else refresh();
+    };
+    function direction(){
+      const active=name=>state.actions.find(a=>a.name===name)?.keys.some(k=>held.has(k));
+      if(config.mode==='input')return Number(!!active('move_right'))-Number(!!active('move_left'));
+      return Number(held.has('D')||held.has('ArrowRight'))-Number(held.has('A')||held.has('ArrowLeft'));
+    }
+    function tick(time){
+      frameId=0;if(!root.isConnected||document.hidden){held.clear();return;}
+      const dt=lastTime?Math.min(.04,(time-lastTime)/1000):1/60;lastTime=time;
+      if(animation){
+        const t=state.timeline;animation.time+=dt;
+        if(animation.time>t.duration){if(t.loop)animation.time%=t.duration;else{animation.time=t.duration;animation=null;}}
+        const cursor=root.querySelector('[data-scrub]');if(cursor){cursor.value=animation?.time??t.duration;scrub(Number(cursor.value));}
+      }
+      if(state.evidence&&(direction()||!state.evidence.grounded&&!state.evidence.settled))dispatch({type:'frame',dt,direction:direction()},false);
+      if(animation||(state.evidence&&(held.size||!state.evidence.grounded&&!state.evidence.settled)&&state.nodes.some(n=>n.type==='CharacterBody2D'))||(state.evidence&&config.mode==='tiles'&&(held.size||!state.evidence.grounded&&!state.evidence.settled)))frameId=requestAnimationFrame(tick);
+      else{lastTime=0;storage.write?.(id,state);}
+    }
+    function startTick(){if(!frameId){lastTime=0;frameId=requestAnimationFrame(tick);}}
+    function scrub(time){
+      const t=state.timeline,sorted=t.keys.slice().sort((a,b)=>a.time-b.time);
+      const before=sorted.filter(k=>k.time<=time).at(-1)||sorted[0],after=sorted.find(k=>k.time>=time)||sorted.at(-1);
+      const image=root.querySelector('.lab-animation-sample img');
+      if(before&&after&&image){const value=before.time===after.time?before.value:before.value+(after.value-before.value)*(time-before.time)/(after.time-before.time);image.style.opacity=t.property==='alpha'?Math.max(0,Math.min(1,value)):1;image.style.transform=t.property==='x'?`translateX(${Math.max(-60,Math.min(60,value))}px)`:'none';}
+      const readout=root.querySelector('.lab-time');if(readout)readout.textContent=time.toFixed(2)+' с';
+    }
     function tree() {
       const depth=n=>{let d=0;while(n.parent&&d<40){d++;n=nodeBy(state,n.parent);if(!n)break;}return d;};
       return state.nodes.length?state.nodes.map(n=>button('select',n.name,`data-id="${n.id}" aria-pressed="${n.id===state.selected}" style="--depth:${depth(n)}"`)).join(''):'<p class="lab-empty">Сцена пока пустая. Создай корневой узел.</p>';
@@ -184,33 +306,53 @@
       return `<label class="lab-field"><span>${esc(propNames[key]||key)}</span>${input}</label>`;
     }
     function inspector() {
-      const n=nodeBy(state,state.selected);if(!n)return '<p class="lab-empty">Выбери узел в Scene.</p>';
-      return `<p class="lab-node-type">${esc(n.type)}</p><label class="lab-field"><span>Node name</span><input data-name value="${esc(n.name)}" maxlength="40" aria-label="Node name"></label>${Object.entries(n.props).map(([k,v])=>field(n,k,v)).join('')}<p class="small">Script: ${esc(n.script||'не прикреплён')}</p>${button('script','Attach Script')}${n.type==='Button'?button('signal','Signals · pressed → Connect'):''}`;
+      const n=nodeBy(state,state.selected);if(!n)return '<p class="lab-empty">Выбери узел в Scene или нажми на объект в окне сцены.</p>';
+      const excluded=descendants(state,n.id);
+      const parent=n.parent===null?'<p class="small">Корень сцены</p>':`<label class="lab-field"><span>Родитель</span><select data-parent aria-label="Родитель узла">${state.nodes.filter(x=>!excluded.has(x.id)).map(x=>option(x.id,x.name,n.parent===x.id)).join('')}</select></label>`;
+      return `<p class="lab-node-type">${esc(n.type)}</p><label class="lab-field"><span>Node name</span><input data-name value="${esc(n.name)}" maxlength="40" aria-label="Node name"></label>${parent}${Object.entries(n.props).map(([k,v])=>field(n,k,v)).join('')}<p class="small">Script: ${esc(n.script||'не прикреплён')}</p>${button('script','Attach Script')}${n.type==='Button'?button('signal','Signals · pressed → Connect'):''}`;
     }
-    function preview() {
-      const x=state.evidence?.x;
-      const nodes=state.nodes.filter(n=>['Sprite2D','CharacterBody2D','StaticBody2D','Area2D','Label','Button','ProgressBar'].includes(n.type));
-      const scene=nodes.map(n=>{
-        if(n.parent&&['CharacterBody2D','Area2D'].includes(nodeBy(state,n.parent)?.type))return '';
-        const px=n.type==='CharacterBody2D'&&x!=null?x:n.props.x??30;
-        const py=n.props.y??30;
-        if(n.type==='Label')return `<text x="${px}" y="${py+20}" font-size="${Math.max(8,Math.min(40,n.props.font_size))}" fill="currentColor">${esc(state.evidence?.pressed?'Работает!':n.props.text)}</text>`;
-        if(n.type==='StaticBody2D')return `<rect x="${px-120}" y="${py}" width="240" height="16" rx="3" fill="#85b89f"/>`;
-        if(n.type==='Area2D')return state.evidence?.collected.includes(n.id)?'':`<circle cx="${px}" cy="${py}" r="10" fill="#f1ca71"/>`;
-        if(n.type==='Button')return `<g><rect x="${px}" y="${py}" width="105" height="30" rx="5" fill="#82b5d8"/><text x="${px+8}" y="${py+20}" font-size="14" fill="#182431">${esc(n.props.text)}</text></g>`;
-        if(n.type==='ProgressBar')return `<g><rect x="${px}" y="${py}" width="120" height="18" fill="#425467"/><rect x="${px}" y="${py}" width="${120*Math.max(0,Math.min(1,n.props.value/Math.max(1,n.props.max_value)))}" height="18" fill="#85b89f"/></g>`;
-        return `<image href="assets/${n.type==='CharacterBody2D'?'fox-godot-960.webp':'godot.svg'}" x="${px-18}" y="${py-24}" width="40" height="40" opacity="${n.props.alpha??1}"/>`;
-      }).join('');
-      const camera=state.nodes.some(n=>n.type==='Camera2D'&&n.props.enabled)?'<rect x="8" y="8" width="304" height="218" fill="none" stroke="#bba3df" stroke-dasharray="5 4"/>':'';
+    function sceneSvg() {
       if(state.tab==='3D')return `<svg viewBox="0 0 320 240" role="img" aria-label="Упрощённый предпросмотр 3D-сцены"><path d="m20 170 140-70 140 70-140 60Z" fill="#8cafad"/>${state.nodes.some(n=>n.type==='MeshInstance3D'&&n.props.mesh==='BoxMesh')?'<path d="m125 100 35-18 35 18-35 18Z" fill="#d4bfed"/><path d="m125 100 35 18v48l-35-18Z" fill="#a58bc9"/><path d="m160 118 35-18v48l-35 18Z" fill="#7b69a0"/>':''}<text x="12" y="28" fill="currentColor" font-size="14">3D · учебная модель</text></svg>`;
-      return `<svg viewBox="0 0 320 240" role="img" aria-label="Предпросмотр собранной сцены"><defs><pattern id="grid-${id}" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="currentColor" opacity=".10"/></pattern></defs><rect width="320" height="240" fill="url(#grid-${id})"/>${camera}${scene}</svg>`;
+      const e=state.evidence;
+      let scene='';
+      if(config.mode==='input')scene+='<rect y="210" width="320" height="16" fill="#85b89f"/>';
+      if(config.mode==='tiles')state.tiles.forEach((v,i)=>{
+        const x=i%8*40,y=Math.floor(i/8)*40;
+        if(v==='ground')scene+=`<rect x="${x}" y="${y}" width="40" height="40" fill="#82af99" stroke="#385e4b"/>`;
+        if(v==='coin'&&!e?.collected.includes('tile'+i))scene+=`<circle cx="${x+20}" cy="${y+20}" r="10" fill="#f1ca71"/>`;
+      });
+      for(const n of state.nodes){
+        if(!['Sprite2D','CharacterBody2D','StaticBody2D','Area2D','Label','Button','ProgressBar'].includes(n.type))continue;
+        const parent=nodeBy(state,n.parent);
+        if(parent?.type==='Area2D'&&e?.collected.includes(parent.id))continue;
+        const pos=worldPosition(state,n);
+        if(e&&parent?.type==='CharacterBody2D'){const origin=worldPosition(state,parent);pos.x+=e.x-origin.x;pos.y+=e.y-origin.y;}
+        const px=n.type==='CharacterBody2D'&&e?e.x:pos.x,py=n.type==='CharacterBody2D'&&e?e.y:pos.y;
+        if(n.type==='Area2D'&&e?.collected.includes(n.id))continue;
+        let drawing='',width=40,height=40,ox=-20,oy=-24;
+        if(n.type==='Label'){width=Math.max(25,Math.min(260,n.props.text.length*n.props.font_size*.55));height=n.props.font_size+6;ox=0;oy=0;drawing=`<text x="0" y="${n.props.font_size}" font-size="${Math.max(8,Math.min(40,n.props.font_size))}" fill="currentColor">${esc(e?.pressed?'Работает!':n.props.text||'Label')}</text>`;}
+        else if(n.type==='StaticBody2D'){width=240;height=16;ox=-120;oy=0;drawing='<rect x="-120" width="240" height="16" rx="3" fill="#85b89f"/>';}
+        else if(n.type==='Area2D')drawing='<circle r="10" fill="#f1ca71"/>';
+        else if(n.type==='Button'){width=105;height=30;ox=0;oy=0;drawing=`<rect width="105" height="30" rx="5" fill="#82b5d8"/><text x="8" y="20" font-size="14" fill="#182431">${esc(n.props.text)}</text>`;}
+        else if(n.type==='ProgressBar'){width=120;height=18;ox=0;oy=0;drawing=`<rect width="120" height="18" fill="#425467"/><rect width="${120*Math.max(0,Math.min(1,n.props.value/Math.max(1,n.props.max_value)))}" height="18" fill="#85b89f"/>`;}
+        else if(n.type==='CharacterBody2D'&&state.nodes.some(child=>child.parent===n.id&&child.type==='Sprite2D'))drawing='<rect x="-16" y="-16" width="32" height="32" fill="transparent" stroke="#82b5d8" stroke-dasharray="3 2"/>';
+        else if(n.type==='Sprite2D'&&!n.props.texture)drawing='<rect x="-16" y="-16" width="32" height="32" fill="none" stroke="#97a4b2" stroke-dasharray="3 2"/><text x="-14" y="4" font-size="8" fill="currentColor">Texture?</text>';
+        else {const scale=n.type==='Sprite2D'?Math.max(.2,Math.min(4,n.props.scale)):1;width=40*scale;height=40*scale;ox=-width/2;oy=-height/2;drawing=`<image href="assets/${n.type==='CharacterBody2D'?'fox-godot-960.webp':'godot.svg'}" x="${ox}" y="${oy}" width="${width}" height="${height}" opacity="${Math.max(0,Math.min(1,n.props.alpha??1))}"/>`;}
+        const selected=n.id===state.selected&&!e;
+        scene+=`<g data-scene-node="${n.id}" data-node-type="${n.type}" role="button" tabindex="-1" aria-label="${esc(n.name)} на сцене" transform="translate(${px} ${py})"><rect x="${ox-3}" y="${oy-3}" width="${width+6}" height="${height+6}" fill="transparent" stroke="${selected?'#bfa1ef':'transparent'}" stroke-width="1" stroke-dasharray="4 2"/>${drawing}</g>`;
+        if(!e&&state.showShapes&&hasShape(state,n))scene+=`<rect x="${px-17}" y="${py-16}" width="34" height="32" fill="#7cdbb330" stroke="#7cdbb3" pointer-events="none"/>`;
+      }
+      if(config.mode==='tiles'&&e)scene+=`<image href="assets/fox-godot-960.webp" x="${e.x-20}" y="${e.y-20}" width="40" height="40"/>`;
+      const camera=state.nodes.some(n=>n.type==='Camera2D'&&n.props.enabled)?'<rect x="8" y="8" width="304" height="218" fill="none" stroke="#bba3df" stroke-dasharray="5 4" pointer-events="none"/>':'';
+      return `<svg viewBox="0 0 320 240" aria-label="Сцена 2D"><defs><pattern id="grid-${id}" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="currentColor" opacity=".1"/></pattern></defs><rect width="320" height="240" fill="url(#grid-${id})"/>${camera}${scene}</svg>`;
     }
+    function preview(){return `<div class="lab-viewport" tabindex="0" role="group" aria-label="Окно сцены: выбор, перемещение и игра" data-play="${!!state.evidence}">${sceneSvg()}</div><p class="lab-viewport-help">${state.evidence?'Нажми на окно игры. A/D или стрелки — движение, Space/W — прыжок.':'Нажми на объект и перетащи. Стрелки — сдвиг на 1, Shift — на 10. Inspector показывает локальные координаты.'}</p>`;}
     function inputMap() {
       return `<div class="lab-settings"><h4>Project Settings · Input Map</h4><form data-form="action"><label>Add New Action<input name="action" aria-label="Add New Action" required pattern="[a-z][a-z0-9_]*" maxlength="40"></label><button class="lab-button">Add</button></form>${state.actions.map(a=>`<div class="lab-action-row"><strong>${esc(a.name)}</strong><div>${a.keys.map(k=>button('unbind',k+' ×',`data-name="${esc(a.name)}" data-key="${k}" aria-label="Убрать ${k} у ${esc(a.name)}"`)).join('')}</div>${button('bind','+ Клавиша',`data-name="${esc(a.name)}"`)}</div>`).join('')}</div>`;
     }
     function timeline() {
       const t=state.timeline;
-      return `<div class="lab-timeline"><h4>AnimationPlayer · blink</h4><label>Узел<select data-timeline="target" aria-label="Узел анимации">${option('','Выбери Sprite2D',!t.target)}${state.nodes.filter(n=>n.type==='Sprite2D').map(n=>option(n.id,n.name,t.target===n.id)).join('')}</select></label><label>Свойство<select data-timeline="property" aria-label="Свойство анимации">${option('alpha','modulate:a',t.property==='alpha')}${option('x','position:x',t.property==='x')}</select></label><label>Длина, с<input type="number" min="0.1" max="10" step="0.1" data-timeline="duration" value="${t.duration}" aria-label="Длина анимации"></label><label><input type="checkbox" data-timeline="loop"${t.loop?' checked':''}> Loop</label><form data-form="key"><label>Время<input name="time" aria-label="Время ключа" type="number" min="0" max="${t.duration}" step="0.1" required value="0"></label><label>Значение<input name="value" aria-label="Значение ключа" type="number" min="0" max="1" step="0.1" required value="1"></label><button class="lab-button">Добавить ключ</button></form><div class="lab-key-list">${t.keys.map((k,i)=>button('removeKey',k.time+' c → '+k.value+' ×',`data-index="${i}"`)).join('')}</div><label>Курсор времени<input type="range" min="0" max="${t.duration}" step="0.05" value="0" data-scrub aria-label="Курсор времени анимации"></label><div class="lab-animation-sample"><img src="assets/godot.svg" alt="Предпросмотр анимации"></div></div>`;
+      return `<div class="lab-timeline"><h4>AnimationPlayer · blink</h4><label>Узел<select data-timeline="target" aria-label="Узел анимации">${option('','Выбери Sprite2D',!t.target)}${state.nodes.filter(n=>n.type==='Sprite2D').map(n=>option(n.id,n.name,t.target===n.id)).join('')}</select></label><label>Свойство<select data-timeline="property" aria-label="Свойство анимации">${option('alpha','modulate:a',t.property==='alpha')}${option('x','position:x',t.property==='x')}</select></label><label>Длина, с<input type="number" min="0.1" max="10" step="0.1" data-timeline="duration" value="${t.duration}" aria-label="Длина анимации"></label><label><input type="checkbox" data-timeline="loop"${t.loop?' checked':''}> Loop</label><form data-form="key"><label>Время<input name="time" aria-label="Время ключа" type="number" min="0" max="${t.duration}" step="0.1" required value="0"></label><label>Значение<input name="value" aria-label="Значение ключа" type="number" min="0" max="1" step="0.1" required value="1"></label><button class="lab-button">Добавить ключ</button></form><div class="lab-key-list">${t.keys.map((k,i)=>button('removeKey',k.time+' c → '+k.value+' ×',`data-index="${i}"`)).join('')}</div><label>Курсор времени<input type="range" min="0" max="${t.duration}" step="0.05" value="0" data-scrub aria-label="Курсор времени анимации"></label>${button(animation?'animationStop':'animationPlay',animation?'■ Стоп':'▶ Проиграть анимацию')}<output class="lab-time">0.00 с</output><div class="lab-animation-sample"><img src="assets/godot.svg" alt="Предпросмотр анимации"></div></div>`;
     }
     function tileMap() {
       return `<div class="lab-tiles"><h4>TileMapLayer · рисуй клетки</h4><div class="lab-brushes">${[['ground','Земля'],['coin','Монета'],['empty','Ластик']].map(([v,l])=>button('brush',l,`data-value="${v}" aria-pressed="${state.brush===v}"`)).join('')}</div><p class="small">Собери пол под столбцами 2–7 в нижнем ряду. Монету поставь прямо над ним. Клетки доступны с клавиатуры.</p><div class="lab-tile-grid" role="group" aria-label="Поле уровня 8 на 5">${state.tiles.map((v,i)=>button('paint',v==='coin'?'●':v==='ground'?'■':'·',`data-index="${i}" data-tile="${v}" aria-label="Строка ${Math.floor(i/8)+1}, столбец ${i%8+1}: ${v==='ground'?'земля':v==='coin'?'монета':'пусто'}"`)).join('')}</div></div>`;
@@ -228,16 +370,27 @@
       const assessment=evaluate(config,state);
       const n=nodeBy(state,state.selected);
       root.innerHTML=`<div class="lab-heading"><img src="assets/fox-godot-960.webp" width="64" height="54" alt=""><div><span class="lab-eyebrow">Практика в браузере</span><h3>${esc(config.title)}</h3></div></div><p>${esc(config.brief)}</p><p class="lab-model-note">Учебная модель Godot 4. Здесь проверяется состояние сцены; полноценный редактор и физика Godot не запускаются. Затем повтори действия в Godot.</p><div class="lab-goals" aria-label="Цели задания">${assessment.results.map(r=>`<div class="${checked?(r.ok?'lab-goal-ok':'lab-goal-missing'):''}">${checked?(r.ok?'✓':'○'):'·'} ${esc(r.label)}</div>`).join('')}</div>
-      <div class="lab-editor"><div class="lab-toolbar"><span>Godot · учебная сцена</span>${['2D','3D','Script'].map(t=>button('tab',t,`data-value="${t}" aria-pressed="${state.tab===t}"`)).join('')}${button('run','▶ F6 · Запустить')}</div><div class="lab-scene"><div class="lab-panel-heading">${button('panel','Scene',`data-value="Scene"`)}${button('add','+ Узел')}${button('remove','Удалить',!n?'disabled':'')}</div><div class="lab-tree">${tree()}</div>${config.mode==='instance'||config.mode==='final'?button('instance','Instantiate · coin.tscn',!n?'disabled':''):''}<div class="lab-files">${button('panel','FileSystem',`data-value="FileSystem"`)}<span>res://</span><span>icon.svg</span>${state.nodes.some(n=>n.script)?'<span>main.gd</span>':''}${config.mode==='instance'||config.mode==='final'?'<span>coin.tscn · готовый шаблон</span>':''}</div></div><div class="lab-workspace">${state.panel==='FileSystem'?'<p class="lab-selection-note">FileSystem: здесь лежат ресурсы проекта. icon.svg можно назначить в Texture.</p>':''}${state.tab==='Script'?`<label>GDScript · ${esc(n?.script||'выбери узел и Attach Script')}<textarea class="lab-code" data-code aria-label="Скрипт сцены" spellcheck="false" ${config.mode==='signal'?'readonly':''}>${esc(config.mode==='signal'?config.code:state.code)}</textarea></label>`:config.mode==='input'?inputMap():config.mode==='tiles'?tileMap():config.mode==='animation'?timeline():preview()}</div><div class="lab-inspector"><div class="lab-panel-heading">${button('panel','Inspector',`data-value="Inspector"`)}</div>${inspector()}</div><div class="lab-output">${config.mode==='input'&&state.evidence?.ran?'<div class="lab-runtime-preview">'+preview()+'</div>':''}<b>Output</b><output>${esc(state.output||'Измени сцену и запусти предпросмотр.')}</output>${state.evidence?.ran?`<div class="lab-test-controls">${config.mode==='input'||config.mode==='final'?button('move','← Влево','data-direction="-1"')+button('move','Вправо →','data-direction="1"'):''}${config.mode==='signal'?button('press','Нажать кнопку в игре'):''}${config.mode==='timer'?button('timer','Пропустить 3 учебные секунды'):''}</div>`:''}</div></div>${dialogHTML()}<div class="lab-controls">${button('check','Проверить сцену')}${button('hint','Подсказка')}${button('reset','Сбросить это задание')}</div><div class="lab-feedback${checked&&assessment.ok?' lab-success':''}" role="status">${esc(message)}</div><p class="lab-transfer">${esc(config.transfer)}</p>`;
+      <div class="lab-editor"><div class="lab-toolbar"><span>Godot · учебная сцена</span>${['2D','3D','Script'].map(t=>button('tab',t,`data-value="${t}" aria-pressed="${state.tab===t}"`)).join('')}${button(state.evidence?'stop':'run',state.evidence?'■ Остановить':'▶ F6 · Запустить')}${button('undo','↶ Отменить',undo.length?'':'disabled')}${button('redo','↷ Повторить',redo.length?'':'disabled')}${button('shapes','Формы',`aria-pressed="${!!state.showShapes}"`)}</div><div class="lab-scene"><div class="lab-panel-heading">${button('panel','Scene',`data-value="Scene"`)}${button('add','+ Узел')}${button('remove','Удалить',!n?'disabled':'')}${button('duplicate','Дублировать',!n||n.parent===null?'disabled':'')}</div><div class="lab-tree">${tree()}</div>${config.mode==='instance'||config.mode==='final'?button('instance','Instantiate · coin.tscn',!n?'disabled':''):''}<div class="lab-files">${button('panel','FileSystem',`data-value="FileSystem"`)}<span>res://</span><span>icon.svg</span>${state.nodes.some(n=>n.script)?'<span>main.gd</span>':''}${config.mode==='instance'||config.mode==='final'?'<span>coin.tscn · готовый шаблон</span>':''}</div></div><div class="lab-workspace">${state.panel==='FileSystem'?'<p class="lab-selection-note">FileSystem: здесь лежат ресурсы проекта. icon.svg можно назначить в Texture.</p>':''}${state.tab==='Script'?`<label>GDScript · ${esc(n?.script||'выбери узел и Attach Script')}<textarea class="lab-code" data-code aria-label="Скрипт сцены" spellcheck="false" ${config.mode==='signal'?'readonly':''}>${esc(config.mode==='signal'?config.code:state.code)}</textarea></label>`:config.mode==='input'?inputMap():config.mode==='tiles'?tileMap():config.mode==='animation'?timeline():preview()}</div><div class="lab-inspector"><div class="lab-panel-heading">${button('panel','Inspector',`data-value="Inspector"`)}</div>${inspector()}</div><div class="lab-output">${['input','tiles'].includes(config.mode)&&state.evidence?.ran?'<div class="lab-runtime-preview">'+preview()+'</div>':''}<b>Output</b><output>${esc(state.output||'Измени сцену и запусти предпросмотр.')}</output>${state.evidence?.ran?`<div class="lab-test-controls">${state.nodes.some(n=>n.type==='CharacterBody2D')||config.mode==='tiles'?button('move','← Влево','data-direction="-1"')+button('move','Вправо →','data-direction="1"')+button('jump','Прыжок'):''}${config.mode==='signal'?button('press','Нажать кнопку в игре'):''}${config.mode==='timer'?button('timer','Пропустить 3 учебные секунды'):''}</div>`:''}</div></div>${dialogHTML()}<div class="lab-controls">${button('check','Проверить сцену')}${button('hint','Подсказка')}${button('reset','Сбросить это задание')}</div><div class="lab-feedback${checked&&assessment.ok?' lab-success':''}" role="status">${esc(message)}</div><p class="lab-transfer">${esc(config.transfer)}</p>`;
     }
     root.addEventListener('click',event=>{
+      if(suppressClick){suppressClick=false;if(!event.target.closest('button[data-action]:not([data-action="paint"])'))return;}
+      const item=event.target.closest('[data-scene-node]');if(item){const n=nodeBy(state,item.dataset.sceneNode);if(state.evidence&&n?.type==='Button'){dispatch({type:'press'},false);return;}if(!state.evidence){dispatch({type:'select',id:n.id});root.querySelector('.lab-viewport')?.focus({preventScroll:true});}return;}
       const b=event.target.closest('button[data-action]');if(!b||!root.contains(b))return;
       const a=b.dataset.action;
+      if(a==='undo'||a==='redo'){const from=a==='undo'?undo:redo,to=a==='undo'?redo:undo;if(from.length){to.push(clone(state));state=from.pop();state.evidence=null;state.output='';checked=false;message='';group=null;held.clear();animation=null;storage.write?.(id,state);paint();}return;}
+      if(a==='shapes'){state.showShapes=!state.showShapes;storage.write?.(id,state);paint();return;}
+      if(a==='animationPlay'){animation={time:0};paint();startTick();return;}
+      if(a==='animationStop'){animation=null;paint();return;}
+      if(a==='run'||a==='stop'){held.clear();animation=null;dispatch({type:a});if(a==='run')root.querySelector('.lab-viewport')?.focus({preventScroll:true});return;}
+      if(a==='jump'){dispatch({type:'jump'},false);startTick();return;}
+      if(a==='move'){dispatch({type:'move',direction:Number(b.dataset.direction)},false);startTick();return;}
+      if(a==='paint'){const index=Number(b.dataset.index);dispatch({type:'paint',index},false);updateTile(index);return;}
+
       if(['add','script','signal','bind'].includes(a)){dialog={type:a,name:b.dataset.name};paint();root.querySelector('.lab-dialog input,.lab-dialog select')?.focus();return;}
       if(a==='cancel'){dialog=null;paint();return;}
       if(a==='check'){const invalid=root.querySelector('input:invalid,select:invalid');if(invalid){invalid.reportValidity();return;}const result=evaluate(config,state);checked=true;if(result.ok){state.passed=true;storage.write?.(id,state);storage.attempt?.();message='Получилось. Сцена отвечает всем условиям. '+config.success;}else{message='Пока не хватает: '+result.results.filter(r=>!r.ok).map(r=>r.hint).join(' ');storage.attempt?.();}paint();return;}
       if(a==='hint'){message=config.hints[Math.min(hintIndex++,config.hints.length-1)];paint();return;}
-      if(a==='reset'){state=initial(config);dialog=null;checked=false;hintIndex=0;message='Задание возвращено к началу. Остальной прогресс курса сохранён.';storage.write?.(id,state);paint();return;}
+      if(a==='reset'){remember();held.clear();animation=null;state=initial(config);dialog=null;checked=false;hintIndex=0;message='Задание возвращено к началу. Остальной прогресс курса сохранён.';storage.write?.(id,state);paint();return;}
       dispatch({type:a,id:b.dataset.id,value:b.dataset.value,name:b.dataset.name,key:b.dataset.key,index:Number(b.dataset.index),direction:Number(b.dataset.direction)});
     });
     root.addEventListener('submit',event=>{
@@ -247,6 +400,7 @@
     });
     root.addEventListener('change',event=>{
       const e=event.target;
+      if(e.hasAttribute('data-parent')){dispatch({type:'reparent',parent:e.value});return;}
       if(e.hasAttribute('data-prop'))dispatch({type:'set',key:e.dataset.prop,value:e.type==='checkbox'?e.checked:e.type==='number'?e.value===''?NaN:Number(e.value):e.value},false);
       else if(e.hasAttribute('data-name'))dispatch({type:'rename',value:e.value},false);
       else if(e.hasAttribute('data-code'))dispatch({type:'code',value:e.value},false);
@@ -261,11 +415,48 @@
       else if(e.hasAttribute('data-code'))dispatch({type:'code',value:e.value},false);
       else if(e.hasAttribute('data-prop')&&e.type!=='checkbox'&&e.tagName==='INPUT'&&(e.type!=='number'||e.value!==''&&e.validity.valid))dispatch({type:'set',key:e.dataset.prop,value:e.type==='number'?Number(e.value):e.value},false);
       else if(e.hasAttribute('data-timeline')&&e.type==='number'&&e.value!==''&&e.validity.valid)dispatch({type:'timeline',key:e.dataset.timeline,value:Number(e.value)},false);
-      if(e.hasAttribute('data-scrub')) {
-        const t=state.timeline;const time=Number(e.value);const sorted=t.keys.slice().sort((a,b)=>a.time-b.time);const before=sorted.filter(k=>k.time<=time).at(-1)||sorted[0];const after=sorted.find(k=>k.time>=time)||sorted.at(-1);const image=root.querySelector('.lab-animation-sample img');
-        if(before&&after){const value=before.time===after.time?before.value:before.value+(after.value-before.value)*(time-before.time)/(after.time-before.time);image.style.opacity=t.property==='alpha'?Math.max(0,Math.min(1,value)):1;image.style.transform=t.property==='x'?`translateX(${Math.max(-60,Math.min(60,value))}px)`:'none';}
-      }
+      if(e.hasAttribute('data-scrub')){animation=null;scrub(Number(e.value));}
     });
+    const normalize=key=>key===' '?'Space':key.length===1?key.toUpperCase():key;
+    root.addEventListener('keydown',event=>{
+      if(/^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName))return;
+      const viewport=event.target.closest('.lab-viewport');if(!viewport)return;
+      const key=normalize(event.key);
+      if((event.ctrlKey||event.metaKey)&&key==='Z'){event.preventDefault();root.querySelector(`[data-action="${event.shiftKey?'redo':'undo'}"]`)?.click();return;}
+      if(event.key==='Escape'){event.preventDefault();held.clear();dispatch({type:'stop'});return;}
+      if(state.evidence){
+        const relevant=config.mode==='input'?state.actions.some(a=>a.keys.includes(key)):['A','D','W','Space','ArrowLeft','ArrowRight','ArrowUp'].includes(key);
+        if(!relevant)return;event.preventDefault();held.add(key);
+        const jumping=config.mode==='input'?state.actions.some(a=>a.name==='jump'&&a.keys.includes(key)):['W','Space','ArrowUp'].includes(key);
+        if(jumping&&!event.repeat)dispatch({type:'jump'},false);startTick();return;
+      }
+      const n=nodeBy(state,state.selected);if(!n||!own(n.props,'x')||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(key))return;
+      event.preventDefault();const amount=event.shiftKey?10:1;dispatch({type:'transform',x:n.props.x+(key==='ArrowLeft'?-amount:key==='ArrowRight'?amount:0),y:n.props.y+(key==='ArrowUp'?-amount:key==='ArrowDown'?amount:0)},false);
+    });
+    root.addEventListener('keyup',event=>held.delete(normalize(event.key)));
+    root.addEventListener('focusout',event=>{group=null;if(!event.relatedTarget?.closest('.lab-viewport'))held.clear();});
+    function point(event,svg){const p=svg.createSVGPoint();p.x=event.clientX;p.y=event.clientY;const matrix=svg.getScreenCTM();return matrix?p.matrixTransform(matrix.inverse()):{x:0,y:0};}
+    function tileAt(event){const el=document.elementFromPoint(event.clientX,event.clientY)?.closest('[data-action="paint"]');return el&&root.contains(el)?Number(el.dataset.index):null;}
+    function updateTile(index){const tile=root.querySelector(`[data-action="paint"][data-index="${index}"]`);if(!tile)return;const value=state.tiles[index];tile.dataset.tile=value;tile.textContent=value==='ground'?'■':value==='coin'?'●':'·';tile.setAttribute('aria-label',`Строка ${Math.floor(index/8)+1}, столбец ${index%8+1}: ${value==='ground'?'земля':value==='coin'?'монета':'пусто'}`);}
+    root.addEventListener('pointerdown',event=>{
+      if(event.button!==0)return;
+      const tile=event.target.closest('[data-action="paint"]');
+      if(tile){event.preventDefault();remember();gesture={type:'tile',pointer:event.pointerId};root.setPointerCapture(event.pointerId);dispatch({type:'paint',index:Number(tile.dataset.index)},false);updateTile(Number(tile.dataset.index));return;}
+      const item=event.target.closest('[data-scene-node]');
+      if(state.evidence&&event.target.closest('.lab-viewport')){root.querySelector('.lab-viewport')?.focus({preventScroll:true});return;}
+      if(!item||state.evidence||state.tab==='3D')return;
+      const n=nodeBy(state,item.dataset.sceneNode);if(!n||!own(n.props,'x'))return;
+      event.preventDefault();remember();state.selected=n.id;
+      const svg=item.closest('svg');gesture={type:'node',pointer:event.pointerId,start:point(event,svg),x:n.props.x,y:n.props.y,svg};root.setPointerCapture(event.pointerId);root.querySelector('.lab-viewport')?.focus({preventScroll:true});
+    });
+    root.addEventListener('pointermove',event=>{
+      if(!gesture||gesture.pointer!==event.pointerId)return;
+      if(gesture.type==='node'){const svg=root.querySelector('.lab-viewport svg');const p=point(event,svg);dispatch({type:'transform',x:Math.round(gesture.x+p.x-gesture.start.x),y:Math.round(gesture.y+p.y-gesture.start.y)},false);}
+      else{const index=tileAt(event);if(index!=null){dispatch({type:'paint',index},false);updateTile(index);}}
+    });
+    function endGesture(event){if(!gesture||gesture.pointer!==event.pointerId)return;root.releasePointerCapture(event.pointerId);const tileGesture=gesture.type==='tile';gesture=null;group=null;suppressClick=true;setTimeout(()=>{suppressClick=false;},0);storage.write?.(id,state);paint();if(!tileGesture)root.querySelector('.lab-viewport')?.focus({preventScroll:true});}
+    root.addEventListener('pointerup',endGesture);
+    root.addEventListener('pointercancel',endGesture);
     paint();
   }
   RK.renderPractice=render;
