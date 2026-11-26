@@ -23,5 +23,11 @@
       <p>Сцена сохранится отдельно. Под редактором есть возврат к этому шагу. Практику можно пройти позже.</p>
     </aside>`;
   }
-  RK.LearningPath = {related, practiceHref, returnHref, render};
+  function linkCard(target, lesson, step, catalog) {
+    target.querySelectorAll('a[href^="#/practice/"]').forEach(anchor => {
+      const match = /^#\/practice\/([a-z0-9-]+)$/.exec(anchor.getAttribute("href"));
+      if (match && related(lesson,catalog).includes(match[1])) anchor.setAttribute("href",practiceHref(match[1],lesson.id,step));
+    });
+  }
+  RK.LearningPath = {related, practiceHref, returnHref, render, linkCard};
 })();

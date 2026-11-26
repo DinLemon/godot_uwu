@@ -229,6 +229,7 @@
       </div></div>`;
     const el = document.getElementById("card");
     renderCard(card, el);
+    RK.LearningPath.linkCard(el,lesson,step,window.GODOT_PRACTICE || {});
     const next = document.getElementById("next");
     const updateNext = () => {
       const interactive = !!card.lab || ["quiz", "fill", "order", "task"].includes(card.t);
