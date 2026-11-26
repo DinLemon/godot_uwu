@@ -287,10 +287,20 @@ def main():
     visuals = json.loads(visuals_path.read_text(encoding="utf-8")) if visuals_path.exists() else {}
     practice_path = ROOT / "course" / "practice.json"
     practice = json.loads(practice_path.read_text(encoding="utf-8")) if practice_path.exists() else {}
+    links_path = ROOT / "course" / "practice-links.json"
+    practice_links = json.loads(links_path.read_text(encoding="utf-8")) if links_path.exists() else {}
+    lesson_ids = {l["id"] for m in courses["ru"] for l in m["lessons"]}
+    for lesson_id, refs in practice_links.items():
+        if lesson_id not in lesson_ids or not isinstance(refs, list) or not refs or len(set(refs)) != len(refs):
+            raise SystemExit(f"Неверные ссылки на практику: {lesson_id}")
+        if any(ref not in practice for ref in refs):
+            raise SystemExit(f"{lesson_id}: ссылка на неизвестное задание")
     linked_labs = set()
     for lang, modules in courses.items():
         for module in modules:
             for lesson in module["lessons"]:
+                if lesson["id"] in practice_links:
+                    lesson["practiceLinks"] = practice_links[lesson["id"]]
                 for card in lesson["cards"]:
                     if "lab" in card:
                         lab = practice.get(card["lab"])
