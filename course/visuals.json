@@ -1575,5 +1575,321 @@
         "confirm": "Save & view"
       }
     }
+  },
+  "workshop-m02": {
+    "kind": "editor",
+    "title": "Мастерская — ориентиры для четырёх действий",
+    "areas": [
+      "scene files",
+      "scene inspector",
+      "scene inspector",
+      "center menu"
+    ],
+    "tree": [
+      "Node2D",
+      "  Sprite2D",
+      "  Label"
+    ],
+    "right": [
+      "Texture → icon.svg",
+      "Label → Text"
+    ],
+    "bottom": [
+      "Output · Debugger · Animation",
+      "Проверь результат текущего опыта."
+    ],
+    "source": "https://docs.godotengine.org/en/stable/getting_started/introduction/first_look_at_the_editor.html"
+  },
+  "workshop-m03": {
+    "kind": "editor",
+    "title": "Мастерская — ориентиры для четырёх действий",
+    "areas": [
+      "scene inspector",
+      "center",
+      "bottom menu",
+      "center bottom"
+    ],
+    "tree": [
+      "Node  [script]"
+    ],
+    "right": [
+      "Script → attached"
+    ],
+    "bottom": [
+      "Output · Debugger · Animation",
+      "Проверь результат текущего опыта."
+    ],
+    "source": "https://docs.godotengine.org/en/stable/getting_started/introduction/first_look_at_the_editor.html",
+    "workspace": "Script · код текущего опыта",
+    "code": "func _ready():\n\tprint(\"Начало открытки\")\n\tprint(\"Картинка готова\")"
+  },
+  "workshop-m08": {
+    "kind": "editor",
+    "title": "Мастерская — ориентиры для четырёх действий",
+    "areas": [
+      "scene center",
+      "menu bottom",
+      "center bottom",
+      "center"
+    ],
+    "tree": [
+      "Node  [shop.gd]"
+    ],
+    "right": [
+      "coins = 10",
+      "inventory = []"
+    ],
+    "bottom": [
+      "Output · Debugger · Animation",
+      "Проверь результат текущего опыта."
+    ],
+    "source": "https://docs.godotengine.org/en/stable/getting_started/introduction/first_look_at_the_editor.html",
+    "workspace": "Script · код текущего опыта",
+    "code": "if wallet[\"coins\"] < price:\n\treturn\nwallet[\"coins\"] -= price\ninventory.append(item)"
+  },
+  "workshop-m10": {
+    "kind": "editor",
+    "title": "Мастерская — ориентиры для четырёх действий",
+    "areas": [
+      "scene",
+      "scene inspector",
+      "scene inspector files",
+      "center inspector"
+    ],
+    "tree": [
+      "Main",
+      "  Pivot (100, 40)",
+      "    Sprite2D (20, 10)"
+    ],
+    "right": [
+      "Transform",
+      "Position · X / Y",
+      "Scale (1, 1) · Rotation 0"
+    ],
+    "bottom": [
+      "Output · Debugger · Animation",
+      "Проверь результат текущего опыта."
+    ],
+    "source": "https://docs.godotengine.org/en/stable/getting_started/introduction/first_look_at_the_editor.html"
+  },
+  "workshop-m11": {
+    "kind": "dialog",
+    "title": "Мастерская — ориентиры для четырёх действий",
+    "areas": [
+      "menu",
+      "list",
+      "list",
+      "list"
+    ],
+    "tree": [],
+    "right": [],
+    "bottom": [
+      "Output · Debugger · Animation",
+      "Проверь результат текущего опыта."
+    ],
+    "source": "https://docs.godotengine.org/en/stable/tutorials/2d/2d_movement.html",
+    "window": "Project → Project Settings",
+    "tabs": [
+      "General",
+      "Input Map"
+    ],
+    "fieldTitle": "Add New Action",
+    "fields": [
+      "move_left",
+      "[ Add ]"
+    ],
+    "listTitle": "Действия и события",
+    "rows": [
+      "move_left · A / Left",
+      "move_right · D / Right",
+      "jump · Space"
+    ],
+    "confirm": "Закрыть настройки"
+  },
+  "workshop-m12": {
+    "kind": "editor",
+    "title": "Мастерская — ориентиры для четырёх действий",
+    "areas": [
+      "scene inspector",
+      "scene inspector",
+      "menu inspector",
+      "center"
+    ],
+    "tree": [
+      "Main",
+      "  Player · CharacterBody2D",
+      "    CollisionShape2D",
+      "  Ground · StaticBody2D",
+      "    CollisionShape2D"
+    ],
+    "right": [
+      "Shape → RectangleShape2D",
+      "Disabled → off",
+      "Collision → Layer / Mask"
+    ],
+    "bottom": [
+      "Output · Debugger · Animation",
+      "Проверь результат текущего опыта."
+    ],
+    "source": "https://docs.godotengine.org/en/stable/getting_started/introduction/first_look_at_the_editor.html"
+  },
+  "workshop-m13": {
+    "kind": "editor",
+    "title": "Мастерская — ориентиры для четырёх действий",
+    "areas": [
+      "scene inspector",
+      "scene inspector",
+      "inspector center",
+      "center menu"
+    ],
+    "tree": [
+      "Control  [script]",
+      "  Button",
+      "  Label"
+    ],
+    "right": [
+      "Signals · pressed()",
+      "Receiver → Control",
+      "Handler → _on_button_pressed"
+    ],
+    "bottom": [
+      "Output · Debugger · Animation",
+      "Проверь результат текущего опыта."
+    ],
+    "source": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html"
+  },
+  "workshop-m15": {
+    "kind": "editor",
+    "title": "Мастерская — ориентиры для четырёх действий",
+    "areas": [
+      "scene bottom",
+      "bottom inspector",
+      "bottom inspector",
+      "bottom menu"
+    ],
+    "tree": [
+      "Main",
+      "  Sprite2D",
+      "  AnimationPlayer"
+    ],
+    "right": [
+      "Modulate · Alpha",
+      "1 → 0 → 1"
+    ],
+    "bottom": [
+      "0 с → Alpha 1",
+      "0.5 с → Alpha 0",
+      "1 с → Alpha 1",
+      "Loop · Autoplay on Load"
+    ],
+    "source": "https://docs.godotengine.org/en/stable/tutorials/animation/introduction.html",
+    "bottomTitle": "Animation · blink"
+  },
+  "workshop-m17": {
+    "kind": "editor",
+    "title": "Мастерская — ориентиры для четырёх действий",
+    "areas": [
+      "scene inspector",
+      "scene",
+      "inspector",
+      "menu center"
+    ],
+    "tree": [
+      "Control · Full Rect",
+      "  CenterContainer · Full Rect",
+      "    VBoxContainer",
+      "      Label",
+      "      Button"
+    ],
+    "right": [
+      "Layout → Presets",
+      "Custom Minimum Size",
+      "Theme Overrides → Constants"
+    ],
+    "bottom": [
+      "Output · Debugger · Animation",
+      "Проверь результат текущего опыта."
+    ],
+    "source": "https://docs.godotengine.org/en/stable/getting_started/introduction/first_look_at_the_editor.html"
+  },
+  "workshop-m18": {
+    "kind": "editor",
+    "title": "Мастерская — ориентиры для четырёх действий",
+    "areas": [
+      "scene",
+      "inspector",
+      "inspector center",
+      "menu bottom"
+    ],
+    "tree": [
+      "Node  [script]",
+      "  Timer"
+    ],
+    "right": [
+      "Wait Time → 2",
+      "One Shot → on",
+      "Autostart → on",
+      "Signals → timeout"
+    ],
+    "bottom": [
+      "Output · Debugger · Animation",
+      "Проверь результат текущего опыта."
+    ],
+    "source": "https://docs.godotengine.org/en/stable/getting_started/introduction/first_look_at_the_editor.html"
+  },
+  "workshop-m20": {
+    "kind": "editor",
+    "title": "Мастерская — ориентиры для четырёх действий",
+    "areas": [
+      "center bottom",
+      "menu files",
+      "center bottom",
+      "center bottom"
+    ],
+    "tree": [
+      "Node  [save_game.gd]"
+    ],
+    "right": [
+      "Test project only",
+      "coins → valid number"
+    ],
+    "bottom": [
+      "Output · Debugger · Animation",
+      "Проверь результат текущего опыта."
+    ],
+    "source": "https://docs.godotengine.org/en/stable/tutorials/io/saving_games.html",
+    "workspace": "Script · код текущего опыта",
+    "code": "FileAccess.file_exists(path)\nFileAccess.open(path, FileAccess.READ)\nJSON.parse_string(text)\n# Затем проверка типа и диапазона",
+    "files": [
+      "user:// · вне res://",
+      "Project → Open User Data Folder",
+      "save.json · тестовая копия"
+    ]
+  },
+  "workshop-m23": {
+    "kind": "editor",
+    "title": "Мастерская — ориентиры для четырёх действий",
+    "areas": [
+      "menu center",
+      "center",
+      "center inspector",
+      "menu"
+    ],
+    "tree": [
+      "Menu",
+      "Game",
+      "  Player",
+      "  Coins",
+      "  HUD"
+    ],
+    "right": [
+      "Project → Export…",
+      "Main Scene → Menu"
+    ],
+    "bottom": [
+      "Output · Debugger · Animation",
+      "Проверь результат текущего опыта."
+    ],
+    "source": "https://docs.godotengine.org/en/stable/getting_started/introduction/first_look_at_the_editor.html"
   }
 }

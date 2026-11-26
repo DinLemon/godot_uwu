@@ -1,0 +1,228 @@
+{
+  "m00-1": [
+    "editor-tour"
+  ],
+  "m00-2": [
+    "editor-tour"
+  ],
+  "m01-1": [
+    "editor-tour"
+  ],
+  "m01-2": [
+    "editor-tour"
+  ],
+  "m01-3": [
+    "editor-tour"
+  ],
+  "m02-1": [
+    "first-scene"
+  ],
+  "m02-3": [
+    "first-scene"
+  ],
+  "m02-4": [
+    "first-scene"
+  ],
+  "m02-workshop": [
+    "first-scene",
+    "repair-hierarchy"
+  ],
+  "m02-2": [
+    "repair-hierarchy"
+  ],
+  "m10-workshop": [
+    "repair-hierarchy",
+    "position-sprite"
+  ],
+  "m03-1": [
+    "attach-script"
+  ],
+  "m03-2": [
+    "attach-script"
+  ],
+  "m03-3": [
+    "attach-script"
+  ],
+  "m03-4": [
+    "attach-script"
+  ],
+  "m03-workshop": [
+    "attach-script"
+  ],
+  "m09-1": [
+    "attach-script"
+  ],
+  "m09-4": [
+    "attach-script"
+  ],
+  "m09-p": [
+    "attach-script",
+    "inspector-speed"
+  ],
+  "m09-3": [
+    "inspector-speed"
+  ],
+  "m10-4": [
+    "inspector-speed"
+  ],
+  "m10-1": [
+    "position-sprite"
+  ],
+  "m10-2": [
+    "position-sprite"
+  ],
+  "m10-3": [
+    "position-sprite"
+  ],
+  "m11-1": [
+    "input-map"
+  ],
+  "m11-2": [
+    "input-map"
+  ],
+  "m11-3": [
+    "input-map"
+  ],
+  "m11-4": [
+    "input-map"
+  ],
+  "m11-workshop": [
+    "input-map"
+  ],
+  "m12-1": [
+    "solid-floor"
+  ],
+  "m12-2": [
+    "solid-floor"
+  ],
+  "m12-4": [
+    "solid-floor",
+    "jump-playground"
+  ],
+  "m12-5": [
+    "solid-floor"
+  ],
+  "m12-workshop": [
+    "solid-floor",
+    "jump-playground"
+  ],
+  "m23-2": [
+    "solid-floor",
+    "jump-playground"
+  ],
+  "m12-3": [
+    "jump-playground"
+  ],
+  "m13-1": [
+    "button-signal"
+  ],
+  "m13-2": [
+    "button-signal"
+  ],
+  "m13-3": [
+    "button-signal"
+  ],
+  "m13-4": [
+    "button-signal"
+  ],
+  "m13-workshop": [
+    "button-signal"
+  ],
+  "m17-4": [
+    "button-signal",
+    "game-menu"
+  ],
+  "m23-workshop": [
+    "button-signal",
+    "repair-scene",
+    "coin-playtest"
+  ],
+  "m14-1": [
+    "coin-instances"
+  ],
+  "m14-2": [
+    "coin-instances"
+  ],
+  "m14-3": [
+    "coin-instances"
+  ],
+  "m14-4": [
+    "coin-instances"
+  ],
+  "m23-3": [
+    "coin-instances",
+    "duplicate-layout"
+  ],
+  "m14-p": [
+    "duplicate-layout"
+  ],
+  "m15-2": [
+    "blink-animation"
+  ],
+  "m15-3": [
+    "blink-animation"
+  ],
+  "m15-4": [
+    "blink-animation"
+  ],
+  "m15-workshop": [
+    "blink-animation"
+  ],
+  "m16-1": [
+    "follow-camera"
+  ],
+  "m23-5": [
+    "follow-camera",
+    "paint-level",
+    "coin-playtest"
+  ],
+  "m16-2": [
+    "paint-level"
+  ],
+  "m16-3": [
+    "paint-level"
+  ],
+  "m17-1": [
+    "game-menu"
+  ],
+  "m17-2": [
+    "game-menu"
+  ],
+  "m17-3": [
+    "game-menu"
+  ],
+  "m17-workshop": [
+    "game-menu"
+  ],
+  "m23-4": [
+    "game-menu"
+  ],
+  "m23-6": [
+    "game-menu",
+    "coin-playtest"
+  ],
+  "m18-2": [
+    "timer-event"
+  ],
+  "m18-workshop": [
+    "timer-event"
+  ],
+  "m21-1": [
+    "repair-scene"
+  ],
+  "m21-2": [
+    "repair-scene"
+  ],
+  "m22-1": [
+    "first-3d"
+  ],
+  "m22-2": [
+    "first-3d"
+  ],
+  "m22-3": [
+    "first-3d"
+  ],
+  "m23-1": [
+    "coin-playtest"
+  ]
+}
