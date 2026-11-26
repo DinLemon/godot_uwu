@@ -6795,6 +6795,7 @@ window.COURSES = {
 ],
 "practiceLinks": [
 "button-signal",
+"solid-floor",
 "repair-scene",
 "coin-playtest"
 ]
