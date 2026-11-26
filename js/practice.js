@@ -340,11 +340,14 @@
         else {const scale=n.type==='Sprite2D'?Math.max(.2,Math.min(4,n.props.scale)):1;width=40*scale;height=40*scale;ox=-width/2;oy=-height/2;drawing=`<image href="assets/${n.type==='CharacterBody2D'?'fox-godot-960.webp':'godot.svg'}" x="${ox}" y="${oy}" width="${width}" height="${height}" opacity="${Math.max(0,Math.min(1,n.props.alpha??1))}"/>`;}
         const selected=n.id===state.selected&&!e;
         scene+=`<g data-scene-node="${n.id}" data-node-type="${n.type}" role="button" tabindex="-1" aria-label="${esc(n.name)} на сцене" transform="translate(${px} ${py})"><rect x="${ox-3}" y="${oy-3}" width="${width+6}" height="${height+6}" fill="transparent" stroke="${selected?'#bfa1ef':'transparent'}" stroke-width="1" stroke-dasharray="4 2"/>${drawing}</g>`;
-        if(!e&&state.showShapes&&hasShape(state,n))scene+=`<rect x="${px-17}" y="${py-16}" width="34" height="32" fill="#7cdbb330" stroke="#7cdbb3" pointer-events="none"/>`;
+        if(!e&&state.showShapes&&hasShape(state,n))scene+=n.type==='StaticBody2D'?`<rect x="${px-120}" y="${py}" width="240" height="16" fill="#7cdbb330" stroke="#7cdbb3" pointer-events="none"/>`:`<rect x="${px-17}" y="${py-16}" width="34" height="32" fill="#7cdbb330" stroke="#7cdbb3" pointer-events="none"/>`;
       }
       if(config.mode==='tiles'&&e)scene+=`<image href="assets/fox-godot-960.webp" x="${e.x-20}" y="${e.y-20}" width="40" height="40"/>`;
       const camera=state.nodes.some(n=>n.type==='Camera2D'&&n.props.enabled)?'<rect x="8" y="8" width="304" height="218" fill="none" stroke="#bba3df" stroke-dasharray="5 4" pointer-events="none"/>':'';
-      return `<svg viewBox="0 0 320 240" aria-label="Сцена 2D"><defs><pattern id="grid-${id}" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="currentColor" opacity=".1"/></pattern></defs><rect width="320" height="240" fill="url(#grid-${id})"/>${camera}${scene}</svg>`;
+      const selected=nodeBy(state,state.selected);
+      let gizmo='';
+      if(!e&&selected&&own(selected.props,'x')&&own(selected.props,'y')){const p=worldPosition(state,selected);gizmo=`<g class="lab-gizmo" data-scene-node="${selected.id}" role="button" tabindex="-1" aria-label="Переместить ${esc(selected.name)}" transform="translate(${p.x} ${p.y})"><rect x="-10" y="-10" width="20" height="20" rx="3" fill="#19212a99" stroke="#e4d4fa"/><path d="M-6 0H24m-5-4 5 4-5 4M0-6V24m-4-5 4 5 4-5" fill="none" stroke="#d0acf0" stroke-width="2" pointer-events="none"/></g>`;}
+      return `<svg viewBox="0 0 320 240" aria-label="Сцена 2D"><defs><pattern id="grid-${id}" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="currentColor" opacity=".1"/></pattern></defs><rect width="320" height="240" fill="url(#grid-${id})"/>${camera}${scene}${gizmo}</svg>`;
     }
     function preview(){return `<div class="lab-viewport" tabindex="0" role="group" aria-label="Окно сцены: выбор, перемещение и игра" data-play="${!!state.evidence}">${sceneSvg()}</div><p class="lab-viewport-help">${state.evidence?'Нажми на окно игры. A/D или стрелки — движение, Space/W — прыжок.':'Нажми на объект и перетащи. Стрелки — сдвиг на 1, Shift — на 10. Inspector показывает локальные координаты.'}</p>`;}
     function inputMap() {
@@ -428,7 +431,7 @@
         const relevant=config.mode==='input'?state.actions.some(a=>a.keys.includes(key)):['A','D','W','Space','ArrowLeft','ArrowRight','ArrowUp'].includes(key);
         if(!relevant)return;event.preventDefault();held.add(key);
         const jumping=config.mode==='input'?state.actions.some(a=>a.name==='jump'&&a.keys.includes(key)):['W','Space','ArrowUp'].includes(key);
-        if(jumping&&!event.repeat)dispatch({type:'jump'},false);startTick();return;
+        if(jumping&&!event.repeat)dispatch({type:'jump'},false);if(direction())dispatch({type:'frame',dt:1/60,direction:direction()},false);startTick();return;
       }
       const n=nodeBy(state,state.selected);if(!n||!own(n.props,'x')||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(key))return;
       event.preventDefault();const amount=event.shiftKey?10:1;dispatch({type:'transform',x:n.props.x+(key==='ArrowLeft'?-amount:key==='ArrowRight'?amount:0),y:n.props.y+(key==='ArrowUp'?-amount:key==='ArrowDown'?amount:0)},false);
