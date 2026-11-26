@@ -51,6 +51,44 @@ mission('timer-event',({add,prop,act,run})=>{add('Timer','Main');prop('wait_time
 mission('repair-scene',({select,prop,run})=>{select('BodyShape');prop('disabled',false);run();});
 mission('first-3d',({add,prop,act})=>{add('Camera3D','World');prop('current',true);add('DirectionalLight3D','World');prop('energy',.8);add('MeshInstance3D','World');prop('mesh','BoxMesh');act({type:'tab',value:'3D'});});
 mission('coin-playtest',({select,act,run})=>{select('Main');act({type:'instance'});run();act({type:'move',direction:1});});
+const hierarchy=mission('repair-hierarchy',({select,act,get})=>{
+  select('Sprite2D');act({type:'reparent',parent:'Player'});
+  select('BodyShape');act({type:'reparent',parent:'Player'});
+  assert.equal(get().nodes.find(n=>n.id==='Sprite2D').props.x,80,'reparent preserves world position');
+});
+mission('duplicate-layout',({select,act,prop})=>{
+  select('Coin');act({type:'duplicate'});prop('x',140);act({type:'duplicate'});prop('x',230);
+});
+mission('jump-playground',({act,run,get,check})=>{
+  run();act({type:'move',direction:1});act({type:'move',direction:1});
+  assert.equal(get().evidence.collected.length,0,'a high coin cannot be collected by walking below it');
+  assert.equal(check().ok,false);
+  act({type:'jump'});
+  for(let i=0;i<80;i++)act({type:'frame',dt:1/60,direction:0});
+  assert.equal(get().evidence.jumps,1);
+  assert.equal(get().evidence.grounded,true,'jump lands on the floor');
+});
+
+// Cycles and a second root cannot be introduced; a moved subtree survives persistence.
+let tree=hierarchy.s;
+tree=reduce(hierarchy.c,tree,{type:'select',id:'Player'});
+const before=JSON.stringify(tree.nodes);
+tree=reduce(hierarchy.c,tree,{type:'reparent',parent:'Sprite2D'});
+assert.equal(JSON.stringify(tree.nodes),before,'reparenting to a descendant is rejected');
+tree=reduce(hierarchy.c,tree,{type:'select',id:'Main'});
+tree=reduce(hierarchy.c,tree,{type:'duplicate'});
+assert.equal(tree.nodes.filter(n=>n.parent===null).length,1);
+tree=reduce(hierarchy.c,tree,{type:'transform',x:30,y:20});
+const restoredTree=restore(hierarchy.c,JSON.parse(JSON.stringify(tree)));
+assert.equal(restoredTree.nodes.length,tree.nodes.length);
+assert.equal(ctx.window.RK.Practice.worldPosition(restoredTree,restoredTree.nodes.find(n=>n.id==='Sprite2D')).x,190);
+const tileConfig=catalog['paint-level'];let tileState=initial(tileConfig);
+for(let i=33;i<=38;i++)tileState=reduce(tileConfig,tileState,{type:'paint',index:i});
+tileState=reduce(tileConfig,tileState,{type:'brush',value:'coin'});
+tileState=reduce(tileConfig,tileState,{type:'paint',index:27});
+tileState=reduce(tileConfig,tileState,{type:'run'});
+for(let i=0;i<3;i++)tileState=reduce(tileConfig,tileState,{type:'move',direction:1});
+assert.ok(tileState.evidence.collected.includes('tile27'),'painted coins participate in the playable level');
 
 // Regression: stale runtime success cannot pass after editing a physical property.
 let stale=reduce(physics.c,physics.s,{type:'select',id:'Player'});
