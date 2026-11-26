@@ -30,4 +30,9 @@ assert.match(rendered,/\/from\/m02-workshop\/3/);assert.match(rendered,/Выпо
 assert.equal(RK.LearningPath.render(byId['m20-workshop'],3,catalog,{}),'');
 const unsafe={'<lab>':{title:'<img src=x onerror=alert(1)>'}};
 assert.doesNotMatch(RK.LearningPath.render({id:'l',practiceLinks:['<lab>']},0,unsafe,{}),/<img/);
+const anchors=['#/practice/first-scene','#/practice/missing','#/practice/first-scene/from/m02-workshop/0'].map(href=>({href,getAttribute(){return this.href;},setAttribute(name,value){this.href=value;}}));
+RK.LearningPath.linkCard({querySelectorAll(){return anchors;}},byId['m02-workshop'],3,catalog);
+assert.equal(anchors[0].href,'#/practice/first-scene/from/m02-workshop/3');
+assert.equal(anchors[1].href,'#/practice/missing');
+assert.equal(anchors[2].href,'#/practice/first-scene/from/m02-workshop/0');
 console.log(`Checked ${lessons.length} lessons, ${count} practice links, return routes and authored internal links.`);
