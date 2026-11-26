@@ -225,5 +225,20 @@
   ],
   "m23-1": [
     "coin-playtest"
+  ],
+  "m24-1": [
+    "jump-playground"
+  ],
+  "m24-2": [
+    "input-map"
+  ],
+  "m24-3": [
+    "solid-floor"
+  ],
+  "m24-4": [
+    "timer-event"
+  ],
+  "m24-6": [
+    "button-signal"
   ]
 }
