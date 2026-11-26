@@ -161,7 +161,7 @@
           <span class="mod-meter">${d}/${ls.length}<span class="bar"><i style="width:${pct}%"></i></span></span>
         </summary>
         <ul class="lessons">${ls.map((l) => `<li class="${S.done[l.id] ? "is-done" : ""}"><a href="#/l/${l.id}">
-          <span class="tick">${S.done[l.id] ? "✓" : "○"}</span><span>${esc(l.title)}${l.practice ? ` <span class="tag">${T.practiceTag}</span>` : ""}</span><span class="mins">${l.min || 5} ${T.min}</span></a></li>`).join("")}</ul>
+          <span class="tick">${S.done[l.id] ? "✓" : "○"}</span><span>${esc(l.title)}${l.practice ? ` <span class="tag">${T.practiceTag}</span>` : ""}${l.practiceLinks?.length ? ' <span class="tag">редактор</span>' : ""}</span><span class="mins">${l.min || 5} ${T.min}</span></a></li>`).join("")}</ul>
       </details>`;
     });
     html += `<p class="muted small" style="margin-top:1.5rem">${T.storageNote}</p></div>`;
@@ -220,6 +220,7 @@
         <h1>${esc(lesson.title)}</h1></div>
       </div>
       <div class="progress" aria-hidden="true">${segs}</div>
+      ${RK.LearningPath.render(lesson,step,window.GODOT_PRACTICE || {},S.practice)}
       <article class="card${card.t === "deep" ? " deep" : ""}" id="card" tabindex="-1"></article>
       <div class="lesson-nav">
         <button class="btn btn-quiet" id="prev" ${step === 0 ? "disabled" : ""}>${T.back}</button>
@@ -257,6 +258,7 @@
       <p class="muted">${esc(T.finishSub(lesson.title, doneCount(), lessons.length))}</p>
       ${recap.length ? `<h3>${T.remember}</h3><ul class="tldr">${recap.map((r) => `<li>${inline(r)}</li>`).join("")}</ul>` : ""}
       ${breakTip}
+      ${RK.LearningPath.render(lesson,buildCards(lesson).length,window.GODOT_PRACTICE || {},S.practice)}
       <div class="row">
         ${nl ? `<a class="btn" href="#/l/${nl.id}/0">${esc(T.nextLesson(nl.title))}</a>` : `<a class="btn" href="#/review">${T.courseDone}</a>`}
         <a class="btn btn-quiet" href="#/">${T.toMapShort}</a>
@@ -286,13 +288,14 @@
     if (!S.practice || typeof S.practice !== "object" || Array.isArray(S.practice)) S.practice = {};
     return {read:id=>S.practice[id],write:(id,state)=>{S.practice[id]=state;save();},attempt:onAttempt};
   }
-  function viewPractice(id) {
+  function viewPractice(id, returnTo) {
     setNav("practice");
     const catalog = window.GODOT_PRACTICE || {};
     const config = Object.prototype.hasOwnProperty.call(catalog,id) ? catalog[id] : null;
     document.title = (config ? config.title : "Практика в редакторе") + T.titleSuffix;
     if (config) {
-      app.innerHTML = `<div class="wrap-wide practice-page"><a href="#/practice">← Все задания</a><h1>${esc(config.title)}</h1><div id="practice-host"></div><div class="row"><a class="btn btn-quiet" href="#/l/${config.lesson}">К уроку по теме</a><a class="btn btn-quiet" href="#/practice">Другие задания</a></div></div>`;
+      const back = returnTo ? `<a class="practice-return" href="${returnTo}">← Вернуться к шагу урока</a>` : '<a href="#/practice">← Все задания</a>';
+      app.innerHTML = `<div class="wrap-wide practice-page">${back}<h1>${esc(config.title)}</h1><div id="practice-host"></div><div class="row">${returnTo ? `<a class="btn practice-return" href="${returnTo}">Вернуться к шагу урока</a>` : ""}<a class="btn btn-quiet" href="#/l/${config.lesson}">К уроку по теме</a><a class="btn btn-quiet" href="#/practice">Другие задания</a></div></div>`;
       RK.renderPractice(id,document.getElementById("practice-host"),practiceStorage());
     } else {
       const completed = Object.keys(catalog).filter(key=>S.practice?.[key]?.passed).length;
@@ -785,7 +788,7 @@
     document.body.classList.toggle("focus", inLesson && S.settings.focus);
     if (!inLesson) L = null;
     if (inLesson) viewLesson(p[1], p[2] != null && p[2] !== "" ? +p[2] : null);
-    else if (p[0] === "practice") viewPractice(p[1]);
+    else if (p[0] === "practice") viewPractice(p[1], RK.LearningPath.returnHref(p,byId,p[1]));
     else if (p[0] === "review") viewReview();
     else if (p[0] === "glossary") viewGlossary();
     else if (p[0] === "cheat") viewCheat();
