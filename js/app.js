@@ -128,6 +128,7 @@
           <span>${T.statHours(Math.round(totalMin / 60))}</span>
         </div>
         <a class="visual-intro" href="#/practice">Практика: собери сцену в учебном редакторе →</a>
+        <a class="visual-intro" href="#/games">Игровые примеры: поиграй и разбери механику →</a>
         </div>
         <div class="companion">
           <div class="companion-art">
@@ -221,6 +222,7 @@
       </div>
       <div class="progress" aria-hidden="true">${segs}</div>
       ${RK.LearningPath.render(lesson,step,window.GODOT_PRACTICE || {},S.practice)}
+      ${gameLinks(lesson,step)}
       <article class="card${card.t === "deep" ? " deep" : ""}" id="card" tabindex="-1"></article>
       <div class="lesson-nav">
         <button class="btn btn-quiet" id="prev" ${step === 0 ? "disabled" : ""}>${T.back}</button>
@@ -275,6 +277,7 @@
     if (card.lab) RK.renderPractice(card.lab, el, practiceStorage(() => attempt(card)));
     if (card.visual) RK.renderVisual(card, el);
     ({ text: cText, code: cCode, quiz: cQuiz, fill: cFill, order: cOrder, task: cTask, recap: cRecap, goals: cGoals, deep: cDeep, steps: cSteps })[card.t](card, el);
+    if (card.game) RK.GameExamples.render(card.game, el);
     // Кнопка «Скопировать» у длинных блоков GDScript внутри текста — чтобы перенести код в Godot.
     el.querySelectorAll("pre.code:not(.tree):not(.fill-code):not(.has-copy)").forEach((pre) => {
       if (pre.closest(".editor") || pre.nextElementSibling && pre.nextElementSibling.classList.contains("runbar")) return;
@@ -306,6 +309,25 @@
   }
 
   function cText(c, el) { el.insertAdjacentHTML("beforeend", md(c.md)); }
+
+  function gameLinks(lesson,step) {
+    const catalog=window.GODOT_GAME_EXAMPLES || {};
+    const ids=(lesson.gameExamples || []).filter(id=>Object.hasOwn(catalog,id));
+    return ids.length ? `<aside class="game-related" aria-label="Игровые примеры по теме"><b>Посмотри механику в игре:</b> ${ids.map(id=>`<a href="#/games/${id}/from/${lesson.id}/${step}">${esc(catalog[id].title)}</a>`).join(' · ')}</aside>` : '';
+  }
+  function viewGames(id,parts) {
+    setNav('games');const catalog=window.GODOT_GAME_EXAMPLES || {},config=Object.hasOwn(catalog,id)?catalog[id]:null;
+    document.title=(config?config.title:'Игровые примеры')+T.titleSuffix;
+    const origin=byId[parts[3]],step=/^(0|[1-9]\d{0,4})$/.test(parts[4])?Number(parts[4]):null;
+    const back=config&&parts[2]==='from'&&origin?.gameExamples?.includes(id)&&step!==null?`<a class="btn btn-quiet" href="#/l/${origin.id}/${step}">Вернуться к шагу урока</a>`:'';
+    if(config){
+      app.innerHTML=`<div class="wrap game-detail"><a href="#/games">← Все игровые примеры</a><h1>${esc(config.title)}</h1><div id="game-host"></div><section class="game-how"><h2>Что здесь изучаем</h2><p>${esc(config.concept)}</p><div class="row">${back}<a class="btn" href="#/l/${config.lesson}/0">Разбор механики и код</a>${config.theory.map(ref=>`<a href="#/l/${ref}">${esc(byId[ref].title)}</a>`).join('')}${config.practice?`<a href="#/practice/${config.practice}">Практика в редакторе</a>`:''}</div></section></div>`;
+      RK.GameExamples.render(id,document.getElementById('game-host'));
+    }else{
+      app.innerHTML=`<div class="wrap-wide"><span class="hero-kicker">Игровая лаборатория</span><h1>От правила — к маленькой игре</h1><p class="game-intro">Шесть жанров, шесть механик. Поиграй, измени один параметр и сравни результат. В разборе найдёшь устройство сцены, пример GDScript и опыт для настоящего Godot. Можно начать с любого примера.</p><div class="game-catalog">${Object.entries(catalog).map(([key,c],i)=>`<article class="game-card game-card-${key}"><div class="game-card-art" aria-hidden="true"><span class="game-card-number">0${i+1}</span><span class="game-card-symbol">${['↟','✦','◇','➜','▦','⚗'][i]}</span></div><span class="small muted">${esc(c.genre)}</span><h2>${esc(c.title)}</h2><p>${esc(c.brief)}</p><p class="small muted">${esc(c.concept)}</p><div class="row"><a class="btn btn-sm" href="#/games/${key}">Поиграть</a><a href="#/l/${c.lesson}/0">Разбор и код</a></div></article>`).join('')}</div></div>`;
+    }
+    window.scrollTo(0,0);
+  }
 
   function cGoals(c, el) {
     const counts = {};
@@ -784,12 +806,14 @@
 
   // ---------- Роутер ----------
   function route() {
+    RK.GameExamples.stopAll();
     const p = location.hash.replace(/^#\/?/, "").split("/");
     const inLesson = p[0] === "l";
     document.body.classList.toggle("focus", inLesson && S.settings.focus);
     if (!inLesson) L = null;
     if (inLesson) viewLesson(p[1], p[2] != null && p[2] !== "" ? +p[2] : null);
     else if (p[0] === "practice") viewPractice(p[1], RK.LearningPath.returnHref(p,byId,p[1]));
+    else if (p[0] === "games") viewGames(p[1],p);
     else if (p[0] === "review") viewReview();
     else if (p[0] === "glossary") viewGlossary();
     else if (p[0] === "cheat") viewCheat();
@@ -802,6 +826,7 @@
     if (!location.hash.startsWith("#/l/") || e.altKey || e.ctrlKey || e.metaKey) return;
     if (/^(INPUT|TEXTAREA|SELECT|SUMMARY)$/.test(document.activeElement.tagName)) return;
     if (document.activeElement.closest(".practice-lab")) return;
+    if (document.activeElement.closest(".game-example")) return;
     if (e.key === "ArrowRight") { const b = document.getElementById("next"); b && b.click(); }
     if (e.key === "ArrowLeft") { const b = document.getElementById("prev"); b && !b.disabled && b.click(); }
   });

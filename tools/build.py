@@ -85,6 +85,8 @@ def parse_card(kind, title, lines, where):
             card["visual"] = line[8:].strip()
         elif line.startswith("lab: "):
             card["lab"] = line[5:].strip()
+        elif line.startswith("game: "):
+            card["game"] = line[6:].strip()
         elif (kind == "code" and seen_fence) or (kind == "steps" and items):
             after.append(line)
         else:
@@ -289,19 +291,36 @@ def main():
     practice = json.loads(practice_path.read_text(encoding="utf-8")) if practice_path.exists() else {}
     links_path = ROOT / "course" / "practice-links.json"
     practice_links = json.loads(links_path.read_text(encoding="utf-8")) if links_path.exists() else {}
+    games_path = ROOT / "course" / "game-examples.json"
+    games = json.loads(games_path.read_text(encoding="utf-8")) if games_path.exists() else {}
     lesson_ids = {l["id"] for m in courses["ru"] for l in m["lessons"]}
+    for game_id, game in games.items():
+        if not re.fullmatch(r"[a-z0-9-]+", game_id) or game.get("lesson") not in lesson_ids:
+            raise SystemExit(f"Неверный игровой пример: {game_id}")
+        if not game.get("related") or any(ref not in lesson_ids for ref in game["related"]):
+            raise SystemExit(f"{game_id}: неверная связь с уроком")
+        if any(ref not in lesson_ids for ref in game.get("theory", [])) or (game.get("practice") and game["practice"] not in practice):
+            raise SystemExit(f"{game_id}: неверная ссылка на разбор или практику")
     for lesson_id, refs in practice_links.items():
         if lesson_id not in lesson_ids or not isinstance(refs, list) or not refs or len(set(refs)) != len(refs):
             raise SystemExit(f"Неверные ссылки на практику: {lesson_id}")
         if any(ref not in practice for ref in refs):
             raise SystemExit(f"{lesson_id}: ссылка на неизвестное задание")
     linked_labs = set()
+    linked_games = set()
     for lang, modules in courses.items():
         for module in modules:
             for lesson in module["lessons"]:
                 if lesson["id"] in practice_links:
                     lesson["practiceLinks"] = practice_links[lesson["id"]]
+                examples = [key for key, game in games.items() if lesson["id"] in game["related"] or lesson["id"] == game["lesson"]]
+                if examples:
+                    lesson["gameExamples"] = examples
                 for card in lesson["cards"]:
+                    if "game" in card and (card["game"] not in games or games[card["game"]]["lesson"] != lesson["id"]):
+                        raise SystemExit(f"{lesson['id']}: неверный игровой пример {card['game']}")
+                    if "game" in card:
+                        linked_games.add(card["game"])
                     if "lab" in card:
                         lab = practice.get(card["lab"])
                         if not lab or lab.get("lesson") != lesson["id"] or not lab.get("goals") or not lab.get("hints"):
@@ -324,6 +343,8 @@ def main():
                             raise SystemExit(f"{lang}/{lesson['id']}: область действия {index + 1} отсутствует на схеме")
     if set(practice) != linked_labs:
         raise SystemExit(f"Практические задания без карточки: {sorted(set(practice) - linked_labs)}")
+    if set(games) != linked_games:
+        raise SystemExit(f"Игровые примеры без карточки: {sorted(set(games) - linked_games)}")
     out = ROOT / "content" / "course-data.js"
     out.parent.mkdir(exist_ok=True)
     out.write_text(
@@ -338,6 +359,7 @@ def main():
             stream.write(f"window.GODOT_VISUALS = {json.dumps(visuals, ensure_ascii=False, indent=0)};\n")
     with out.open("a", encoding="utf-8") as stream:
         stream.write(f"window.GODOT_PRACTICE = {json.dumps(practice, ensure_ascii=False, indent=0)};\n")
+        stream.write(f"window.GODOT_GAME_EXAMPLES = {json.dumps(games, ensure_ascii=False, indent=0)};\n")
     for lang, modules in courses.items():
         n_l = sum(len(m["lessons"]) for m in modules)
         n_c = sum(len(l["cards"]) for m in modules for l in m["lessons"])
