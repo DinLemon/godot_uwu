@@ -271,8 +271,8 @@
       root.querySelectorAll('.lab-goals>div').forEach((el,i)=>{el.className='';el.textContent='· '+assessment.results[i].label;});
       const selected=nodeBy(state,state.selected);
       for(const key of ['x','y']){const input=root.querySelector(`[data-prop="${key}"]`);if(input&&input!==document.activeElement&&selected)input.value=selected.props[key];}
-      root.querySelector('[data-action="undo"]')?.toggleAttribute('disabled',!undo.length);
-      root.querySelector('[data-action="redo"]')?.toggleAttribute('disabled',!redo.length);
+      root.querySelectorAll('[data-action="undo"]').forEach(button=>button.toggleAttribute('disabled',!undo.length));
+      root.querySelectorAll('[data-action="redo"]').forEach(button=>button.toggleAttribute('disabled',!redo.length));
       if(config.mode==='animation'){root.querySelector('[data-scrub]')?.setAttribute('max',state.timeline.duration);root.querySelector('input[name=time]')?.setAttribute('max',state.timeline.duration);}
     }
     const dispatch=(action,repaint=true)=>{
