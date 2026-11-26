@@ -392,6 +392,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Узлы складываются в дерево",
+"lab": "repair-hierarchy",
 "md": "Узлы не лежат кучей. Они вложены друг в друга, как папки на компьютере.\n\nУзел внутри другого узла называется **ребёнком** (child). Внешний узел — **родитель** (parent).\n\nВот как может выглядеть персонаж:\n\n```tree\nPlayer            ← родитель\n├── Sprite2D      ← ребёнок: картинка\n├── CollisionShape2D ← ребёнок: форма для столкновений\n└── Camera2D      ← ребёнок: камера\n```\n\nЭто называется **деревом узлов** (scene tree). Дерево растёт сверху вниз."
 },
 {
@@ -3191,6 +3192,7 @@ window.COURSES = {
 {
 "t": "text",
 "title": "Гравитация — это ускорение вниз",
+"lab": "jump-playground",
 "md": "Гравитация каждую секунду прибавляет скорость **вниз**. Вниз — это **плюс** по y.\n\n```gd\nvar gravity = 980.0   # пикселей в секунду за секунду\n\nfunc _physics_process(delta):\n\tif not is_on_floor():\n\t\tvelocity.y += gravity * delta\n```\n\nЗдесь `* delta` нужен: мы меняем **скорость**, а не позицию.\n\n`is_on_floor()` — стоит ли персонаж на полу. Работает после `move_and_slide()`.\n\n> В новых версиях Godot вместо своей переменной можно писать `velocity += get_gravity() * delta`. Это гравитация из настроек проекта."
 },
 {
@@ -3792,6 +3794,7 @@ window.COURSES = {
 "cards": [
 {
 "t": "task",
+"lab": "duplicate-layout",
 "md": "Каждую секунду появляется новый враг (узел `Node2D`). Когда врагов становится 3, спавнер останавливается и печатает `Хватит`.\n\nТаймер уже создан. Допиши функцию `_on_spawn`:\n- создать `Node2D`, добавить его в дерево и напечатать `Враг №N`;\n- если детей-врагов стало 3 — остановить таймер (`timer.stop()`) и напечатать `Хватит`.\n\nТаймер — тоже ребёнок, поэтому врагов считаем отдельной переменной `count`.",
 "code": "extends Node\n# тренажёр: кадров=10 дельта=0.5\n\nvar timer\nvar count = 0\n\nfunc _ready():\n\ttimer = Timer.new()\n\tadd_child(timer)\n\ttimer.timeout.connect(_on_spawn)\n\ttimer.start()\n\nfunc _on_spawn():\n\tpass",
 "solution": "extends Node\n# тренажёр: кадров=10 дельта=0.5\n\nvar timer\nvar count = 0\n\nfunc _ready():\n\ttimer = Timer.new()\n\tadd_child(timer)\n\ttimer.timeout.connect(_on_spawn)\n\ttimer.start()\n\nfunc _on_spawn():\n\tvar enemy = Node2D.new()\n\tadd_child(enemy)\n\tcount += 1\n\tprint(\"Враг №\", count)\n\tif count >= 3:\n\t\ttimer.stop()\n\t\tprint(\"Хватит\")",
@@ -7979,6 +7982,99 @@ window.GODOT_PRACTICE = {
 "transfer": "В Godot найди эти же панели. В учебной модели их расположение упрощено, особенно на телефоне.",
 "success": "Теперь повтори результат в настоящем редакторе."
 },
+"repair-hierarchy": {
+"lesson": "m02-2",
+"mode": "scene",
+"title": "Почини дерево персонажа",
+"brief": "Sprite2D и CollisionShape2D случайно стали соседями Player. Выбери каждый и поменяй «Родитель» на Player. Затем перетащи персонажа: его части останутся в дереве вместе с ним.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+},
+{
+"id": "Player",
+"type": "CharacterBody2D",
+"name": "Player",
+"parent": "Main",
+"props": {
+"x": 80,
+"y": 160,
+"speed": 160
+},
+"script": ""
+},
+{
+"id": "Sprite2D",
+"type": "Sprite2D",
+"name": "Sprite2D",
+"parent": "Main",
+"props": {
+"x": 160,
+"y": 100,
+"texture": "icon.svg",
+"scale": 1,
+"alpha": 1
+},
+"script": ""
+},
+{
+"id": "BodyShape",
+"type": "CollisionShape2D",
+"name": "BodyShape",
+"parent": "Main",
+"props": {
+"shape": "RectangleShape2D",
+"disabled": false
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "node",
+"label": "У Player есть спрайт и активная форма",
+"hint": "Для Sprite2D и BodyShape выбери Родитель → Player.",
+"pattern": {
+"type": "CharacterBody2D",
+"children": [
+{
+"type": "Sprite2D",
+"props": {
+"texture": {
+"eq": "icon.svg"
+}
+}
+},
+{
+"type": "CollisionShape2D",
+"props": {
+"shape": {
+"nonempty": true
+},
+"disabled": {
+"eq": false
+}
+}
+}
+]
+}
+}
+],
+"hints": [
+"Смена родителя сохраняет мировую позицию узла: локальные координаты могут измениться.",
+"Корень нельзя поместить в своего потомка — это создало бы цикл."
+],
+"transfer": "В Godot используй Reparent в дереве Scene. В учебной модели движение родителя учитывается при вычислении координат детей.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
 "first-scene": {
 "lesson": "m02-4",
 "mode": "scene",
@@ -8134,7 +8230,7 @@ window.GODOT_PRACTICE = {
 "lesson": "m10-1",
 "mode": "scene",
 "title": "Поставь картинку в нужную область",
-"brief": "Выбери Sprite2D, назначь icon.svg и поставь картинку в правую нижнюю область: X от 190 до 260, Y от 130 до 190.",
+"brief": "Назначь Sprite2D текстуру icon.svg, затем перетащи картинку вправо вниз: X от 190 до 260, Y от 130 до 190. Можно пользоваться Inspector или стрелками; Shift двигает на 10 пикселей.",
 "nodes": [
 {
 "id": "Main",
@@ -8265,6 +8361,119 @@ window.GODOT_PRACTICE = {
 "transfer": "В Godot открой Project → Project Settings → Input Map. В учебной модели события выбираются из списка, чтобы не перехватывать клавиши браузера.",
 "success": "Теперь повтори результат в настоящем редакторе."
 },
+"jump-playground": {
+"lesson": "m12-3",
+"mode": "final",
+"title": "Поймай монету в прыжке",
+"brief": "Сцена готова. Запусти её, нажми на окно игры, двигайся A/D или стрелками и прыгай Space/W. Собери высокую монету и приземлись на пол. Для сенсорного экрана есть кнопки.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+},
+{
+"id": "Player",
+"type": "CharacterBody2D",
+"name": "Player",
+"parent": "Main",
+"props": {
+"x": 80,
+"y": 160,
+"speed": 160
+},
+"script": ""
+},
+{
+"id": "Sprite2D",
+"type": "Sprite2D",
+"name": "Sprite2D",
+"parent": "Player",
+"props": {
+"x": 0,
+"y": 0,
+"texture": "icon.svg",
+"scale": 1,
+"alpha": 1
+},
+"script": ""
+},
+{
+"id": "Ground",
+"type": "StaticBody2D",
+"name": "Ground",
+"parent": "Main",
+"props": {
+"x": 160,
+"y": 210
+},
+"script": ""
+},
+{
+"id": "BodyShape",
+"type": "CollisionShape2D",
+"name": "BodyShape",
+"parent": "Player",
+"props": {
+"shape": "RectangleShape2D",
+"disabled": false
+},
+"script": ""
+},
+{
+"id": "FloorShape",
+"type": "CollisionShape2D",
+"name": "FloorShape",
+"parent": "Ground",
+"props": {
+"shape": "RectangleShape2D",
+"disabled": false
+},
+"script": ""
+},
+{
+"id": "SkyCoin",
+"type": "Area2D",
+"name": "SkyCoin",
+"parent": "Main",
+"props": {
+"x": 144,
+"y": 136
+},
+"script": ""
+},
+{
+"id": "SkyShape",
+"type": "CollisionShape2D",
+"name": "SkyShape",
+"parent": "SkyCoin",
+"props": {
+"shape": "CircleShape2D",
+"disabled": false
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "jumpCollect",
+"label": "Прыгнуть, собрать монету и приземлиться",
+"hint": "Подойди к монете, прыгни и дождись приземления."
+}
+],
+"hints": [
+"Монета слишком высоко для простого прохода. Прыжок даёт вертикальную скорость.",
+"После запуска фокус находится в окне игры. Escape останавливает предпросмотр."
+],
+"transfer": "В Godot прыжок и гравитация задаются кодом CharacterBody2D и move_and_slide(). Здесь работает упрощённая 2D-модель, не сам движок Godot.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
 "solid-floor": {
 "lesson": "m12-4",
 "mode": "scene",
@@ -8300,8 +8509,8 @@ window.GODOT_PRACTICE = {
 "name": "Sprite2D",
 "parent": "Player",
 "props": {
-"x": 160,
-"y": 100,
+"x": 0,
+"y": 0,
 "texture": "icon.svg",
 "scale": 1,
 "alpha": 1
@@ -8485,6 +8694,75 @@ window.GODOT_PRACTICE = {
 "transfer": "В Godot перетащи coin.tscn из FileSystem в сцену три раза. У каждого экземпляра свои Transform, общая исходная сцена одна.",
 "success": "Теперь повтори результат в настоящем редакторе."
 },
+"duplicate-layout": {
+"lesson": "m14-p",
+"mode": "scene",
+"title": "Скопируй и расставь монетки",
+"brief": "Выбери Coin и нажми «Дублировать» два раза. Раздвинь три монеты в окне сцены: между соседними должно быть хотя бы 35 пикселей. Можно перетаскивать или менять Position · X.",
+"nodes": [
+{
+"id": "Main",
+"type": "Node2D",
+"name": "Main",
+"parent": null,
+"props": {
+"x": 0,
+"y": 0
+},
+"script": ""
+},
+{
+"id": "Coin",
+"type": "Area2D",
+"name": "Coin",
+"parent": "Main",
+"props": {
+"x": 60,
+"y": 160
+},
+"script": "",
+"template": "coin"
+},
+{
+"id": "CoinSprite",
+"type": "Sprite2D",
+"name": "CoinSprite",
+"parent": "Coin",
+"props": {
+"x": 0,
+"y": 0,
+"texture": "icon.svg",
+"scale": 1,
+"alpha": 1
+},
+"script": ""
+},
+{
+"id": "CoinShape",
+"type": "CollisionShape2D",
+"name": "CoinShape",
+"parent": "Coin",
+"props": {
+"shape": "CircleShape2D",
+"disabled": false
+},
+"script": ""
+}
+],
+"goals": [
+{
+"kind": "spread",
+"label": "Три экземпляра с промежутками не меньше 35",
+"hint": "Дублируй монетку вместе с детьми и раздвинь три экземпляра."
+}
+],
+"hints": [
+"Копируется всё поддерево: Area2D, спрайт и форма столкновения.",
+"После копирования монета сдвинута на 32 пикселя. Этого мало: отодвинь её ещё немного."
+],
+"transfer": "В Godot Ctrl+D дублирует выбранный узел. Если ошибся, используй отмену. Здесь дублирование и перетаскивание тоже можно отменять.",
+"success": "Теперь повтори результат в настоящем редакторе."
+},
 "blink-animation": {
 "lesson": "m15-3",
 "mode": "animation",
@@ -8582,8 +8860,8 @@ window.GODOT_PRACTICE = {
 "name": "Sprite2D",
 "parent": "Player",
 "props": {
-"x": 160,
-"y": 100,
+"x": 0,
+"y": 0,
 "texture": "icon.svg",
 "scale": 1,
 "alpha": 1
@@ -8626,7 +8904,7 @@ window.GODOT_PRACTICE = {
 "lesson": "m16-2",
 "mode": "tiles",
 "title": "Нарисуй проходимый участок",
-"brief": "Выбери кисть «Земля» и нарисуй непрерывный пол в нижнем ряду под столбцами 2–7. Поставь хотя бы одну монету прямо над ним. Ластик исправляет ошибки.",
+"brief": "Выбери кисть «Земля» и нарисуй непрерывный пол в нижнем ряду под столбцами 2–7. Поставь хотя бы одну монету прямо над ним. Ластик исправляет ошибки. После рисования запусти свой участок и проверь его с клавиатуры.",
 "nodes": [
 {
 "id": "Main",
@@ -8819,8 +9097,8 @@ window.GODOT_PRACTICE = {
 "name": "Sprite2D",
 "parent": "Player",
 "props": {
-"x": 160,
-"y": 100,
+"x": 0,
+"y": 0,
 "texture": "icon.svg",
 "scale": 1,
 "alpha": 1
@@ -8980,8 +9258,8 @@ window.GODOT_PRACTICE = {
 "name": "Sprite2D",
 "parent": "Player",
 "props": {
-"x": 160,
-"y": 100,
+"x": 0,
+"y": 0,
 "texture": "icon.svg",
 "scale": 1,
 "alpha": 1
@@ -9034,7 +9312,7 @@ window.GODOT_PRACTICE = {
 "Монета создана из готового шаблона с Area2D и CollisionShape2D.",
 "Player начинает на X = 80. Одно нажатие направления перемещает его на 32 учебных пикселя."
 ],
-"transfer": "В Godot сбор монеты реализуется через body_entered и queue_free. Здесь игровой тест намеренно упрощён: движение по X и контакт с монетой.",
+"transfer": "В Godot сбор монеты реализуется через body_entered и queue_free. Здесь движение, прыжок и приземление рассчитываются упрощённой учебной 2D-моделью.",
 "success": "Теперь повтори результат в настоящем редакторе."
 }
 };
